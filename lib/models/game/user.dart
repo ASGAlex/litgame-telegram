@@ -1,8 +1,8 @@
 import 'package:teledart/model.dart';
 
 class LitUser {
-  static Map<String, int> _chatIdStorage = {};
-  static Map<String, LitUser> _awaitForChatId = {};
+  static final Map<String, int> _chatIdStorage = {};
+  static final Map<String, LitUser> _awaitForChatId = {};
 
   LitUser(this.telegramUser, {this.isAdmin = false, this.isGameMaster = false});
 
@@ -10,11 +10,11 @@ class LitUser {
   bool isAdmin = false;
   final User telegramUser;
 
-  String getNickname() => "@" + telegramUser.username;
+  String getNickname() => '@' + telegramUser.username;
 
-  int get chatId => _chatIdStorage[getNickname()];
+  int get chatId => _chatIdStorage[getNickname()] ?? -1;
 
-  void set chatId(int id) {
+  set chatId(int id) {
     if (_awaitForChatId[getNickname()] == null) return;
 
     _chatIdStorage[getNickname()] = id;

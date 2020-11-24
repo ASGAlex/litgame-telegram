@@ -4,33 +4,35 @@ import 'package:litgame_telegram/models/game/user.dart';
 class LitGame {
   LitGame(this.id);
 
-  static Map<int, LitGame> _activeGames = {};
+  static final Map<int, LitGame> _activeGames = {};
 
   factory LitGame.startNew(int chatId) {
     if (_activeGames[chatId] != null) {
-      throw "Игра в этом чатике уже запущена, алё!";
+      throw 'Игра в этом чатике уже запущена, алё!';
     }
-    _activeGames[chatId] = LitGame(chatId);
-    return _activeGames[chatId];
+    final game = LitGame(chatId);
+    _activeGames[chatId] = game;
+    return game;
   }
 
   static LitGame find(int chatId) {
-    if (_activeGames[chatId] == null) {
-      throw "Вы ищете игру в этом чате, но её здесь нет... ";
+    final game = _activeGames[chatId];
+    if (game == null) {
+      throw 'Вы ищете игру в этом чате, но её здесь нет... ';
     }
-    return _activeGames[chatId];
+    return game;
   }
 
   static void stopGame(int chatId) {
     if (_activeGames[chatId] == null) {
-      throw "Вообще-то мы даже не начинали...";
+      throw 'Вообще-то мы даже не начинали...';
     }
     _activeGames.remove(chatId);
     ButtonCallbackController().clearCallbacks(chatId);
   }
 
   final int id;
-  Map<int, LitUser> _players = {};
+  final Map<int, LitUser> _players = {};
 
   Map<int, LitUser> get players => _players;
 
@@ -47,14 +49,14 @@ class LitGame {
   }
 
   LitUser get master {
-    for (LitUser u in _players.values) {
+    for (var u in _players.values) {
       if (u.isGameMaster) return u;
     }
-    throw "АХТУНГ!!! Я потерял гейм-мастера!!!";
+    throw 'АХТУНГ!!! Я потерял гейм-мастера!!!';
   }
 
   LitUser get admin {
-    for (LitUser u in _players.values) {
+    for (var u in _players.values) {
       if (u.isAdmin) return u;
     }
     return master;

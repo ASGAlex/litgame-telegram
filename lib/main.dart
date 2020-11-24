@@ -7,7 +7,7 @@ import 'package:teledart/telegram.dart';
 import 'commands/endgame.dart';
 
 void main() {
-  final telegram = Telegram('');
+  final telegram = Telegram(String.fromEnvironment('botKey'));
   final polling = LongPolling(telegram);
   Stream<Update> stream = polling.onUpdate();
 

@@ -12,10 +12,10 @@ class JoinGame extends ButtonCallback {
   void run(Message message, Telegram telegram) {
     final user = LitUser(message.from);
     final game = LitGame.find(message.chat.id);
-    bool sendReport = false;
+    var sendReport = false;
     if (message.text == StartGameCmd.BTN_YES) {
       sendReport = game.addPlayer(user);
-      if (user.chatId == null) {
+      if (user.chatId > 0) {
         _sendChatIdRequest(message, user, telegram);
       }
     } else if (message.text == StartGameCmd.BTN_NO) {
@@ -23,7 +23,7 @@ class JoinGame extends ButtonCallback {
       sendReport = true;
     }
 
-    if (true) {
+    if (sendReport) {
       _sendStatisticsToAdmin(game, telegram);
     }
   }
@@ -33,22 +33,22 @@ class JoinGame extends ButtonCallback {
     telegram.sendMessage(
         message.chat.id,
         user.getNickname() +
-            " напиши мне в личку что-нибудь, чтобы я мог слать тебе уведомления о событиях в игре");
+            ' напиши мне в личку что-нибудь, чтобы я мог слать тебе уведомления о событиях в игре');
   }
 
   void _sendStatisticsToAdmin(LitGame game, Telegram telegram) {
-    if (game.admin.chatId == null) return;
-    String text = "*В игре примут участие:*\r\n";
-    for (LitUser user in game.players.values) {
-      text += " - " +
+    if (game.admin.chatId > 0) return;
+    var text = '*В игре примут участие:*\r\n';
+    for (var user in game.players.values) {
+      text += ' - ' +
           user.getNickname() +
-          " (" +
+          ' (' +
           user.telegramUser.first_name +
-          (user.telegramUser.last_name ?? "") +
-          ")\r\n";
+          (user.telegramUser.last_name ?? '') +
+          ')\r\n';
     }
     if (game.players.isEmpty) {
-      text = "*что-то все расхотели играть*";
+      text = '*что-то все расхотели играть*';
     }
 
     text = text.replaceAll('-', '\\-').replaceAll('(', '\\(').replaceAll(')', '\\)');

@@ -1,4 +1,4 @@
 class CardCollection {
-  CardCollection(String name) : this.name = name.isEmpty ?? 'default';
+  CardCollection(String name) : name = name.isEmpty ? name : 'default';
   final String name;
 }

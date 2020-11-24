@@ -14,12 +14,9 @@ abstract class ButtonCallback {
 }
 
 class ButtonCallbackController {
-  static ButtonCallbackController _instance;
+  static final ButtonCallbackController _instance = ButtonCallbackController._singleton();
 
   factory ButtonCallbackController() {
-    if (_instance == null) {
-      _instance = ButtonCallbackController._singleton();
-    }
     return _instance;
   }
 
@@ -35,20 +32,20 @@ class ButtonCallbackController {
 
   void registerCallback(int chatId, int messageId, ButtonCallback callback) {
     if (LitGame.find(chatId) == null) {
-      throw "В этом чате нет запущенных игр";
+      throw 'В этом чате нет запущенных игр';
     }
     _buttonCallbacks[chatId] = <int, ButtonCallback>{messageId: callback};
   }
 
   ButtonCallback getCallbackForMessage(Message message) {
-    if (!_buttonCallbacks.containsKey(message.chat.id)) {
-      throw "В этом чате нет запущенных игр";
+    Map? callback = _buttonCallbacks[message.chat.id];
+    if (callback == null) {
+      throw 'В этом чате нет запущенных игр';
     }
-    if (!_buttonCallbacks[message.chat.id]
-        .containsKey(message.reply_to_message.message_id)) {
+    if (callback.containsKey(message.reply_to_message.message_id)) {
       throw 'Кнопка "протухла"...';
     }
 
-    return _buttonCallbacks[message.chat.id][message.reply_to_message.message_id];
+    return callback[message.reply_to_message.message_id];
   }
 }

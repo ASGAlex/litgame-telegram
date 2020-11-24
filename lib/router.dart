@@ -37,9 +37,7 @@ class Router {
     var commandEntity = data.message.entityOf('bot_command');
     if (commandEntity != null) {
       var command = data.message.text.split('@').first.replaceFirst('/', '');
-      if (_commands[command] != null) {
-        _commands[command].run(data.message, _telegram);
-      }
+      _commands[command]?.run(data.message, _telegram);
       return;
     }
   }
