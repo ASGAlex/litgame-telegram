@@ -14,7 +14,7 @@ class FinishJoinCmd extends Command {
     cleanScheduledMessages(telegram);
     var message = 'Выберите мастера игры: ';
     final keyboard = <List<InlineKeyboardButton>>[];
-    game?.players.values.forEach((player) {
+    game.players.values.forEach((player) {
       var text = player.nickname + ' (' + player.fullName + ')';
       if (player.isAdmin) {
         text += '(admin)';
@@ -34,7 +34,7 @@ class FinishJoinCmd extends Command {
     });
 
     telegram
-        .sendMessage(game?.admin.chatId, message,
+        .sendMessage(game.admin.chatId, message,
             reply_markup: InlineKeyboardMarkup(inline_keyboard: keyboard))
         .then((msg) {
       scheduleMessageDelete(msg.chat.id, msg.message_id);

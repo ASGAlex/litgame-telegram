@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:teledart/model.dart';
 
 class LitUser {
@@ -26,25 +28,31 @@ class LitUser {
   @override
   bool operator ==(Object other) =>
       other is LitUser && other.telegramUser.id == telegramUser.id;
-  //
-  // static Future loadChatIdStorage() {
-  //   return Firestore.get(collection: 'chatIdStorage').then((query) {
-  //     print(query);
-  //     for (var doc in query) {
-  //       if (doc['nickname'] == null || doc['chatId'] == null || doc['chatId'] == -1) {
-  //         continue;
-  //       }
-  //       _chatIdStorage[doc['nickname']] = doc['chatId'];
-  //     }
-  //   });
-  // }
-  //
-  // static void saveChatIdStorage() {
-  //   for (var chatIdEntry in _chatIdStorage.entries) {
-  //     Firestore.add(
-  //         collection: 'chatIdStorage',
-  //         id: 'user-' + chatIdEntry.key.toString(),
-  //         body: {'chatId': chatIdEntry.key.toString()});
-  //   }
-  // }
+//
+// static Future loadChatIdStorage() {
+//   return Firestore.get(collection: 'chatIdStorage').then((query) {
+//     print(query);
+//     for (var doc in query) {
+//       if (doc['nickname'] == null || doc['chatId'] == null || doc['chatId'] == -1) {
+//         continue;
+//       }
+//       _chatIdStorage[doc['nickname']] = doc['chatId'];
+//     }
+//   });
+// }
+//
+// static void saveChatIdStorage() {
+//   for (var chatIdEntry in _chatIdStorage.entries) {
+//     Firestore.add(
+//         collection: 'chatIdStorage',
+//         id: 'user-' + chatIdEntry.key.toString(),
+//         body: {'chatId': chatIdEntry.key.toString()});
+//   }
+// }
+}
+
+class LinkedUser extends LinkedListEntry<LinkedUser> {
+  LinkedUser(this.user);
+
+  final LitUser user;
 }

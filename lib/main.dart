@@ -1,17 +1,18 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:litgame_telegram/commands/finishjoin.dart';
-import 'package:litgame_telegram/commands/joinme.dart';
-import 'package:litgame_telegram/commands/kickme.dart';
-import 'package:litgame_telegram/commands/setmaster.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
+import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:litgame_telegram/router.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/teledart.dart';
 import 'package:teledart/telegram.dart';
 
 import 'commands/endgame.dart';
+import 'commands/system/finishjoin.dart';
+import 'commands/system/joinme.dart';
+import 'commands/system/kickme.dart';
+import 'commands/system/setmaster.dart';
 
 Future main(List<String> arguments) async {
   final parser = ArgParser();
@@ -20,10 +21,10 @@ Future main(List<String> arguments) async {
   try {
     final results = parser.parse(arguments);
     botKey = results['botKey'];
-  } on ArgumentError catch (error) {
+  } on ArgumentError {
     print('--botKey option must be specified!');
     exit(1);
-  } on ArgParserException catch (error) {
+  } on ArgParserException {
     print('--botKey option must be specified!');
     exit(1);
   }
@@ -40,6 +41,7 @@ Future main(List<String> arguments) async {
   router.registerCommand(KickMeCmd());
   router.registerCommand(FinishJoinCmd());
   router.registerCommand(SetMasterCmd());
+  router.registerCommand(SetOrderCmd());
 
   stream.listen((Update data) {
     try {
@@ -49,5 +51,5 @@ Future main(List<String> arguments) async {
       telegram.sendMessage(chatId, exception.toString());
     }
   });
-  polling.start();
+  await polling.start();
 }

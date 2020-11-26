@@ -28,7 +28,11 @@ class Router {
     }
 
     // это какая-то команда, то есть сообщение со слеша
-    final command = _discoverCommandName(data);
+    final commandName = _discoverCommandName(data);
+    final cmd = _commands[commandName];
+    if (cmd == null) return;
+    if (data.callback_query == null && cmd.system) return;
+
     var message = data.message ?? data.callback_query?.message;
     if (message != null) {
       // FIXME: dirty hack
@@ -37,11 +41,10 @@ class Router {
       }
       if (data.callback_query != null) {
         var arguments = data.callback_query?.data.split(' ');
-        final parser = _commands[command]?.getParser();
-        final results = parser?.parse(arguments);
-        _commands[command]?.arguments = results;
+        final parser = cmd.getParser();
+        cmd.arguments = parser?.parse(arguments);
       }
-      _commands[command]?.run(message, _telegram);
+      cmd.run(message, _telegram);
     }
   }
 

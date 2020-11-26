@@ -14,6 +14,9 @@ class StartGameCmd extends Command {
   String get name => 'startgame';
 
   @override
+  bool get system => false;
+
+  @override
   void run(Message message, Telegram telegram) {
     checkGameChat(message);
     LitGame.startNew(message.chat.id).addPlayer(LitUser(message.from, isAdmin: true));

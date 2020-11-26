@@ -7,6 +7,8 @@ import 'package:teledart/telegram.dart';
 abstract class Command {
   String get name;
 
+  bool get system => true;
+
   ArgResults? arguments;
 
   void run(
@@ -22,12 +24,13 @@ abstract class Command {
     return parser;
   }
 
-  LitGame? get game {
+  LitGame get game {
     var gameChatId = arguments?['gameChatId'];
     if (arguments?['gameChatId'] is String) {
       gameChatId = int.parse(arguments?['gameChatId']);
     }
-    return gameChatId == null ? null : LitGame.find(gameChatId);
+    var game = LitGame.find(gameChatId);
+    return game ?? LitGame(-1);
   }
 
   int? get gameChatId => (arguments?['gameChatId'] is String)
@@ -53,8 +56,11 @@ abstract class Command {
   void cleanScheduledMessages(Telegram telegram) {
     for (var msg in _messagesToClean.entries) {
       for (var message_id in msg.value) {
-        telegram.deleteMessage(msg.key, message_id);
+        telegram.deleteMessage(msg.key, message_id).catchError((error) {
+          print(error);
+        });
       }
     }
+    _messagesToClean.clear();
   }
 }

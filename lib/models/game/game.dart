@@ -1,9 +1,34 @@
+import 'dart:collection';
+
 import 'package:litgame_telegram/models/game/user.dart';
 
 class LitGame {
-  LitGame(this.chatId);
+  LitGame(this.chatId) : _playersSorted = LinkedList<LinkedUser>();
 
   static final Map<int, LitGame> _activeGames = {};
+  final int chatId;
+  final Map<int, LitUser> _players = {};
+  final LinkedList<LinkedUser> _playersSorted;
+
+  Map<int, LitUser> get players => _players;
+
+  LinkedList<LinkedUser> get playersSorted => _playersSorted;
+
+  bool get isEmpty => chatId == -1;
+
+  LitUser get master {
+    for (var u in _players.values) {
+      if (u.isGameMaster) return u;
+    }
+    throw 'АХТУНГ!!! Я потерял гейм-мастера!!!';
+  }
+
+  LitUser get admin {
+    for (var u in _players.values) {
+      if (u.isAdmin) return u;
+    }
+    return master;
+  }
 
   factory LitGame.startNew(int chatId) {
     if (_activeGames[chatId] != null) {
@@ -25,11 +50,6 @@ class LitGame {
     _activeGames.remove(chatId);
   }
 
-  final int chatId;
-  final Map<int, LitUser> _players = {};
-
-  Map<int, LitUser> get players => _players;
-
   bool hasPlayer(LitUser user) {
     return _players.containsKey(user.telegramUser.id);
   }
@@ -44,19 +64,5 @@ class LitGame {
 
   void removePlayer(LitUser user) {
     _players.remove(user.telegramUser.id);
-  }
-
-  LitUser get master {
-    for (var u in _players.values) {
-      if (u.isGameMaster) return u;
-    }
-    throw 'АХТУНГ!!! Я потерял гейм-мастера!!!';
-  }
-
-  LitUser get admin {
-    for (var u in _players.values) {
-      if (u.isAdmin) return u;
-    }
-    return master;
   }
 }

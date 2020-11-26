@@ -9,6 +9,9 @@ class EndGameCmd extends Command {
   String get name => 'endgame';
 
   @override
+  bool get system => false;
+
+  @override
   void run(Message message, Telegram telegram) {
     checkGameChat(message);
     var game = LitGame.find(message.chat.id);
