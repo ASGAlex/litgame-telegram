@@ -1,8 +1,7 @@
-import 'package:litgame_telegram/buttons/core.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
 class LitGame {
-  LitGame(this.id);
+  LitGame(this.chatId);
 
   static final Map<int, LitGame> _activeGames = {};
 
@@ -15,12 +14,8 @@ class LitGame {
     return game;
   }
 
-  static LitGame find(int chatId) {
-    final game = _activeGames[chatId];
-    if (game == null) {
-      throw 'Вы ищете игру в этом чате, но её здесь нет... ';
-    }
-    return game;
+  static LitGame? find(int chatId) {
+    return _activeGames[chatId];
   }
 
   static void stopGame(int chatId) {
@@ -28,16 +23,19 @@ class LitGame {
       throw 'Вообще-то мы даже не начинали...';
     }
     _activeGames.remove(chatId);
-    ButtonCallbackController().clearCallbacks(chatId);
   }
 
-  final int id;
+  final int chatId;
   final Map<int, LitUser> _players = {};
 
   Map<int, LitUser> get players => _players;
 
+  bool hasPlayer(LitUser user) {
+    return _players.containsKey(user.telegramUser.id);
+  }
+
   bool addPlayer(LitUser user) {
-    if (_players.containsKey(user.telegramUser.id)) {
+    if (hasPlayer(user)) {
       return false;
     }
     _players[user.telegramUser.id] = user;

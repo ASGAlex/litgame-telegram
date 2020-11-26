@@ -1,9 +1,7 @@
-import 'package:litgame_telegram/commands/core.dart';
+import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/telegram.dart';
-
-import 'buttons/core.dart';
 
 class Router {
   Router(Telegram telegram) : _telegram = telegram;
@@ -17,28 +15,45 @@ class Router {
   void dispatch(Update data) {
     print(data.toJson());
 
-    // юзер написал в личку, чтобы бот получил айди чата
-    if (data.message.chat.type == 'private') {
+    // юзер написал в личку, чтобы бот получил айди чата.
+    if (data.message?.chat.type == 'private') {
       final user = LitUser(data.message.from);
       user.chatId = data.message.chat.id;
-      _telegram.sendMessage(data.message.chat.id, 'Спасибо! Обещаю не спамить :-)');
-      return;
-    }
-
-    // у юзера какие-то кнопки
-    if (data.message.reply_to_message != null) {
-      ButtonCallbackController()
-          .getCallbackForMessage(data.message)
-          .run(data.message, _telegram);
+      _telegram
+          .sendMessage(data.message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)')
+          .then((value) {
+        // LitUser.saveChatIdStorage();
+      });
       return;
     }
 
     // это какая-то команда, то есть сообщение со слеша
-    MessageEntity? commandEntity = data.message.entityOf('bot_command');
-    if (commandEntity != null) {
-      var command = data.message.text.split('@').first.replaceFirst('/', '');
-      _commands[command]?.run(data.message, _telegram);
-      return;
+    final command = _discoverCommandName(data);
+    var message = data.message ?? data.callback_query?.message;
+    if (message != null) {
+      // FIXME: dirty hack
+      if (data.callback_query?.from != null) {
+        message.from = data.callback_query?.from;
+      }
+      if (data.callback_query != null) {
+        var arguments = data.callback_query?.data.split(' ');
+        final parser = _commands[command]?.getParser();
+        final results = parser?.parse(arguments);
+        _commands[command]?.arguments = results;
+      }
+      _commands[command]?.run(message, _telegram);
     }
+  }
+
+  String _discoverCommandName(Update data) {
+    var commandEntity = data.message?.entityOf('bot_command');
+    var command = '';
+    final query = data.callback_query;
+    if (commandEntity == null && data.callback_query != null) {
+      command = query.data.split(' ').first.replaceFirst('/', '');
+    } else if (commandEntity != null) {
+      command = data.message.text.split('@').first.replaceFirst('/', '');
+    }
+    return command;
   }
 }
