@@ -21,7 +21,7 @@ class Router {
     if (data.message.chat.type == 'private') {
       final user = LitUser(data.message.from);
       user.chatId = data.message.chat.id;
-      _telegram.sendMessage(data.message.chat.id, "Спасибо! Обещаю не спамить :-)");
+      _telegram.sendMessage(data.message.chat.id, 'Спасибо! Обещаю не спамить :-)');
       return;
     }
 
@@ -34,7 +34,7 @@ class Router {
     }
 
     // это какая-то команда, то есть сообщение со слеша
-    var commandEntity = data.message.entityOf('bot_command');
+    MessageEntity? commandEntity = data.message.entityOf('bot_command');
     if (commandEntity != null) {
       var command = data.message.text.split('@').first.replaceFirst('/', '');
       _commands[command]?.run(data.message, _telegram);
