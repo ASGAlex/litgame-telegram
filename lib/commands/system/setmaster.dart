@@ -25,13 +25,12 @@ class SetMasterCmd extends Command {
     if (player != null) {
       telegram.sendMessage(
           gameChatId, player.nickname + '(' + player.fullName + ') будет игромастером!');
-      telegram
-          .sendMessage(message.chat.id, 'В каком порядке будут ходить игроки?',
-              reply_markup:
-                  InlineKeyboardMarkup(inline_keyboard: SetOrderCmd.getSortButtons(game)))
-          .then((msg) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      });
+
+      final cmd = SetOrderCmd();
+      var strArgs = '/setorder --gameChatId=' + gameChatId.toString() + ' --reset';
+      final parser = cmd.getParser();
+      cmd.arguments = parser?.parse(strArgs.split(' '));
+      cmd.run(message, telegram);
     }
   }
 }

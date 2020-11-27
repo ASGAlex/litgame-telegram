@@ -11,7 +11,9 @@ class GameFlow {
   GameFlow(this.game) {
     _user = game.playersSorted.first;
     _collection = CardCollection('default');
-    cards = _collection.cards;
+    _collection.cards.forEach((key, value) {
+      cards[key] = List.from(value);
+    });
   }
 
   final LitGame game;
@@ -44,7 +46,7 @@ class GameFlow {
       var cc = _collection.cards[type.value()];
       if (cc != null) {
         cc.shuffle(Random(cc.length));
-        cards[type.value()] = cc;
+        cards[type.value()] = List.from(cc);
         return getCard(type);
       }
     }

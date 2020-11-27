@@ -23,6 +23,7 @@ class SetOrderCmd extends Command {
     cleanScheduledMessages(telegram);
     if (arguments?['reset'] == true) {
       game.playersSorted.clear();
+      game.playersSorted.add(LinkedUser(game.master));
       telegram
           .sendMessage(message.chat.id,
               'В каком порядке будут ходить игроки:\r\n' + _getSortedUsersListText(),
