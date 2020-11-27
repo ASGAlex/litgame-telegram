@@ -60,7 +60,6 @@ class GameFlowCmd extends Command {
         });
       });
 
-      ;
       _sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
         _sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
           _sendImage(flow.game.chatId, cPerson.imgUrl, cPerson.name, false);
@@ -72,7 +71,14 @@ class GameFlowCmd extends Command {
   }
 
   void onNextTurn() {
+    cleanScheduledMessages(telegram);
     flow.nextTurn();
+    telegram
+        .sendMessage(flow.game.chatId,
+            'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')')
+        .then((msg) {
+      scheduleMessageDelete(msg.chat.id, msg.message_id);
+    });
     telegram
         .sendMessage(flow.currentUser.chatId, 'Тянем карту!',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [

@@ -15,7 +15,7 @@ class LitUser {
 
   String get nickname => '@' + (telegramUser.username ?? telegramUser.first_name);
 
-  String get fullName => telegramUser.first_name + (telegramUser.last_name ?? '');
+  String get fullName => telegramUser.first_name + ' ' + (telegramUser.last_name ?? '');
 
   int get chatId => _chatIdStorage[telegramUser.id] ?? -1;
 
