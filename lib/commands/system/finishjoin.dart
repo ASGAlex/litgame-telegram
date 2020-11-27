@@ -6,7 +6,6 @@ import 'package:teledart/src/telegram/telegram.dart';
 
 class FinishJoinCmd extends Command {
   @override
-  // TODO: implement name
   String get name => 'finishjoin';
 
   @override

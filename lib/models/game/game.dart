@@ -12,7 +12,6 @@ class LitGame {
 
   Map<int, LitUser> get players => _players;
 
-  //TODO: первым юзером ВСЕГДА должен быть гейммастер! Иначе фатал.
   LinkedList<LinkedUser> get playersSorted => _playersSorted;
 
   bool get isEmpty => chatId == -1;

@@ -14,7 +14,6 @@ class SetMasterCmd extends Command {
   }
 
   @override
-  // TODO: implement name
   String get name => 'setmaster';
 
   @override

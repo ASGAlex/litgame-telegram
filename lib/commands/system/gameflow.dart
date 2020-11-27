@@ -19,7 +19,6 @@ class GameFlowCmd extends Command {
   late Message message;
 
   @override
-  // TODO: implement name
   String get name => 'gameflow';
 
   @override
