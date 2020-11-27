@@ -21,7 +21,13 @@ class StartGameCmd extends Command {
     checkGameChat(message);
     LitGame.startNew(message.chat.id).addPlayer(LitUser(message.from, isAdmin: true));
     telegram
-        .sendMessage(message.chat.id, 'Начинаем новую игру! Кто хочет поучаствовать?',
+        .sendMessage(
+            message.chat.id,
+            'Начинаем новую игру! \r\n'
+            'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'
+            'У вас на планете дискриминация роботов, поэтому сам я вам просто так написать не смогу :-( \r\n'
+            '\r\n'
+            'Кто хочет поучаствовать?',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(

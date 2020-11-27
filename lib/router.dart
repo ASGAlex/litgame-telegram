@@ -1,7 +1,8 @@
 import 'package:litgame_telegram/commands/core_command.dart';
-import 'package:litgame_telegram/models/game/user.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/telegram.dart';
+
+import 'models/game/user.dart';
 
 class Router {
   Router(Telegram telegram) : _telegram = telegram;
