@@ -35,7 +35,7 @@ class CardCollection {
         CardType.generic));
 
     cards[CardType.generic.value()] = generic;
-    var random = Random(generic.length);
+    var random = Random();
     generic.shuffle(random);
 
     var place = <Card>[];
