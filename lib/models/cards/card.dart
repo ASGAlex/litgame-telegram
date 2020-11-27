@@ -10,13 +10,25 @@ extension StringType on CardType {
       case CardType.place:
         return 'place';
     }
-    return '';
+  }
+
+  CardType getTypeByName(String name) {
+    switch (name) {
+      case 'generic':
+        return CardType.generic;
+      case 'person':
+        return CardType.person;
+      case 'place':
+        return CardType.place;
+    }
+    throw 'No such type: ' + name;
   }
 }
 
 class Card {
-  Card(this.name, this.type);
+  Card(this.name, this.imgUrl, this.type);
 
   final String name;
+  final String imgUrl;
   final CardType type;
 }

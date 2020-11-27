@@ -48,8 +48,9 @@ class SetOrderCmd extends Command {
                 [
                   InlineKeyboardButton(
                       text: 'Играем!',
-                      callback_data:
-                          '/startgameflow --gameChatId=' + gameChatId.toString()),
+                      callback_data: '/gameflow --gameChatId=' +
+                          gameChatId.toString() +
+                          ' --action=start'),
                   InlineKeyboardButton(
                       text: 'Отсортировать заново',
                       callback_data:

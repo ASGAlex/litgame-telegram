@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
+import 'package:litgame_telegram/commands/system/gameflow.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:litgame_telegram/router.dart';
 import 'package:teledart/model.dart';
@@ -42,6 +43,7 @@ Future main(List<String> arguments) async {
   router.registerCommand(FinishJoinCmd());
   router.registerCommand(SetMasterCmd());
   router.registerCommand(SetOrderCmd());
+  router.registerCommand(GameFlowCmd());
 
   stream.listen((Update data) {
     try {
