@@ -26,6 +26,11 @@ class GameFlowCmd extends Command {
     this.message = message;
     this.telegram = telegram;
     flow = GameFlow.init(game);
+    if (message.chat.id != flow.currentUser.chatId) {
+      telegram.sendMessage(message.chat.id, 'Сейчас не твой ход!').then((value) {
+        scheduleMessageDelete(value.chat.id, value.message_id);
+      });
+    }
 
     var action = arguments?['action'];
     switch (action) {
