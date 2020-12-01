@@ -9,6 +9,9 @@ environment:
 dependencies:
   teledart: ^0.1.1
   meta: ^1.2.4
+  parse_server_sdk: ^2.0.1
+
+
 
 
 dev_dependencies:

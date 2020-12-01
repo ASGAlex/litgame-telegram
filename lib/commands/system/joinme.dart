@@ -27,7 +27,14 @@ class JoinMeCmd extends Command {
   }
 
   void _sendChatIdRequest(Message message, LitUser user, Telegram telegram) {
-    telegram.sendMessage(message.chat.id, user.nickname + ' подключился к игре!\r\n');
+    var text = user.nickname + ' подключился к игре!\r\n';
+    user.registrationChecked.then((registered) {
+      if (!registered) {
+        text +=
+            'Мы с тобой ещё не общались, напиши мне в личку, чтобы продолжить игру.\r\n';
+      }
+      telegram.sendMessage(message.chat.id, text);
+    });
   }
 
   @protected

@@ -19,13 +19,13 @@ class Router {
     // юзер написал в личку, чтобы бот получил айди чата.
     if (data.message?.chat.type == 'private') {
       final user = LitUser(data.message.from);
-      user.chatId = data.message.chat.id;
-      _telegram
-          .sendMessage(data.message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)')
-          .then((value) {
-        // LitUser.saveChatIdStorage();
+      user.registrationChecked.then((registered) {
+        if (!registered) {
+          _telegram.sendMessage(
+              data.message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)');
+          user.save();
+        }
       });
-      return;
     }
 
     // это какая-то команда, то есть сообщение со слеша
