@@ -49,7 +49,9 @@ class GameFlowCmd extends ComplexCommand {
       });
     }
 
-    super.run(message, telegram);
+    flow.init.then((value) {
+      super.run(message, telegram);
+    });
   }
 
   void onGameStart(Message message, Telegram telegram) {

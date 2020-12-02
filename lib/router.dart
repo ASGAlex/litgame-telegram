@@ -4,13 +4,22 @@ import 'package:teledart/model.dart';
 
 import 'models/game/user.dart';
 
+typedef CommandConstructor = Command Function();
+
 class Router {
   Router(LitTelegram telegram) : _telegram = telegram;
   final LitTelegram _telegram;
-  final Map<String, Command> _commands = {};
+  final Map<String, CommandConstructor> _commands = {};
 
-  void registerCommand(Command command) {
-    _commands[command.name] = command;
+  void registerCommand(CommandConstructor commandConstructor) {
+    final cmd = commandConstructor();
+    _commands[cmd.name] = commandConstructor;
+  }
+
+  Command? _buildCommand(String name) {
+    var builder = _commands[name];
+    if (builder == null) return null;
+    return builder();
   }
 
   void dispatch(Update data) {
@@ -28,32 +37,33 @@ class Router {
       });
     }
 
-    // это какая-то команда, то есть сообщение со слеша
-    final commandName = _discoverCommandName(data);
-    var cmd = _commands[commandName];
-    if (cmd == null) {
-      cmd = RouterController().getScheduledCommand(data.message.chat.id);
-      if (cmd == null) return;
-      cmd.run(data.message, _telegram);
+    var message = data.message ?? data.callback_query?.message;
+    if (message == null) return;
+
+    Command? cmd;
+    cmd = RouterController().getScheduledCommand(message.chat.id);
+
+    if (cmd != null) {
+      RouterController().clear(message.chat.id);
+      cmd.run(message, _telegram);
     } else {
-      var message = data.message ?? data.callback_query?.message;
-      if (message != null) {
-        RouterController().clear(message.chat.id);
-      }
+      final commandName = _discoverCommandName(data);
+      cmd = _buildCommand(commandName);
+      if (cmd == null) return;
+
+      RouterController().clear(message.chat.id);
       if (data.callback_query == null && cmd.system) return;
 
-      if (message != null) {
-        // FIXME: dirty hack
-        if (data.callback_query?.from != null) {
-          message.from = data.callback_query?.from;
-        }
-        if (data.callback_query != null) {
-          var arguments = data.callback_query?.data.split(' ');
-          final parser = cmd.getParser();
-          cmd.arguments = parser?.parse(arguments);
-        }
-        cmd.run(message, _telegram);
+      // FIXME: dirty hack
+      if (data.callback_query?.from != null) {
+        message.from = data.callback_query?.from;
       }
+      if (data.callback_query != null) {
+        var arguments = data.callback_query?.data.split(' ');
+        final parser = cmd.getParser();
+        cmd.arguments = parser?.parse(arguments);
+      }
+      cmd.run(message, _telegram);
     }
   }
 

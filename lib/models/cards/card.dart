@@ -1,3 +1,5 @@
+import 'package:parse_server_sdk/parse_server_sdk.dart';
+
 enum CardType { generic, person, place }
 
 extension StringType on CardType {
@@ -25,10 +27,28 @@ extension StringType on CardType {
   }
 }
 
-class Card {
-  Card(this.name, this.imgUrl, this.type);
+class Card extends ParseObject implements ParseCloneable {
+  Card(String name, String imgUrl, CardType cardType, String collectionName)
+      : super('Card') {
+    this['name'] = name;
+    this['imgUrl'] = imgUrl;
+    this['cardType'] = cardType.value();
+    this['collection'] = collectionName;
+  }
 
-  final String name;
-  final String imgUrl;
-  final CardType type;
+  Card.clone() : super('Card');
+
+  @override
+  Card clone(Map<String, dynamic> map) => Card.clone()..fromJson(map);
+
+  String get name => this['name'];
+
+  String get imgUrl {
+    final parseFile = this['img'] as ParseFile;
+    return parseFile.url;
+  }
+
+  String get collectionName => this['collection'];
+
+  CardType get cardType => CardType.generic.getTypeByName(this['cardType']);
 }

@@ -1,3 +1,5 @@
+import 'package:args/src/arg_parser.dart';
+import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:litgame_telegram/router.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
@@ -27,6 +29,13 @@ class AddCollectionCmd extends ComplexCommand {
   String get name => 'addcollection';
 
   @override
+  ArgParser getParser() {
+    var parser = super.getParser();
+    parser.addOption('userId');
+    return parser;
+  }
+
+  @override
   void run(Message message, LitTelegram telegram) {
     if (message.chat.type != 'private') {
       telegram.sendMessage(message.chat.id, 'Давай поговорим об этом в личке?');
@@ -53,7 +62,7 @@ class AddCollectionCmd extends ComplexCommand {
                   callback_data: buildAction(
                       'allow-access', {'userId': user.telegramUser.id.toString()})),
               InlineKeyboardButton(
-                  text: 'Разрешить',
+                  text: 'Отказать',
                   callback_data: buildAction(
                       'deny-access', {'userId': user.telegramUser.id.toString()}))
             ]
@@ -73,22 +82,37 @@ class AddCollectionCmd extends ComplexCommand {
     var userId = arguments?['userId'];
     if (userId == null) return;
 
-    final user = LitUser.clone(userId);
-    user.allowAddCollection(allow).then((ParseResponse response) {
-      if (response.success) {
-        late var text;
-        if (allow) {
-          text = 'Админ разрешил вам загружать новые наборы карт!';
-        } else {
-          text = 'Вам отказали в доступе на загрузку наборов карт.';
-        }
-        telegram.sendMessage(userId, text).then((value) {
-          if (allow) {
-            _askArchUpload(message, telegram);
-          }
+    final user = LitUser.clone(int.parse(userId));
+
+    if (usersAwaitForUpload.contains(message.chat.id) && message.document != null) {
+      telegram.getFile(message.document.file_id).then((file) {
+        final url =
+            'https://api.telegram.org/file/bot${telegram.token}/${file.file_path}';
+        final collection = CardCollection.fromArchive(url);
+        telegram.sendMessage(
+            message.chat.id, 'Обрабатываем коллекцию "${collection.name}" ...');
+        collection.loaded?.then((value) {
+          telegram.sendMessage(message.chat.id,
+              'Отлично, новая коллекция "${collection.name}" загружена!');
         });
-      }
-    });
+      });
+    } else {
+      user.allowAddCollection(allow).then((ParseResponse response) {
+        if (response.success) {
+          late var text;
+          if (allow) {
+            text = 'Админ разрешил вам загружать новые наборы карт!';
+          } else {
+            text = 'Вам отказали в доступе на загрузку наборов карт.';
+          }
+          telegram.sendMessage(userId, text).then((value) {
+            if (allow) {
+              _askArchUpload(message, telegram);
+            }
+          });
+        }
+      });
+    }
   }
 
   void onCancelAccess(Message message, LitTelegram telegram) {
@@ -112,15 +136,16 @@ class AddCollectionCmd extends ComplexCommand {
       return;
     }
 
-    if (usersAwaitForUpload.contains(message.chat.id)) {
-    } else {
-      _askArchUpload(message, telegram);
-    }
+    _askArchUpload(message, telegram);
+    RouterController().willProcessNextMessageInChat(message.chat.id, this);
   }
 
   void _askArchUpload(Message message, LitTelegram telegram) {
-    telegram.sendMessage(message.chat.id, 'Загрузи в чат архив с новой коллекцией');
-    usersAwaitForUpload.add(message.chat.id);
-    RouterController().willProcessNextMessageInChat(message.chat.id, this);
+    var userId = arguments?['userId'];
+    if (userId == null) return;
+    var uid = int.parse(userId);
+    telegram.sendMessage(uid, 'Загрузи в чат архив с новой коллекцией');
+    usersAwaitForUpload.add(uid);
+    RouterController().willProcessNextMessageInChat(uid, this);
   }
 }

@@ -17,9 +17,10 @@ abstract class Command {
 
   Command.args(this.arguments);
 
-  bool scheduled = false;
-
   void run(Message message, LitTelegram telegram);
+  void reset() {
+    arguments = null;
+  }
 
   ArgParser? getParser();
 

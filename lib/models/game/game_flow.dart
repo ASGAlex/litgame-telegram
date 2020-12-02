@@ -7,18 +7,24 @@ import 'package:litgame_telegram/models/game/user.dart';
 
 class GameFlow {
   static final Map<int, GameFlow> _runningGames = {};
+  static final Map<String, CardCollection> _loadedCollections = {};
 
-  GameFlow(this.game) {
+  GameFlow(this.game, [this.collectionName = 'default']) {
     _user = game.playersSorted.first;
-    _collection = CardCollection('default');
-    _collection.cards.forEach((key, value) {
-      cards[key] = List.from(value);
+    init = CardCollection.fromServer(collectionName).then((loadedCollection) {
+      _loadedCollections[collectionName] = loadedCollection;
+      _collection?.cards.forEach((key, value) {
+        cards[key] = List.from(value);
+      });
     });
   }
 
   final LitGame game;
-  late CardCollection _collection;
+  final String collectionName;
+  late final Future init;
   Map<String, List<Card>> cards = {};
+
+  CardCollection? get _collection => _loadedCollections[collectionName];
 
   late LinkedUser _user;
   int turnNumber = 1;
@@ -28,6 +34,12 @@ class GameFlow {
     flow ??= GameFlow(game);
     _runningGames[game.chatId] = flow;
     return flow;
+  }
+
+  static void stopGame(int chatId) {
+    if (_runningGames[chatId] != null) {
+      _runningGames.remove(chatId);
+    }
   }
 
   LitUser get currentUser => _user.user;
@@ -43,7 +55,7 @@ class GameFlow {
     var list = cards[type.value()];
     if (list == null) throw 'Collection error';
     if (list.isEmpty) {
-      var cc = _collection.cards[type.value()];
+      var cc = _collection?.cards[type.value()];
       if (cc != null) {
         cc.shuffle(Random(cc.length));
         cards[type.value()] = List.from(cc);

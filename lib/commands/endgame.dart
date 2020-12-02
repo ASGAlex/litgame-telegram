@@ -1,6 +1,7 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/models/game/game.dart';
+import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:teledart/src/telegram/model.dart';
 
 import '../telegram.dart';
@@ -29,6 +30,7 @@ class EndGameCmd extends Command {
       }
     }
     LitGame.stopGame(message.chat.id);
+    GameFlow.stopGame(message.chat.id);
     telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
         reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
   }

@@ -11,6 +11,7 @@ dependencies:
   meta: ^1.2.4
   parse_server_sdk: ^2.0.1
   archive: ^2.0.13
+  file: ^6.0.0-nullsafety.4
 
 
 
