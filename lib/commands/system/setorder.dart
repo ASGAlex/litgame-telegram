@@ -1,15 +1,21 @@
 import 'package:args/src/arg_parser.dart';
+import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
-import 'package:litgame_telegram/models/game/game.dart';
+import 'package:litgame_telegram/commands/system/gameflow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart/src/telegram/telegram.dart';
+
+import '../../telegram.dart';
 
 class SetOrderCmd extends Command {
+  SetOrderCmd();
+
+  SetOrderCmd.args(ArgResults? arguments) : super.args(arguments);
+
   @override
   ArgParser? getParser() {
-    final parser = getBaseParser();
+    final parser = getGameBaseParser();
     parser.addOption('userId');
     parser.addFlag('reset');
     return parser;
@@ -19,7 +25,7 @@ class SetOrderCmd extends Command {
   String get name => 'setorder';
 
   @override
-  void run(Message message, Telegram telegram) {
+  void run(Message message, LitTelegram telegram) {
     cleanScheduledMessages(telegram);
     if (arguments?['reset'] == true) {
       game.playersSorted.clear();
@@ -27,8 +33,7 @@ class SetOrderCmd extends Command {
       telegram
           .sendMessage(message.chat.id,
               'В каком порядке будут ходить игроки:\r\n' + _getSortedUsersListText(),
-              reply_markup:
-                  InlineKeyboardMarkup(inline_keyboard: SetOrderCmd.getSortButtons(game)))
+              reply_markup: InlineKeyboardMarkup(inline_keyboard: getSortButtons()))
           .then((msg) {
         scheduleMessageDelete(msg.chat.id, msg.message_id);
       });
@@ -49,13 +54,11 @@ class SetOrderCmd extends Command {
                 [
                   InlineKeyboardButton(
                       text: 'Играем!',
-                      callback_data: '/gameflow --gameChatId=' +
-                          gameChatId.toString() +
-                          ' --action=start'),
+                      callback_data: GameFlowCmd.args(arguments).buildAction('start')),
                   InlineKeyboardButton(
                       text: 'Отсортировать заново',
-                      callback_data:
-                          '/setorder --gameChatId=' + gameChatId.toString() + ' --reset')
+                      callback_data: buildCommandCall(
+                          {'gameChatId': gameChatId.toString(), 'reset': ''}))
                 ]
               ]))
           .then((msg) {
@@ -65,8 +68,7 @@ class SetOrderCmd extends Command {
       telegram
           .sendMessage(message.chat.id,
               'В каком порядке будут ходить игроки:\r\n' + _getSortedUsersListText(),
-              reply_markup:
-                  InlineKeyboardMarkup(inline_keyboard: SetOrderCmd.getSortButtons(game)))
+              reply_markup: InlineKeyboardMarkup(inline_keyboard: getSortButtons()))
           .then((msg) {
         scheduleMessageDelete(msg.chat.id, msg.message_id);
       });
@@ -96,7 +98,7 @@ class SetOrderCmd extends Command {
     return usersList;
   }
 
-  static List<List<InlineKeyboardButton>> getSortButtons(LitGame game) {
+  List<List<InlineKeyboardButton>> getSortButtons() {
     var usersToSelect = <List<InlineKeyboardButton>>[];
     game.players.forEach((key, user) {
       var skip = false;
@@ -107,10 +109,10 @@ class SetOrderCmd extends Command {
       usersToSelect.add([
         InlineKeyboardButton(
             text: user.nickname + '(' + user.fullName + ')',
-            callback_data: '/setorder --gameChatId=' +
-                game.chatId.toString() +
-                ' --userId=' +
-                user.telegramUser.id.toString())
+            callback_data: buildCommandCall({
+              'gameChatId': game.chatId.toString(),
+              'userId': user.telegramUser.id.toString()
+            }))
       ]);
     });
     return usersToSelect;

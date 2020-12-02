@@ -1,14 +1,15 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:litgame_telegram/commands/pm/addcollection.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:litgame_telegram/router.dart';
+import 'package:litgame_telegram/telegram.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/teledart.dart';
-import 'package:teledart/telegram.dart';
 
 import 'commands/endgame.dart';
 import 'commands/system/finishjoin.dart';
@@ -25,11 +26,14 @@ Future main(List<String> arguments) async {
   parser.addOption('botKey', abbr: 'k');
   parser.addOption('dataAppUrl', abbr: 'u');
   parser.addOption('dataAppKey', abbr: 'a');
+  parser.addOption('adminUserIds', abbr: 'i');
   try {
     final results = parser.parse(arguments);
     botKey = results['botKey'];
     dataAppUrl = results['dataAppUrl'];
     dataAppKey = results['dataAppKey'];
+    LitUser.adminUsers =
+        results['adminUserIds'].toString().split(',').map((e) => int.parse(e)).toList();
   } on ArgumentError {
     print('--botKey option must be specified!');
     exit(1);
@@ -46,7 +50,7 @@ Future main(List<String> arguments) async {
     },
   );
 
-  final telegram = Telegram(botKey);
+  final telegram = LitTelegram(botKey);
   final polling = LongPolling(telegram);
   Stream<Update> stream = polling.onUpdate();
 
@@ -59,6 +63,7 @@ Future main(List<String> arguments) async {
   router.registerCommand(SetMasterCmd());
   router.registerCommand(SetOrderCmd());
   router.registerCommand(GameFlowCmd());
+  router.registerCommand(AddCollectionCmd());
 
   stream.listen((Update data) {
     try {
@@ -66,6 +71,7 @@ Future main(List<String> arguments) async {
     } catch (exception) {
       var chatId = data.message?.chat.id ?? data.callback_query?.message.chat.id;
       telegram.sendMessage(chatId, exception.toString());
+      //rethrow;
     }
   });
   await polling.start();

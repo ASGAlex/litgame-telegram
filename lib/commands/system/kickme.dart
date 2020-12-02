@@ -1,16 +1,20 @@
 import 'package:args/src/arg_parser.dart';
+import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart/src/telegram/telegram.dart';
 
+import '../../telegram.dart';
 import 'joinme.dart';
 
 class KickMeCmd extends JoinMeCmd {
+  KickMeCmd();
+  KickMeCmd.args(ArgResults? arguments) : super.args(arguments);
+
   @override
   String get name => 'kickme';
 
   @override
-  void run(Message message, Telegram telegram) {
+  void run(Message message, LitTelegram telegram) {
     final game = LitGame.find(message.chat.id);
     if (game == null) {
       throw 'В этом чате нет запущенных игр';

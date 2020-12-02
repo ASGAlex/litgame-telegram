@@ -4,21 +4,26 @@ import 'package:meta/meta.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/telegram.dart';
 
+import '../telegram.dart';
+
 abstract class Command {
+  Command();
+
   String get name;
 
   bool get system => true;
 
   ArgResults? arguments;
 
-  void run(
-    Message message,
-    Telegram telegram,
-  );
+  Command.args(this.arguments);
+
+  bool scheduled = false;
+
+  void run(Message message, LitTelegram telegram);
 
   ArgParser? getParser();
 
-  ArgParser getBaseParser() {
+  ArgParser getGameBaseParser() {
     var parser = ArgParser();
     parser.addOption('gameChatId');
     return parser;
@@ -30,7 +35,8 @@ abstract class Command {
       gameChatId = int.parse(arguments?['gameChatId']);
     }
     var game = LitGame.find(gameChatId);
-    return game ?? LitGame(-1);
+    if (game == null) throw 'В этом чате не играется ни одна игра';
+    return game;
   }
 
   int? get gameChatId => (arguments?['gameChatId'] is String)
@@ -39,7 +45,7 @@ abstract class Command {
 
   @protected
   void checkGameChat(Message message) {
-    if (message.chat == null) {
+    if (message.chat.id > 0) {
       throw 'Эту команду надо не в личке запускать, а в чате с игроками ;-)';
     }
   }
@@ -62,5 +68,15 @@ abstract class Command {
       }
     }
     _messagesToClean.clear();
+  }
+
+  @mustCallSuper
+  String buildCommandCall([Map<String, String> parameters = const {}]) {
+    var command = '/' + name;
+    parameters.forEach((key, value) {
+      if (key.contains(' ')) throw 'Invalid command key!';
+      command += ' --' + key + ' ' + value;
+    });
+    return command;
   }
 }

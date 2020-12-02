@@ -4,11 +4,14 @@ import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart/src/telegram/telegram.dart';
+
+import '../telegram.dart';
 
 class StartGameCmd extends Command {
   static const String BTN_YES = 'Участвую!';
   static const String BTN_NO = 'Неть...';
+
+  StartGameCmd();
 
   @override
   String get name => 'startgame';
@@ -17,7 +20,7 @@ class StartGameCmd extends Command {
   bool get system => false;
 
   @override
-  void run(Message message, Telegram telegram) {
+  void run(Message message, LitTelegram telegram) {
     checkGameChat(message);
     LitGame.startNew(message.chat.id).addPlayer(LitUser(message.from, isAdmin: true));
     telegram

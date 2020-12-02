@@ -1,15 +1,22 @@
 import 'package:args/src/arg_parser.dart';
+import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
+import 'package:litgame_telegram/commands/system/setmaster.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart/src/telegram/telegram.dart';
+
+import '../../telegram.dart';
 
 class FinishJoinCmd extends Command {
+  FinishJoinCmd();
+
+  FinishJoinCmd.args(ArgResults? arguments) : super.args(arguments);
+
   @override
   String get name => 'finishjoin';
 
   @override
-  void run(Message message, Telegram telegram) {
+  void run(Message message, LitTelegram telegram) {
     cleanScheduledMessages(telegram);
     var message = 'Выберите мастера игры: ';
     final keyboard = <List<InlineKeyboardButton>>[];
@@ -25,10 +32,10 @@ class FinishJoinCmd extends Command {
       keyboard.add([
         InlineKeyboardButton(
             text: text,
-            callback_data: '/setmaster --gameChatId=' +
-                gameChatId.toString() +
-                ' --userId=' +
-                player.telegramUser.id.toString())
+            callback_data: SetMasterCmd.args(arguments).buildCommandCall({
+              'gameChatId': gameChatId.toString(),
+              'userId': player.telegramUser.id.toString()
+            }))
       ]);
     });
 
@@ -41,5 +48,5 @@ class FinishJoinCmd extends Command {
   }
 
   @override
-  ArgParser getParser() => getBaseParser();
+  ArgParser getParser() => getGameBaseParser();
 }

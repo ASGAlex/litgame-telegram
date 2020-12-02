@@ -1,14 +1,20 @@
 import 'package:args/src/arg_parser.dart';
+import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart/src/telegram/telegram.dart';
+
+import '../../telegram.dart';
 
 class SetMasterCmd extends Command {
+  SetMasterCmd();
+
+  SetMasterCmd.args(ArgResults? arguments) : super.args(arguments);
+
   @override
   ArgParser getParser() {
-    var parser = getBaseParser();
+    var parser = getGameBaseParser();
     parser.addOption('userId');
     return parser;
   }
@@ -17,7 +23,7 @@ class SetMasterCmd extends Command {
   String get name => 'setmaster';
 
   @override
-  void run(Message message, Telegram telegram) {
+  void run(Message message, LitTelegram telegram) {
     cleanScheduledMessages(telegram);
     final player = game.players[int.parse(arguments?['userId'])];
     player?.isGameMaster = true;
@@ -26,7 +32,8 @@ class SetMasterCmd extends Command {
           gameChatId, player.nickname + '(' + player.fullName + ') будет игромастером!');
 
       final cmd = SetOrderCmd();
-      var strArgs = '/setorder --gameChatId=' + gameChatId.toString() + ' --reset';
+      var strArgs = SetOrderCmd.args(arguments)
+          .buildCommandCall({'gameChatId': gameChatId.toString(), 'reset': ''});
       final parser = cmd.getParser();
       cmd.arguments = parser?.parse(strArgs.split(' '));
       cmd.run(message, telegram);

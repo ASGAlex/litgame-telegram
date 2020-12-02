@@ -1,16 +1,22 @@
 import 'package:args/src/arg_parser.dart';
-import 'package:litgame_telegram/commands/core_command.dart';
+import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
 import 'package:teledart/src/telegram/telegram.dart';
 
-class GameFlowCmd extends Command {
+import '../../telegram.dart';
+import '../complex_command.dart';
+
+class GameFlowCmd extends ComplexCommand {
+  GameFlowCmd();
+  GameFlowCmd.args(ArgResults? arguments) : super.args(arguments);
+
   @override
-  ArgParser? getParser() {
-    var parser = getBaseParser();
-    parser.addOption('action');
+  ArgParser getParser() {
+    var parser = super.getParser();
+    parser.addOption('gameChatId');
     return parser;
   }
 
@@ -22,36 +28,31 @@ class GameFlowCmd extends Command {
   String get name => 'gameflow';
 
   @override
-  void run(Message message, Telegram telegram) {
+  // TODO: implement actionMap
+  Map<String, CmdAction> get actionMap => {
+        'start': onGameStart,
+        'select-generic': onSelectCard,
+        'select-place': onSelectCard,
+        'select-person': onSelectCard,
+        'next-turn': onNextTurn,
+      };
+
+  @override
+  void run(Message message, LitTelegram telegram) {
     this.message = message;
     this.telegram = telegram;
     flow = GameFlow.init(game);
+
     if (message.chat.id != flow.currentUser.chatId) {
       telegram.sendMessage(message.chat.id, 'Сейчас не твой ход!').then((value) {
         scheduleMessageDelete(value.chat.id, value.message_id);
       });
     }
 
-    var action = arguments?['action'];
-    switch (action) {
-      case 'start':
-        onGameStart();
-        break;
-      case 'select-generic':
-      case 'select-place':
-      case 'select-person':
-        onSelectCard(action);
-        break;
-      case 'next-turn':
-        onNextTurn();
-        break;
-      case null:
-      default:
-        throw 'Invalid action in game flow';
-    }
+    super.run(message, telegram);
   }
 
-  void onGameStart() {
+  void onGameStart(Message message, Telegram telegram) {
     if (flow.currentUser.isGameMaster && flow.turnNumber == 1) {
       var cGeneric = flow.getCard(CardType.generic);
       var cPlace = flow.getCard(CardType.place);
@@ -74,7 +75,7 @@ class GameFlowCmd extends Command {
     }
   }
 
-  void onNextTurn() {
+  void onNextTurn(Message message, Telegram telegram) {
     cleanScheduledMessages(telegram);
     flow.nextTurn();
     telegram
@@ -88,11 +89,11 @@ class GameFlowCmd extends Command {
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(
-                    text: 'Общая', callback_data: cliCommand('select-generic')),
+                    text: 'Общая', callback_data: buildAction('select-generic')),
                 InlineKeyboardButton(
-                    text: 'Место', callback_data: cliCommand('select-place')),
+                    text: 'Место', callback_data: buildAction('select-place')),
                 InlineKeyboardButton(
-                    text: 'Персонаж', callback_data: cliCommand('select-person')),
+                    text: 'Персонаж', callback_data: buildAction('select-person')),
               ]
             ]))
         .then((msg) {
@@ -100,7 +101,7 @@ class GameFlowCmd extends Command {
     });
   }
 
-  void onSelectCard(String action) {
+  void onSelectCard(Message message, Telegram telegram) {
     cleanScheduledMessages(telegram);
     var sType = action.replaceAll('select-', '');
     var type = CardType.generic.getTypeByName(sType);
@@ -117,7 +118,7 @@ class GameFlowCmd extends Command {
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(
-                    text: 'Заввершить ход', callback_data: cliCommand('next-turn'))
+                    text: 'Заввершить ход', callback_data: buildAction('next-turn'))
               ]
             ]))
         .then((msg) {
@@ -133,6 +134,13 @@ class GameFlowCmd extends Command {
     });
   }
 
-  String cliCommand(String action) =>
-      '/' + name + ' --gameChatId=' + gameChatId.toString() + ' --action=' + action;
+  @override
+  String buildAction(String actionName, [Map<String, String>? parameters]) {
+    parameters ??= {};
+    parameters['gameChatId'] = gameChatId.toString();
+    return super.buildAction(actionName, parameters);
+  }
+
+  @override
+  void onNoAction(Message message, Telegram telegram) {}
 }
