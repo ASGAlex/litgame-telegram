@@ -43,30 +43,35 @@ class AddCollectionCmd extends ComplexCommand {
     }
 
     user = LitUser(message.from);
+    cleanScheduledMessages(telegram);
     super.run(message, telegram);
   }
 
   void onAskAccess(Message message, LitTelegram telegram) {
     LitUser.adminUsers.forEach((int chatId) {
-      telegram.sendMessage(
-          chatId,
-          'Пользователь ' +
-              user.nickname +
-              '(' +
-              user.fullName +
-              ') хочет залить новый набор карт',
-          reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-            [
-              InlineKeyboardButton(
-                  text: 'Разрешить',
-                  callback_data: buildAction(
-                      'allow-access', {'userId': user.telegramUser.id.toString()})),
-              InlineKeyboardButton(
-                  text: 'Отказать',
-                  callback_data: buildAction(
-                      'deny-access', {'userId': user.telegramUser.id.toString()}))
-            ]
-          ]));
+      telegram
+          .sendMessage(
+              chatId,
+              'Пользователь ' +
+                  user.nickname +
+                  '(' +
+                  user.fullName +
+                  ') хочет залить новый набор карт',
+              reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+                [
+                  InlineKeyboardButton(
+                      text: 'Разрешить',
+                      callback_data: buildAction(
+                          'allow-access', {'userId': user.telegramUser.id.toString()})),
+                  InlineKeyboardButton(
+                      text: 'Отказать',
+                      callback_data: buildAction(
+                          'deny-access', {'userId': user.telegramUser.id.toString()}))
+                ]
+              ]))
+          .then((value) {
+        scheduleMessageDelete(chatId, value.message_id);
+      });
     });
   }
 
@@ -82,22 +87,10 @@ class AddCollectionCmd extends ComplexCommand {
     var userId = arguments?['userId'];
     if (userId == null) return;
 
-    final user = LitUser.clone(int.parse(userId));
+    final processedUser = LitUser.byId(int.parse(userId));
 
-    if (usersAwaitForUpload.contains(message.chat.id) && message.document != null) {
-      telegram.getFile(message.document.file_id).then((file) {
-        final url =
-            'https://api.telegram.org/file/bot${telegram.token}/${file.file_path}';
-        final collection = CardCollection.fromArchive(url);
-        telegram.sendMessage(
-            message.chat.id, 'Обрабатываем коллекцию "${collection.name}" ...');
-        collection.loaded?.then((value) {
-          telegram.sendMessage(message.chat.id,
-              'Отлично, новая коллекция "${collection.name}" загружена!');
-        });
-      });
-    } else {
-      user.allowAddCollection(allow).then((ParseResponse response) {
+    processedUser.registrationChecked.then((value) {
+      processedUser.allowAddCollection(allow).then((ParseResponse response) {
         if (response.success) {
           late var text;
           if (allow) {
@@ -107,12 +100,12 @@ class AddCollectionCmd extends ComplexCommand {
           }
           telegram.sendMessage(userId, text).then((value) {
             if (allow) {
-              _askArchUpload(message, telegram);
+              _askArchUpload(message, telegram, int.parse(userId));
             }
           });
         }
       });
-    }
+    });
   }
 
   void onCancelAccess(Message message, LitTelegram telegram) {
@@ -122,30 +115,46 @@ class AddCollectionCmd extends ComplexCommand {
 
   @override
   void onNoAction(Message message, LitTelegram telegram) {
-    if (!user.isAllowedAddCollection && !LitUser.adminUsers.contains(user.chatId)) {
-      telegram.sendMessage(message.chat.id,
-          'Чтобы продолжить, нужно запросить у админа разрешение на загрзку. Продолжить?',
-          reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-            [
-              InlineKeyboardButton(text: 'Да', callback_data: buildAction('ask-access')),
-              InlineKeyboardButton(
-                  text: 'Нет, я ещё подумаю...',
-                  callback_data: buildAction('cancel-access')),
-            ]
-          ]));
-      return;
-    }
-
-    _askArchUpload(message, telegram);
-    RouterController().willProcessNextMessageInChat(message.chat.id, this);
+    user.registrationChecked.then((value) {
+      if (usersAwaitForUpload.contains(message.chat.id) && message.document != null) {
+        telegram.getFile(message.document.file_id).then((file) {
+          final url =
+              'https://api.telegram.org/file/bot${telegram.token}/${file.file_path}';
+          final collection = CardCollection.fromArchive(url);
+          telegram.sendMessage(message.chat.id, 'Обрабатываем коллекцию...');
+          collection.loaded?.then((value) {
+            telegram.sendMessage(message.chat.id,
+                'Отлично, новая коллекция "${collection.name}" загружена!');
+          });
+        });
+        return;
+      }
+      if (!user.isAllowedAddCollection && !LitUser.adminUsers.contains(user.chatId)) {
+        telegram
+            .sendMessage(message.chat.id,
+                'Чтобы продолжить, нужно запросить у админа разрешение на загрзку. Продолжить?',
+                reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+                  [
+                    InlineKeyboardButton(
+                        text: 'Да', callback_data: buildAction('ask-access')),
+                    InlineKeyboardButton(
+                        text: 'Нет, я ещё подумаю...',
+                        callback_data: buildAction('cancel-access')),
+                  ]
+                ]))
+            .then((value) {
+          scheduleMessageDelete(message.chat.id, value.message_id);
+        });
+      } else {
+        _askArchUpload(message, telegram, message.chat.id);
+      }
+    });
   }
 
-  void _askArchUpload(Message message, LitTelegram telegram) {
-    var userId = arguments?['userId'];
-    if (userId == null) return;
-    var uid = int.parse(userId);
-    telegram.sendMessage(uid, 'Загрузи в чат архив с новой коллекцией');
-    usersAwaitForUpload.add(uid);
-    RouterController().willProcessNextMessageInChat(uid, this);
+  void _askArchUpload(Message message, LitTelegram telegram, int userId) {
+    telegram.sendMessage(userId, 'Загрузи в чат архив с новой коллекцией');
+    usersAwaitForUpload.add(userId);
+    reset();
+    RouterController().willProcessNextMessageInChat(userId, this);
   }
 }

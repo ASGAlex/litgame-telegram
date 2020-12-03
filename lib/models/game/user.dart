@@ -6,10 +6,19 @@ import 'package:teledart/model.dart';
 class LitUser extends ParseObject implements ParseCloneable {
   static late List<int> adminUsers;
 
-  LitUser.clone([int _chatId = -1])
+  LitUser.clone()
       : telegramUser = User(),
-        chatId = _chatId,
+        chatId = -1,
         super('LitUser');
+
+  LitUser.byId(int id)
+      : chatId = id,
+        telegramUser = User(),
+        super('LitUser') {
+    telegramUser.id = id;
+    registrationChecked = _findInStorage();
+    this['chatId'] = chatId;
+  }
 
   @override
   LitUser clone(Map<String, dynamic> map) => LitUser.clone()..fromJson(map);
@@ -52,6 +61,7 @@ class LitUser extends ParseObject implements ParseCloneable {
     return builder.query().then((ParseResponse response) {
       if (response.results == null) return false;
       if (response.results.isNotEmpty) {
+        this['objectId'] = response.results.first['objectId'];
         this['allowAddCollection'] = response.results.first['allowAddCollection'];
         return true;
       }
