@@ -1,7 +1,7 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
-import 'package:litgame_telegram/commands/system/gameflow.dart';
+import 'package:litgame_telegram/commands/system/setcollection.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
@@ -54,11 +54,13 @@ class SetOrderCmd extends Command {
                 [
                   InlineKeyboardButton(
                       text: 'Играем!',
-                      callback_data: GameFlowCmd.args(arguments).buildAction('start')),
+                      // callback_data: GameFlowCmd.args(arguments).buildAction('start')),
+                      callback_data:
+                          SetCollectionCmd.args(arguments).buildAction('list')),
                   InlineKeyboardButton(
                       text: 'Отсортировать заново',
-                      callback_data: buildCommandCall(
-                          {'gameChatId': gameChatId.toString(), 'reset': ''}))
+                      callback_data:
+                          buildCommandCall({'gci': gameChatId.toString(), 'reset': ''}))
                 ]
               ]))
           .then((msg) {
@@ -110,7 +112,7 @@ class SetOrderCmd extends Command {
         InlineKeyboardButton(
             text: user.nickname + '(' + user.fullName + ')',
             callback_data: buildCommandCall({
-              'gameChatId': game.chatId.toString(),
+              'gci': game.chatId.toString(),
               'userId': user.telegramUser.id.toString()
             }))
       ]);

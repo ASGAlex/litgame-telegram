@@ -1,5 +1,4 @@
-import 'package:args/src/arg_parser.dart';
-import 'package:args/src/arg_results.dart';
+import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:meta/meta.dart';
 import 'package:teledart/src/telegram/model.dart';
@@ -25,9 +24,17 @@ abstract class ComplexCommand extends Command {
 
   String get action => arguments?['action'] ?? '';
 
+  late final Message message;
+  late final LitTelegram telegram;
+
   @override
   @mustCallSuper
   void run(Message message, LitTelegram telegram) {
+    try {
+      this.message = message;
+      this.telegram = telegram;
+    } catch (e) {}
+
     final actionFunc = actionMap[action];
     if (actionFunc != null && actionFunc is Function) {
       actionFunc(message, telegram);

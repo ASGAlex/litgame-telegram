@@ -17,8 +17,12 @@ class FinishJoinCmd extends Command {
 
   @override
   void run(Message message, LitTelegram telegram) {
+    if (message.chat.id != game.admin.chatId) {
+      telegram.sendMessage(message.chat.id, 'Не ты админ текущей игры!');
+      return;
+    }
+
     cleanScheduledMessages(telegram);
-    var message = 'Выберите мастера игры: ';
     final keyboard = <List<InlineKeyboardButton>>[];
     game.players.values.forEach((player) {
       var text = player.nickname + ' (' + player.fullName + ')';
@@ -33,14 +37,14 @@ class FinishJoinCmd extends Command {
         InlineKeyboardButton(
             text: text,
             callback_data: SetMasterCmd.args(arguments).buildCommandCall({
-              'gameChatId': gameChatId.toString(),
+              'gci': gameChatId.toString(),
               'userId': player.telegramUser.id.toString()
             }))
       ]);
     });
 
     telegram
-        .sendMessage(game.admin.chatId, message,
+        .sendMessage(game.admin.chatId, 'Выберите мастера игры: ',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: keyboard))
         .then((msg) {
       scheduleMessageDelete(msg.chat.id, msg.message_id);

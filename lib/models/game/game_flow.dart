@@ -29,9 +29,9 @@ class GameFlow {
   late LinkedUser _user;
   int turnNumber = 1;
 
-  factory GameFlow.init(LitGame game) {
+  factory GameFlow.init(LitGame game, [String collectionName = '']) {
     var flow = _runningGames[game.chatId];
-    flow ??= GameFlow(game);
+    flow ??= GameFlow(game, collectionName);
     _runningGames[game.chatId] = flow;
     return flow;
   }

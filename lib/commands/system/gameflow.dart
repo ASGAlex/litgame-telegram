@@ -1,6 +1,7 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
+import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
@@ -16,16 +17,15 @@ class GameFlowCmd extends ComplexCommand {
   @override
   ArgParser getParser() {
     var parser = super.getParser();
-    parser.addOption('gameChatId');
+    parser.addOption('gci');
+    parser.addOption('cid');
     return parser;
   }
 
-  late Telegram telegram;
   late GameFlow flow;
-  late Message message;
 
   @override
-  String get name => 'gameflow';
+  String get name => 'gf';
 
   @override
   // TODO: implement actionMap
@@ -41,7 +41,20 @@ class GameFlowCmd extends ComplexCommand {
   void run(Message message, LitTelegram telegram) {
     this.message = message;
     this.telegram = telegram;
-    flow = GameFlow.init(game);
+    var collectionName = 'default';
+    if (arguments?['action'] == 'start') {
+      var collectionId = arguments?['cid'];
+      CardCollection.getById(collectionId).then((value) {
+        collectionName = value.name;
+        _gameFlowInitAndRun(collectionName);
+      });
+    } else {
+      _gameFlowInitAndRun(collectionName);
+    }
+  }
+
+  void _gameFlowInitAndRun(String collectionName) {
+    flow = GameFlow.init(game, collectionName);
 
     if (message.chat.id != flow.currentUser.chatId) {
       telegram.sendMessage(message.chat.id, 'Сейчас не твой ход!').then((value) {
@@ -77,7 +90,7 @@ class GameFlowCmd extends ComplexCommand {
     }
   }
 
-  void onNextTurn(Message message, Telegram telegram) {
+  void onNextTurn(Message message, LitTelegram telegram) {
     cleanScheduledMessages(telegram);
     flow.nextTurn();
     telegram
@@ -139,7 +152,7 @@ class GameFlowCmd extends ComplexCommand {
   @override
   String buildAction(String actionName, [Map<String, String>? parameters]) {
     parameters ??= {};
-    parameters['gameChatId'] = gameChatId.toString();
+    parameters['gci'] = gameChatId.toString();
     return super.buildAction(actionName, parameters);
   }
 

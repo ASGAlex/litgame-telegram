@@ -33,7 +33,7 @@ class SetMasterCmd extends Command {
 
       final cmd = SetOrderCmd();
       var strArgs = SetOrderCmd.args(arguments)
-          .buildCommandCall({'gameChatId': gameChatId.toString(), 'reset': ''});
+          .buildCommandCall({'gci': gameChatId.toString(), 'reset': ''});
       final parser = cmd.getParser();
       cmd.arguments = parser?.parse(strArgs.split(' '));
       cmd.run(message, telegram);

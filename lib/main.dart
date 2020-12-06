@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
+import 'package:litgame_telegram/commands/system/setcollection.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:litgame_telegram/router.dart';
 import 'package:litgame_telegram/telegram.dart';
@@ -74,6 +75,7 @@ Future main(List<String> arguments) async {
   router.registerCommand(() => FinishJoinCmd());
   router.registerCommand(() => SetMasterCmd());
   router.registerCommand(() => SetOrderCmd());
+  router.registerCommand(() => SetCollectionCmd());
   router.registerCommand(() => GameFlowCmd());
   router.registerCommand(() => AddCollectionCmd());
 

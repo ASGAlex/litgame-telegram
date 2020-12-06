@@ -61,7 +61,7 @@ class JoinMeCmd extends Command {
           InlineKeyboardButton(
               text: 'Завершить набор игроков',
               callback_data: FinishJoinCmd.args(arguments)
-                  .buildCommandCall({'gameChatId': gameChatId.toString()}))
+                  .buildCommandCall({'gci': gameChatId.toString()}))
         ]
       ]);
     }

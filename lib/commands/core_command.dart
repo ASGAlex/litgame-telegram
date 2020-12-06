@@ -26,23 +26,22 @@ abstract class Command {
 
   ArgParser getGameBaseParser() {
     var parser = ArgParser();
-    parser.addOption('gameChatId');
+    parser.addOption('gci');
     return parser;
   }
 
   LitGame get game {
-    var gameChatId = arguments?['gameChatId'];
-    if (arguments?['gameChatId'] is String) {
-      gameChatId = int.parse(arguments?['gameChatId']);
+    var gameChatId = arguments?['gci'];
+    if (arguments?['gci'] is String) {
+      gameChatId = int.parse(arguments?['gci']);
     }
     var game = LitGame.find(gameChatId);
     if (game == null) throw 'В этом чате не играется ни одна игра';
     return game;
   }
 
-  int? get gameChatId => (arguments?['gameChatId'] is String)
-      ? int.parse(arguments?['gameChatId'])
-      : arguments?['gameChatId'];
+  int? get gameChatId =>
+      (arguments?['gci'] is String) ? int.parse(arguments?['gci']) : arguments?['gci'];
 
   @protected
   void checkGameChat(Message message) {

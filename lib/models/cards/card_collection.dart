@@ -130,6 +130,14 @@ class CardCollection extends ParseObject implements ParseCloneable {
     return Future.wait([loadCollection, loadCards]).then((value) => loadCollection);
   }
 
+  static Future<List> listCollections() {
+    return CardCollection.clone().getAll().then((response) => response.results);
+  }
+
+  static Future getById(String id) {
+    return CardCollection.clone().getObject(id).then((value) => value.results.first);
+  }
+
   Future _loadCards() {
     final builder = QueryBuilder<Card>(Card.clone())..whereEqualTo('collection', name);
     return builder.query().then((ParseResponse response) {
