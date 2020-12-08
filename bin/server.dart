@@ -1,25 +1,24 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:litgame_telegram/commands/endgame.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
+import 'package:litgame_telegram/commands/system/finishjoin.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
+import 'package:litgame_telegram/commands/system/joinme.dart';
+import 'package:litgame_telegram/commands/system/kickme.dart';
 import 'package:litgame_telegram/commands/system/setcollection.dart';
+import 'package:litgame_telegram/commands/system/setmaster.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
+import 'package:litgame_telegram/models/cards/card.dart';
+import 'package:litgame_telegram/models/cards/card_collection.dart';
+import 'package:litgame_telegram/models/game/user.dart';
 import 'package:litgame_telegram/router.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/teledart.dart';
-
-import 'commands/endgame.dart';
-import 'commands/system/finishjoin.dart';
-import 'commands/system/joinme.dart';
-import 'commands/system/kickme.dart';
-import 'commands/system/setmaster.dart';
-import 'models/cards/card.dart';
-import 'models/cards/card_collection.dart';
-import 'models/game/user.dart';
 
 Future main(List<String> arguments) async {
   final parser = ArgParser();
@@ -41,8 +40,12 @@ Future main(List<String> arguments) async {
     dataAppKey = results['dataAppKey'];
     parseMasterKey = results['parseMasterKey'];
     parseRestKey = results['parseRestKey'];
-    LitUser.adminUsers =
-        results['adminUserIds'].toString().split(',').map((e) => int.parse(e)).toList();
+    print(arguments);
+    LitUser.adminUsers = results['adminUserIds']
+        .toString()
+        .split(',')
+        .map((e) => int.parse(e.trim()))
+        .toList();
   } on ArgumentError {
     print('--botKey option must be specified!');
     exit(1);
