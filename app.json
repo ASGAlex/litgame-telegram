@@ -1,0 +1,12 @@
+{
+  "name": "LitGame telegram bot",
+  "description": "Telegram bot to play litgame",
+  "keywords": [
+    "game",
+    "server",
+    "bot"
+  ],
+  "website": "https://github.com/ASGAlex/litgame-telegram",
+  "repository": "https://github.com/ASGAlex/litgame-telegram",
+  "stack": "container"
+}
