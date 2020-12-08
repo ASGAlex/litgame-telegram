@@ -1,0 +1,5 @@
+build:
+  docker:
+    botserver: Dockerfile
+run:
+  botserver: bin/runserver-heroku.sh

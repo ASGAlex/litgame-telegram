@@ -6,5 +6,5 @@ RUN pub get
 ADD . /app
 RUN pub get --offline
 
-CMD [ "bin/server" ]
+CMD [ "bin/runserver.sh" ]
 ENTRYPOINT [ "bin/runserver.sh" ]
