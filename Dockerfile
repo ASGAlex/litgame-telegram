@@ -8,5 +8,5 @@ RUN pub get --offline
 RUN chmod +x bin/runserver.sh
 RUN chmod +x bin/runserver-heroku.sh
 
-CMD [ "bin/runserver.sh" ]
+#CMD [ "bin/runserver.sh" ]
 ENTRYPOINT [ "bin/runserver.sh" ]
