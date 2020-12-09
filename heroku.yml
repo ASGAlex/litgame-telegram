@@ -2,4 +2,4 @@ build:
   docker:
     botserver: Dockerfile
 run:
-  botserver: "dart --no-sound-null-safety run bin/server.dart $@" --botKey $botKey -u $u -a $a -m $m -r $r -i $i
+  botserver: 'dart --no-sound-null-safety run bin/server.dart "$@"' --botKey $botKey -u $u -a $a -m $m -r $r -i $i
