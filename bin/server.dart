@@ -48,8 +48,10 @@ Future main(List<String> arguments) async {
         .toList();
   } on ArgumentError {
     print('--botKey option must be specified!');
+    print(arguments);
     exit(1);
   } on ArgParserException {
+    print(arguments);
     print('--botKey option must be specified!');
     exit(1);
   }
