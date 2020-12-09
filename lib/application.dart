@@ -123,6 +123,7 @@ class BotApp {
       print('Cant setup bot properly.');
       exit(1);
     }
+    print('Setup finished successfully!');
 
     await Parse().initialize(
       dataAppKey,
@@ -145,6 +146,7 @@ class BotApp {
     for (var cmdBuilder in commands) {
       router.registerCommand(cmdBuilder);
     }
+    print('${commands.length} commands registered');
 
     stream.listen((Update data) {
       try {
@@ -153,6 +155,7 @@ class BotApp {
         onError(exception, data, telegram);
       }
     });
+    print('Listening for updates from Telegram...');
     await polling.start();
   }
 }
