@@ -14,6 +14,7 @@ class Redis {
     final envVars = Platform.environment;
     var redisConnectionString = envVars['REDISCLOUD_URL'];
     if (redisConnectionString != null && redisConnectionString.isNotEmpty) {
+      print('Connecting to Redis: $redisConnectionString');
       Client.connect(redisConnectionString).then((value) {
         _client = value;
         commands = _client.asCommands<String, String>();
