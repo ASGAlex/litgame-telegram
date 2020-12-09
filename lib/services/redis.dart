@@ -17,6 +17,18 @@ class Redis {
       print('Connecting to Redis: $redisConnectionString');
       Client.connect(redisConnectionString).then((value) {
         _client = value;
+
+        // additional authorisation needed since redis 6.
+        // see https://redis.io/topics/acl for details
+        final parsed = Uri.parse(redisConnectionString);
+        if (parsed.userInfo.isNotEmpty) {
+          var parts = parsed.userInfo.split(':');
+          if (parts.length == 2) {
+            // final rUser = parts.first;
+            final rPassword = parts.last;
+            _client.asCommands().auth(rPassword);
+          }
+        }
         commands = _client.asCommands<String, String>();
         completer.complete();
       });
