@@ -9,3 +9,23 @@ class LitTelegram extends Telegram {
 
   String get token => _token;
 }
+
+enum MarkdownV2EntityType { pre, code, textLink, none }
+
+extension MarkdownV2 on String {
+  String escapeMarkdownV2([MarkdownV2EntityType type = MarkdownV2EntityType.none]) {
+    String whatToEscape;
+    if ([MarkdownV2EntityType.code, MarkdownV2EntityType.pre].contains(type)) {
+      whatToEscape = '\\`';
+    } else if (type == MarkdownV2EntityType.textLink) {
+      whatToEscape = '\\';
+    } else {
+      whatToEscape = '[]()`>#+-=|{}.!';
+    }
+    var escapedString = this;
+    for (var i = 0; i < whatToEscape.length; i++) {
+      escapedString = escapedString.replaceAll(whatToEscape[i], '\\${whatToEscape[i]}');
+    }
+    return escapedString;
+  }
+}

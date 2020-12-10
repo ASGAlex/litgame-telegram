@@ -8,6 +8,7 @@ import 'package:teledart/model.dart';
 
 class LitUser extends ParseObject implements ParseCloneable {
   static late List<int> adminUsers;
+  static final Map<int, Map<String, dynamic>> _usersDataCache = {};
 
   LitUser.clone()
       : telegramUser = User(),
@@ -53,22 +54,67 @@ class LitUser extends ParseObject implements ParseCloneable {
 
   Future<ParseResponse> allowAddCollection(bool allow) {
     this['allowAddCollection'] = allow;
+    return save();
+  }
+
+  @override
+  Future<ParseResponse> save() {
     final redis = Redis();
     redis.init.then((_) {
       redis.commands.set('chatId-$chatId', toRedis());
     });
-    return save();
+    return super.save();
   }
 
   bool get isAllowedAddCollection => this['allowAddCollection'] ?? false;
 
   Future<bool> _findInStorage() {
-    return _findInRedis().then((found) {
+    return _findInMemory().then((found) {
       if (!found) {
-        return _findInParse();
+        return _findInRedis().then((found) {
+          if (!found) {
+            return _findInParse().then((found) => found);
+          }
+          return found;
+        });
       }
       return found;
     });
+  }
+
+  Future<bool> _findInMemory() {
+    final searchFinished = Completer<bool>();
+    final userData = _usersDataCache[chatId];
+    if (userData == null) {
+      searchFinished.complete(false);
+      return searchFinished.future;
+    }
+    this['objectId'] = userData['objectId'] ?? -1;
+    this['allowAddCollection'] = userData['allowAddCollection'] ?? false;
+    this['allowAddCollection'] = this['allowAddCollection'] == 'true' ? true : false;
+    searchFinished.complete(true);
+    return searchFinished.future;
+  }
+
+  void _saveToMemory() {
+    if (_usersDataCache.length > 10000) {
+      var keysToDelete = <int>[];
+      _usersDataCache.forEach((key, value) {
+        final ts = value['ts'] as DateTime;
+        if (DateTime.now().difference(ts).inDays > 10) {
+          keysToDelete.add(key);
+        }
+      });
+      keysToDelete.forEach((element) {
+        _usersDataCache.remove(element);
+      });
+    }
+
+    _usersDataCache[chatId] = {
+      'allowAddCollection': this['allowAddCollection'] ?? false.toString(),
+      'objectId': this['objectId'] ?? (-1).toString(),
+      'ts': DateTime.now()
+    };
   }
 
   Future<bool> _findInRedis() {
@@ -84,6 +130,7 @@ class LitUser extends ParseObject implements ParseCloneable {
           return;
         }
         fromRedis(value);
+        _saveToMemory();
         if (!searchFinished.isCompleted) {
           searchFinished.complete(true);
         }
@@ -98,8 +145,14 @@ class LitUser extends ParseObject implements ParseCloneable {
     return searchFinished.future;
   }
 
-  Future<bool> _findInParse() {
+  void _saveToRedis() {
     final redis = Redis();
+    redis.init.then((_) {
+      redis.commands.set('chatId-$chatId', toRedis());
+    });
+  }
+
+  Future<bool> _findInParse() {
     final builder = QueryBuilder<LitUser>(LitUser.clone())
       ..whereEqualTo('chatId', chatId);
     return builder.query().then((ParseResponse response) {
@@ -107,9 +160,8 @@ class LitUser extends ParseObject implements ParseCloneable {
       if (response.results.isNotEmpty) {
         this['objectId'] = response.results.first['objectId'];
         this['allowAddCollection'] = response.results.first['allowAddCollection'];
-        redis.init.then((_) {
-          redis.commands.set('chatId-$chatId', toRedis());
-        });
+        _saveToMemory();
+        _saveToRedis();
         return true;
       }
       return false;
