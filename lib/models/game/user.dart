@@ -119,7 +119,7 @@ class LitUser extends ParseObject implements ParseCloneable {
   String toRedis() {
     final _json = <String, String>{};
     _json['objectId'] = this['objectId'] ?? (-1).toString();
-    _json['allowAddCollection'] = this['allowAddCollection'] ?? 'false';
+    _json['allowAddCollection'] = (this['allowAddCollection'] ?? false).toString();
     return jsonEncode(_json);
   }
 

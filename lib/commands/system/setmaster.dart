@@ -27,8 +27,8 @@ class SetMasterCmd extends Command {
       telegram.sendMessage(
           gameChatId, player.nickname + '(' + player.fullName + ') будет игромастером!');
 
-      final cmd = Command.withArguments(
-          () => SetOrderCmd(), {'gci': gameChatId.toString(), 'reset': ''});
+      final cmd = Command.withArguments(() => SetOrderCmd(),
+          {'gci': gameChatId.toString(), 'userId': arguments?['userId'], 'reset': ''});
       cmd.run(message, telegram);
     }
   }

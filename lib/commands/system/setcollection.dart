@@ -70,7 +70,8 @@ class SetCollectionCmd extends ComplexCommand {
   }
 
   void _startGameWithCollection(String id) {
-    final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start', {'cid': id});
+    final cmd = ComplexCommand.withAction(
+        () => GameFlowCmd(), 'start', {'gci': arguments?['gci'], 'cid': id});
     cmd.run(message, telegram);
   }
 
