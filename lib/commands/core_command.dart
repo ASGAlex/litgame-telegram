@@ -6,8 +6,18 @@ import 'package:teledart/telegram.dart';
 
 import '../telegram.dart';
 
+typedef CommandConstructor = Command Function();
+
 abstract class Command {
   Command();
+
+  factory Command.withArguments(CommandConstructor cmdBuilder, Map<String, String> args) {
+    final cmd = cmdBuilder();
+    final cmdForParse = ('/${cmd.name} ' + _buildCommandArgs(args)).split(' ');
+    final parser = cmd.getParser();
+    cmd.arguments = parser?.parse(cmdForParse);
+    return cmd;
+  }
 
   String get name;
 
@@ -71,8 +81,11 @@ abstract class Command {
   }
 
   @mustCallSuper
-  String buildCommandCall([Map<String, String> parameters = const {}]) {
-    var command = '/' + name;
+  String buildCommandCall([Map<String, String> parameters = const {}]) =>
+      '/$name ' + _buildCommandArgs(parameters);
+
+  static String _buildCommandArgs(Map<String, String> parameters) {
+    var command = '';
     parameters.forEach((key, value) {
       if (key.contains(' ')) throw 'Invalid command key!';
       command += ' --' + key + ' ' + value;

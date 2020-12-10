@@ -12,15 +12,11 @@ import '../complex_command.dart';
 
 class GameFlowCmd extends ComplexCommand {
   GameFlowCmd();
+
   GameFlowCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
-  ArgParser getParser() {
-    var parser = super.getParser();
-    parser.addOption('gci');
-    parser.addOption('cid');
-    return parser;
-  }
+  ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
 
   late GameFlow flow;
 

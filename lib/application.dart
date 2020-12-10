@@ -20,6 +20,8 @@ import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/teledart.dart';
 
+import 'commands/core_command.dart';
+
 class BotApp {
   BotApp(this.arguments);
 

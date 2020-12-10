@@ -29,11 +29,7 @@ class AddCollectionCmd extends ComplexCommand {
   String get name => 'addcollection';
 
   @override
-  ArgParser getParser() {
-    var parser = super.getParser();
-    parser.addOption('userId');
-    return parser;
-  }
+  ArgParser getParser() => super.getParser()..addOption('userId');
 
   @override
   void run(Message message, LitTelegram telegram) {

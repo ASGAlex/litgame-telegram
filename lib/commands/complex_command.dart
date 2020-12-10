@@ -12,6 +12,13 @@ abstract class ComplexCommand extends Command {
 
   ComplexCommand.args(ArgResults? arguments) : super.args(arguments);
 
+  factory ComplexCommand.withAction(CommandConstructor cmdBuilder, String act,
+      [Map<String, String>? args]) {
+    args ??= {};
+    args['action'] = act;
+    return Command.withArguments(cmdBuilder, args) as ComplexCommand;
+  }
+
   @override
   @mustCallSuper
   ArgParser getParser() {

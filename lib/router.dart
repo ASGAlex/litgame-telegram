@@ -1,10 +1,10 @@
+import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
+import 'package:litgame_telegram/commands/pm/help.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
 
 import 'models/game/user.dart';
-
-typedef CommandConstructor = Command Function();
 
 class Router {
   Router(LitTelegram telegram) : _telegram = telegram;
@@ -30,9 +30,9 @@ class Router {
       final user = LitUser(data.message.from);
       user.registrationChecked.then((registered) {
         if (!registered) {
-          _telegram.sendMessage(
-              data.message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)');
           user.save();
+          final help = ComplexCommand.withAction(() => HelpCmd(), 'firstRun');
+          help.run(data.message, _telegram);
         }
       });
     }

@@ -14,12 +14,7 @@ class SetOrderCmd extends Command {
   SetOrderCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
-  ArgParser? getParser() {
-    final parser = getGameBaseParser();
-    parser.addOption('userId');
-    parser.addFlag('reset');
-    return parser;
-  }
+  ArgParser? getParser() => getGameBaseParser()..addOption('userId')..addOption('reset');
 
   @override
   String get name => 'setorder';

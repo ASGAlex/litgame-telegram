@@ -13,11 +13,7 @@ class SetMasterCmd extends Command {
   SetMasterCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
-  ArgParser getParser() {
-    var parser = getGameBaseParser();
-    parser.addOption('userId');
-    return parser;
-  }
+  ArgParser getParser() => getGameBaseParser()..addOption('userId');
 
   @override
   String get name => 'setmaster';
@@ -31,11 +27,8 @@ class SetMasterCmd extends Command {
       telegram.sendMessage(
           gameChatId, player.nickname + '(' + player.fullName + ') будет игромастером!');
 
-      final cmd = SetOrderCmd();
-      var strArgs = SetOrderCmd.args(arguments)
-          .buildCommandCall({'gci': gameChatId.toString(), 'reset': ''});
-      final parser = cmd.getParser();
-      cmd.arguments = parser?.parse(strArgs.split(' '));
+      final cmd = Command.withArguments(
+          () => SetOrderCmd(), {'gci': gameChatId.toString(), 'reset': ''});
       cmd.run(message, telegram);
     }
   }

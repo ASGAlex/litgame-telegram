@@ -15,12 +15,7 @@ class SetCollectionCmd extends ComplexCommand {
       {'list': onCollectionList, 'select': onCollectionSelect};
 
   @override
-  ArgParser getParser() {
-    var parser = super.getParser();
-    parser.addOption('cid');
-    parser.addOption('gci');
-    return parser;
-  }
+  ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
 
   SetCollectionCmd.args(ArgResults? arguments) : super.args(arguments);
 
@@ -75,11 +70,7 @@ class SetCollectionCmd extends ComplexCommand {
   }
 
   void _startGameWithCollection(String id) {
-    final strCmd = GameFlowCmd.args(arguments).buildAction('start', {'cid': id});
-    final args = strCmd.split(' ');
-    final cmd = GameFlowCmd();
-    final parser = cmd.getParser();
-    cmd.arguments = parser.parse(args);
+    final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start', {'cid': id});
     cmd.run(message, telegram);
   }
 
