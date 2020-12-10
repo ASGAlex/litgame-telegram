@@ -22,6 +22,7 @@ import 'package:teledart/teledart.dart';
 
 import 'commands/core_command.dart';
 import 'commands/pm/help.dart';
+import 'commands/pm/start.dart';
 
 class BotApp {
   BotApp(this.arguments);
@@ -45,7 +46,8 @@ class BotApp {
     () => SetCollectionCmd(),
     () => GameFlowCmd(),
     () => AddCollectionCmd(),
-    () => HelpCmd()
+    () => HelpCmd(),
+    () => StartCmd()
   ];
 
   bool setupFromCliArguments() {
