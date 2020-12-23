@@ -1,7 +1,7 @@
 import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/commands/endgame.dart';
-import 'package:litgame_telegram/commands/system/gameflow.dart';
+import 'package:litgame_telegram/commands/system/trainingflow.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
@@ -71,7 +71,7 @@ class SetCollectionCmd extends ComplexCommand {
 
   void _startGameWithCollection(String id) {
     final cmd = ComplexCommand.withAction(
-        () => GameFlowCmd(), 'start', {'gci': arguments?['gci'], 'cid': id});
+        () => TrainingFlowCmd(), 'start', {'gci': arguments?['gci'], 'cid': id});
     cmd.run(message, telegram);
   }
 

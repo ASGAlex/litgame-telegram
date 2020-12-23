@@ -26,6 +26,7 @@ class CardCollection extends ParseObject implements ParseCloneable {
   }
 
   final Map<String, List<Card>> cards = {};
+  static final Map<String, String> _cacheNameById = {};
 
   Future? loaded;
 
@@ -134,8 +135,23 @@ class CardCollection extends ParseObject implements ParseCloneable {
     return CardCollection.clone().getAll().then((response) => response.results);
   }
 
-  static Future getById(String id) {
-    return CardCollection.clone().getObject(id).then((value) => value.results.first);
+  static Future getById(String id) =>
+      CardCollection.clone().getObject(id).then((value) => value.results.first);
+
+  static Future getName(String id) {
+    final name = _cacheNameById[id];
+    if (name == null) {
+      return getById(id).then((value) {
+        if (value.name != null) {
+          _cacheNameById[id] = value.name;
+        }
+        return value;
+      });
+    }
+
+    final completer = Completer();
+    completer.complete(CardCollection(name));
+    return completer.future;
   }
 
   Future _loadCards() {

@@ -1,5 +1,7 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
+import 'package:litgame_telegram/commands/system/mixin/endturn_mix.dart';
+import 'package:litgame_telegram/commands/system/mixin/image_mix.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
@@ -10,7 +12,7 @@ import 'package:teledart/src/telegram/telegram.dart';
 import '../../telegram.dart';
 import '../complex_command.dart';
 
-class GameFlowCmd extends ComplexCommand {
+class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
   GameFlowCmd();
 
   GameFlowCmd.args(ArgResults? arguments) : super.args(arguments);
@@ -24,7 +26,6 @@ class GameFlowCmd extends ComplexCommand {
   String get name => 'gf';
 
   @override
-  // TODO: implement actionMap
   Map<String, CmdAction> get actionMap => {
         'start': onGameStart,
         'select-generic': onSelectCard,
@@ -40,7 +41,7 @@ class GameFlowCmd extends ComplexCommand {
     var collectionName = 'default';
     if (arguments?['action'] == 'start') {
       var collectionId = arguments?['cid'];
-      CardCollection.getById(collectionId).then((value) {
+      CardCollection.getName(collectionId).then((value) {
         collectionName = value.name;
         _gameFlowInitAndRun(collectionName);
       });
@@ -68,17 +69,17 @@ class GameFlowCmd extends ComplexCommand {
       var cGeneric = flow.getCard(CardType.generic);
       var cPlace = flow.getCard(CardType.place);
       var cPerson = flow.getCard(CardType.person);
-      _sendImage(flow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name).then((value) {
-        _sendImage(flow.currentUser.chatId, cPlace.imgUrl, cPlace.name).then((value) {
-          _sendImage(flow.currentUser.chatId, cPerson.imgUrl, cPerson.name).then((value) {
-            _sendEndTurn(flow);
+      sendImage(flow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name).then((value) {
+        sendImage(flow.currentUser.chatId, cPlace.imgUrl, cPlace.name).then((value) {
+          sendImage(flow.currentUser.chatId, cPerson.imgUrl, cPerson.name).then((value) {
+            sendEndTurn(flow);
           });
         });
       });
 
-      _sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
-        _sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
-          _sendImage(flow.game.chatId, cPerson.imgUrl, cPerson.name, false);
+      sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+        sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
+          sendImage(flow.game.chatId, cPerson.imgUrl, cPerson.name, false);
         });
       });
     } else {
@@ -117,32 +118,10 @@ class GameFlowCmd extends ComplexCommand {
     var sType = action.replaceAll('select-', '');
     var type = CardType.generic.getTypeByName(sType);
     var card = flow.getCard(type);
-    _sendImage(flow.currentUser.chatId, card.imgUrl, card.name).then((value) {
-      _sendEndTurn(flow);
+    sendImage(flow.currentUser.chatId, card.imgUrl, card.name).then((value) {
+      sendEndTurn(flow);
     });
-    _sendImage(flow.game.chatId, card.imgUrl, card.name, false);
-  }
-
-  void _sendEndTurn(GameFlow flow) {
-    telegram
-        .sendMessage(flow.currentUser.chatId, 'Когда закончишь свою историю - жми:',
-            reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-              [
-                InlineKeyboardButton(
-                    text: 'Заввершить ход', callback_data: buildAction('next-turn'))
-              ]
-            ]))
-        .then((msg) {
-      scheduleMessageDelete(msg.chat.id, msg.message_id);
-    });
-  }
-
-  Future _sendImage(int chatId, String url, String caption, [bool clear = true]) {
-    return telegram.sendPhoto(chatId, url, caption: caption).then((msg) {
-      if (clear) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      }
-    });
+    sendImage(flow.game.chatId, card.imgUrl, card.name, false);
   }
 
   @override

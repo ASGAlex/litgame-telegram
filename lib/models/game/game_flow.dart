@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
+import 'package:litgame_telegram/models/game/flow_interface.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
-class GameFlow {
+class GameFlow implements FlowInterface {
   static final Map<int, GameFlow> _runningGames = {};
   static final Map<String, CardCollection> _loadedCollections = {};
 
@@ -25,9 +26,10 @@ class GameFlow {
   Map<String, List<Card>> cards = {};
 
   CardCollection? get _collection => _loadedCollections[collectionName];
+  String get collectionId => _loadedCollections[collectionName]?.objectId ?? '';
 
   late LinkedUser _user;
-  int turnNumber = 1;
+  int turnNumber = 0;
 
   factory GameFlow.init(LitGame game, [String collectionName = '']) {
     var flow = _runningGames[game.chatId];
@@ -42,8 +44,10 @@ class GameFlow {
     }
   }
 
+  @override
   LitUser get currentUser => _user.user;
 
+  @override
   void nextTurn() {
     var next = _user.next;
     next ??= game.playersSorted.first;
