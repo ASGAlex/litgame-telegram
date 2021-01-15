@@ -1,5 +1,6 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
+import 'package:litgame_telegram/commands/system/mixin/copychat_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/endturn_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/image_mix.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
@@ -12,7 +13,7 @@ import 'package:teledart/src/telegram/telegram.dart';
 import '../../telegram.dart';
 import '../complex_command.dart';
 
-class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
+class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
   GameFlowCmd();
 
   GameFlowCmd.args(ArgResults? arguments) : super.args(arguments);
@@ -66,12 +67,24 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
 
   void onGameStart(Message message, Telegram telegram) {
     if (flow.currentUser.isGameMaster && flow.turnNumber == 1) {
+      telegram.sendMessage(flow.game.chatId,
+          'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+
+      copyChat((chatId) {
+        if (flow.currentUser.chatId == chatId) return;
+        telegram.sendMessage(chatId,
+            'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+      });
+
       var cGeneric = flow.getCard(CardType.generic);
       var cPlace = flow.getCard(CardType.place);
       var cPerson = flow.getCard(CardType.person);
-      sendImage(flow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name).then((value) {
-        sendImage(flow.currentUser.chatId, cPlace.imgUrl, cPlace.name).then((value) {
-          sendImage(flow.currentUser.chatId, cPerson.imgUrl, cPerson.name).then((value) {
+      sendImage(flow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name, false)
+          .then((value) {
+        sendImage(flow.currentUser.chatId, cPlace.imgUrl, cPlace.name, false)
+            .then((value) {
+          sendImage(flow.currentUser.chatId, cPerson.imgUrl, cPerson.name, false)
+              .then((value) {
             sendEndTurn(flow);
           });
         });
@@ -80,6 +93,15 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
       sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
         sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
           sendImage(flow.game.chatId, cPerson.imgUrl, cPerson.name, false);
+        });
+      });
+
+      copyChat((chatId) {
+        if (flow.currentUser.chatId == chatId) return;
+        sendImage(chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+          sendImage(chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
+            sendImage(chatId, cPerson.imgUrl, cPerson.name, false);
+          });
         });
       });
     } else {
@@ -92,6 +114,13 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
     flow.nextTurn();
     telegram.sendMessage(flow.game.chatId,
         'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+
+    copyChat((chatId) {
+      if (flow.currentUser.chatId == chatId) return;
+      telegram.sendMessage(chatId,
+          'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+    });
+
     telegram
         .sendMessage(flow.currentUser.chatId, 'Тянем карту!',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
@@ -118,6 +147,10 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
       sendEndTurn(flow);
     });
     sendImage(flow.game.chatId, card.imgUrl, card.name, false);
+    copyChat((chatId) {
+      if (flow.currentUser.chatId == chatId) return;
+      sendImage(chatId, card.imgUrl, card.name, false);
+    });
   }
 
   @override

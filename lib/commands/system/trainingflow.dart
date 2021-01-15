@@ -1,6 +1,7 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
+import 'package:litgame_telegram/commands/system/mixin/copychat_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/endturn_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/image_mix.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
@@ -13,7 +14,7 @@ import 'package:teledart/src/telegram/model.dart';
 
 import '../complex_command.dart';
 
-class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn {
+class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
   TrainingFlowCmd();
 
   TrainingFlowCmd.args(ArgResults? arguments) : super.args(arguments);
@@ -62,14 +63,17 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn {
   }
 
   void onTrainingStart(Message message, LitTelegram telegram) {
-    telegram.sendMessage(
-        game.chatId,
-        'Небольшая разминка!\r\n'
+    const litMsg = 'Небольшая разминка!\r\n'
         'Сейчас каждому из игроков будет выдаваться случайная карта из колоды,'
         'и нужно будет по ней рассказать что-то, что связано с миром/темой, '
         'на которую вы собираетесь играть.\r\n'
         'Это позволит немного разогреть мозги, вспомнить забытые факты и "прокачать"'
-        'менее подготовленных к игре товарищей.\r\n');
+        'менее подготовленных к игре товарищей.\r\n';
+    telegram.sendMessage(game.chatId, litMsg);
+    copyChat((chatId) {
+      telegram.sendMessage(chatId, litMsg);
+    });
+
     telegram.sendMessage(
         game.master.chatId, 'Когда решишь, что разминки хватит - жми сюда!',
         reply_markup: InlineKeyboardMarkup(inline_keyboard: [
@@ -87,26 +91,32 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn {
       trainingFlow.nextTurn();
     }
     final card = trainingFlow.getCard();
-    sendImage(
-        game.chatId,
-        card.imgUrl,
-        card.name +
-            '\r\n' +
-            'Ходит ' +
-            trainingFlow.currentUser.nickname +
-            '(' +
-            trainingFlow.currentUser.fullName +
-            ')');
-    sendImage(trainingFlow.currentUser.chatId, card.imgUrl, card.name).then((value) {
+    final cardMsg = card.name +
+        '\r\n' +
+        'Ходит ' +
+        trainingFlow.currentUser.nickname +
+        '(' +
+        trainingFlow.currentUser.fullName +
+        ')';
+    sendImage(game.chatId, card.imgUrl, cardMsg, false);
+    copyChat((chatId) {
+      if (trainingFlow.currentUser.chatId == chatId) return;
+      sendImage(chatId, card.imgUrl, cardMsg, false);
+    });
+
+    sendImage(trainingFlow.currentUser.chatId, card.imgUrl, card.name, false)
+        .then((value) {
       sendEndTurn(trainingFlow);
     });
   }
 
   void onTrainingEnd(Message message, LitTelegram telegram) {
-    telegram.sendMessage(
-        game.chatId,
-        'Разминку закончили, все молодцы!\r\n'
-        'Сейчас таки начнём играть :-)');
+    const litMsg = 'Разминку закончили, все молодцы!\r\n'
+        'Сейчас таки начнём играть :-)';
+    telegram.sendMessage(game.chatId, litMsg);
+    copyChat((chatId) {
+      telegram.sendMessage(chatId, litMsg);
+    });
 
     TrainingFlow.stopGame(game.chatId);
     gameFlow.turnNumber = 1;
