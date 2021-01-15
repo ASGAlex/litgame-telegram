@@ -90,12 +90,8 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
   void onNextTurn(Message message, LitTelegram telegram) {
     cleanScheduledMessages(telegram);
     flow.nextTurn();
-    telegram
-        .sendMessage(flow.game.chatId,
-            'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')')
-        .then((msg) {
-      scheduleMessageDelete(msg.chat.id, msg.message_id);
-    });
+    telegram.sendMessage(flow.game.chatId,
+        'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
     telegram
         .sendMessage(flow.currentUser.chatId, 'Тянем карту!',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
