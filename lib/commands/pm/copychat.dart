@@ -27,19 +27,21 @@ class CopyChatCmd extends Command {
     }
 
     final user = LitUser(message.from);
-    final copyChat = user.isCopyChatSet;
-    user['copychat'] = !copyChat;
-    if (user['copychat'] == true) {
-      telegram.sendMessage(
-          message.chat.id,
-          'Теперь все сообщения из общего чата будут дублироваться сюда, в личку.'
-          ' Чтобы отменить, повтори команду ещё раз.');
-    } else {
-      telegram.sendMessage(
-          message.chat.id,
-          'Сообщения из общего чата больше не будут дублироваться в личку.'
-          ' Чтобы это изменить, повтори команду ещё раз.');
-    }
-    user.save();
+    user.registrationChecked.then((value) {
+      final copyChat = user.isCopyChatSet;
+      user['copychat'] = !copyChat;
+      if (user['copychat'] == true) {
+        telegram.sendMessage(
+            message.chat.id,
+            'Теперь все сообщения из общего чата будут дублироваться сюда, в личку.'
+            ' Чтобы отменить, повтори команду ещё раз.');
+      } else {
+        telegram.sendMessage(
+            message.chat.id,
+            'Сообщения из общего чата больше не будут дублироваться в личку.'
+            ' Чтобы это изменить, повтори команду ещё раз.');
+      }
+      user.save();
+    });
   }
 }

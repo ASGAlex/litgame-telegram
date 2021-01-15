@@ -67,20 +67,19 @@ class LitUser extends ParseObject implements ParseCloneable {
   }
 
   bool get isAllowedAddCollection => this['allowAddCollection'] ?? false;
+
   bool get isCopyChatSet => this['copychat'] ?? false;
 
-  Future<bool> _findInStorage() {
-    return _findInMemory().then((found) {
+  Future<bool> _findInStorage() async {
+    var found = false;
+    found = await _findInMemory();
+    if (!found) {
+      found = await _findInRedis();
       if (!found) {
-        return _findInRedis().then((found) {
-          if (!found) {
-            return _findInParse().then((found) => found);
-          }
-          return found;
-        });
+        found = await _findInParse();
       }
-      return found;
-    });
+    }
+    return found;
   }
 
   Future<bool> _findInMemory() {
@@ -92,9 +91,13 @@ class LitUser extends ParseObject implements ParseCloneable {
     }
     this['objectId'] = userData['objectId'] ?? -1;
     this['allowAddCollection'] = userData['allowAddCollection'] ?? false;
-    this['allowAddCollection'] = this['allowAddCollection'] == 'true' ? true : false;
+    if (this['allowAddCollection'] is String) {
+      this['allowAddCollection'] = this['allowAddCollection'] == 'true' ? true : false;
+    }
     this['copychat'] = userData['copychat'] ?? false;
-    this['copychat'] = this['copychat'] == 'true' ? true : false;
+    if (this['copychat'] is String) {
+      this['copychat'] = this['copychat'] == 'true' ? true : false;
+    }
     searchFinished.complete(true);
     return searchFinished.future;
   }
