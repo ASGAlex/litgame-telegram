@@ -17,6 +17,9 @@ class CopyChatCmd extends Command {
   String get name => 'copychat';
 
   @override
+  bool get system => false;
+
+  @override
   void run(Message message, LitTelegram telegram) {
     if (message.chat.type != 'private') {
       telegram.sendMessage(message.chat.id, 'Давай поговорим об этом в личке?');
