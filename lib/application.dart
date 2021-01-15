@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/endgame.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';
+import 'package:litgame_telegram/commands/pm/copychat.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
 import 'package:litgame_telegram/commands/system/finishjoin.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
@@ -49,7 +50,8 @@ class BotApp {
     () => GameFlowCmd(),
     () => AddCollectionCmd(),
     () => HelpCmd(),
-    () => StartCmd()
+    () => StartCmd(),
+    () => CopyChatCmd()
   ];
 
   bool setupFromCliArguments() {

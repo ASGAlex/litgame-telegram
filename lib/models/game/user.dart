@@ -67,6 +67,7 @@ class LitUser extends ParseObject implements ParseCloneable {
   }
 
   bool get isAllowedAddCollection => this['allowAddCollection'] ?? false;
+  bool get isCopyChatSet => this['copychat'] ?? false;
 
   Future<bool> _findInStorage() {
     return _findInMemory().then((found) {
@@ -92,6 +93,8 @@ class LitUser extends ParseObject implements ParseCloneable {
     this['objectId'] = userData['objectId'] ?? -1;
     this['allowAddCollection'] = userData['allowAddCollection'] ?? false;
     this['allowAddCollection'] = this['allowAddCollection'] == 'true' ? true : false;
+    this['copychat'] = userData['copychat'] ?? false;
+    this['copychat'] = this['copychat'] == 'true' ? true : false;
     searchFinished.complete(true);
     return searchFinished.future;
   }
@@ -111,6 +114,7 @@ class LitUser extends ParseObject implements ParseCloneable {
     }
 
     _usersDataCache[chatId] = {
+      'copychat': this['copychat'] ?? false.toString(),
       'allowAddCollection': this['allowAddCollection'] ?? false.toString(),
       'objectId': this['objectId'] ?? (-1).toString(),
       'ts': DateTime.now()
@@ -160,6 +164,7 @@ class LitUser extends ParseObject implements ParseCloneable {
       if (response.results.isNotEmpty) {
         this['objectId'] = response.results.first['objectId'];
         this['allowAddCollection'] = response.results.first['allowAddCollection'];
+        this['copychat'] = response.results.first['copychat'];
         _saveToMemory();
         _saveToRedis();
         return true;
@@ -172,6 +177,7 @@ class LitUser extends ParseObject implements ParseCloneable {
     final _json = <String, String>{};
     _json['objectId'] = this['objectId'] ?? (-1).toString();
     _json['allowAddCollection'] = (this['allowAddCollection'] ?? false).toString();
+    _json['copychat'] = (this['copychat'] ?? false).toString();
     return jsonEncode(_json);
   }
 
@@ -179,6 +185,7 @@ class LitUser extends ParseObject implements ParseCloneable {
     final _json = jsonDecode(value);
     this['objectId'] = _json['objectId'] ?? -1;
     this['allowAddCollection'] = _json['allowAddCollection'] ?? false;
+    this['copychat'] = _json['copychat'] ?? false;
   }
 }
 
