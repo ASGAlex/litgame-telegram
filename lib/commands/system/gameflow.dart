@@ -114,7 +114,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn {
     var sType = action.replaceAll('select-', '');
     var type = CardType.generic.getTypeByName(sType);
     var card = flow.getCard(type);
-    sendImage(flow.currentUser.chatId, card.imgUrl, card.name).then((value) {
+    sendImage(flow.currentUser.chatId, card.imgUrl, card.name, false).then((value) {
       sendEndTurn(flow);
     });
     sendImage(flow.game.chatId, card.imgUrl, card.name, false);
