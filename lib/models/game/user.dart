@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/services/redis.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
@@ -48,6 +49,8 @@ class LitUser extends ParseObject implements ParseCloneable {
   String get fullName => telegramUser.first_name + ' ' + (telegramUser.last_name ?? '');
 
   bool get noChatId => chatId < 0;
+
+  LitGame? currentGame;
 
   @override
   bool operator ==(Object other) =>

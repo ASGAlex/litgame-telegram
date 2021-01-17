@@ -50,10 +50,11 @@ class LitGame {
     _activeGames.remove(chatId);
   }
 
-  LitUser? findPlayerInExistingGames(int chatId) {
+  static LitUser? findPlayerInExistingGames(int chatId) {
     for (var game in _activeGames.entries) {
-      if (game.value.players.containsKey(chatId)) {
-        return game.value.players[chatId];
+      final player = game.value.players[chatId];
+      if (player != null) {
+        return player;
       }
     }
   }
@@ -64,11 +65,13 @@ class LitGame {
     if (isPlayerPlaying(user)) {
       return false;
     }
+    user.currentGame = this;
     _players[user.telegramUser.id] = user;
     return true;
   }
 
   void removePlayer(LitUser user) {
+    user.currentGame = null;
     _players.remove(user.telegramUser.id);
   }
 }
