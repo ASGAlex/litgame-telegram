@@ -1,3 +1,4 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/user.dart';

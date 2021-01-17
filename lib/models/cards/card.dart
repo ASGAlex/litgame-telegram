@@ -1,3 +1,4 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 enum CardType { generic, person, place }

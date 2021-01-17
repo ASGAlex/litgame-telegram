@@ -1,3 +1,4 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:meta/meta.dart';
@@ -40,7 +41,9 @@ abstract class ComplexCommand extends Command {
     try {
       this.message = message;
       this.telegram = telegram;
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
 
     final actionFunc = actionMap[action];
     if (actionFunc != null && actionFunc is Function) {

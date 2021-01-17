@@ -1,3 +1,4 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -91,7 +92,10 @@ class CardCollection extends ParseObject implements ParseCloneable {
   }
 
   void _fillCardsFromJson(Map jsonData) {
-    name = jsonData?['name'];
+    if (jsonData['name'] == null) {
+      throw 'Invalid archive format';
+    }
+    name = jsonData['name'];
     var cardsList;
     try {
       cardsList = jsonData['cards'] as List;
@@ -102,10 +106,10 @@ class CardCollection extends ParseObject implements ParseCloneable {
       throw 'Invalid archive format';
     }
     for (var c in cardsList) {
-      String cType = c['type'];
-      if (cType == null) {
+      if (c['type'] == null) {
         throw 'Invalid archive format';
       }
+      String cType = c['type'];
       if (cards[cType] == null) {
         cards[cType] = <Card>[];
       }

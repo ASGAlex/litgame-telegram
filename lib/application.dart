@@ -1,5 +1,6 @@
 import 'dart:io';
 
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/endgame.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';

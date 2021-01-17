@@ -1,3 +1,4 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/system/mixin/copychat_mix.dart';
@@ -36,6 +37,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
       };
 
   @override
+  // ignore: must_call_super
   void run(Message message, LitTelegram telegram) {
     this.message = message;
     this.telegram = telegram;

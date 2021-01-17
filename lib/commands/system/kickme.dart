@@ -1,3 +1,4 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/models/game/game.dart';
