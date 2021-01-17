@@ -1,13 +1,24 @@
+import 'dart:async';
+
 import 'package:litgame_telegram/commands/core_command.dart';
 
-typedef MessageSender = void Function(int chatId);
+typedef MessageSender = void Function(int chatId, Completer completer);
 
 mixin CopyChat on Command {
-  void copyChat(MessageSender messageSender) {
-    game.players.forEach((key, litUser) {
+  Future copyChat(MessageSender messageSender) {
+    final completer = Completer();
+    var found = false;
+    for (var player in game.players.entries) {
+      final litUser = player.value;
       if (litUser.isCopyChatSet) {
-        messageSender(litUser.chatId);
+        found = true;
+        messageSender(litUser.chatId, completer);
       }
-    });
+    }
+
+    if (!found) {
+      completer.complete();
+    }
+    return completer.future;
   }
 }

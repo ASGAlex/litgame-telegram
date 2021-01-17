@@ -72,7 +72,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
       telegram.sendMessage(flow.game.chatId,
           'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
 
-      copyChat((chatId) {
+      copyChat((chatId, _) {
         if (flow.currentUser.chatId == chatId) return;
         telegram.sendMessage(chatId,
             'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
@@ -98,7 +98,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
         });
       });
 
-      copyChat((chatId) {
+      copyChat((chatId, _) {
         if (flow.currentUser.chatId == chatId) return;
         sendImage(chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
           sendImage(chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
@@ -117,7 +117,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
     telegram.sendMessage(flow.game.chatId,
         'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
 
-    copyChat((chatId) {
+    copyChat((chatId, _) {
       if (flow.currentUser.chatId == chatId) return;
       telegram.sendMessage(chatId,
           'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
@@ -149,7 +149,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
       sendEndTurn(flow);
     });
     sendImage(flow.game.chatId, card.imgUrl, card.name, false);
-    copyChat((chatId) {
+    copyChat((chatId, _) {
       if (flow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, card.name, false);
     });

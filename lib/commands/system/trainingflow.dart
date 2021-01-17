@@ -1,4 +1,5 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
+
 import 'package:args/src/arg_parser.dart';
 import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
@@ -71,20 +72,27 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
         'Это позволит немного разогреть мозги, вспомнить забытые факты и "прокачать"'
         'менее подготовленных к игре товарищей.\r\n';
     telegram.sendMessage(game.chatId, litMsg);
-    copyChat((chatId) {
-      telegram.sendMessage(chatId, litMsg);
+    final msgToAdminIsCopied = copyChat((chatId, completer) {
+      final future = telegram.sendMessage(chatId, litMsg);
+      if (chatId == game.master.chatId) {
+        future.then((value) {
+          completer.complete();
+        });
+      }
     });
 
-    telegram.sendMessage(
-        game.master.chatId, 'Когда решишь, что разминки хватит - жми сюда!',
-        reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-          [
-            InlineKeyboardButton(
-                text: 'Завершить разминку', callback_data: buildAction('end'))
-          ]
-        ]));
-    firstStep = true;
-    onNextTurn(message, telegram);
+    msgToAdminIsCopied.then((value) {
+      telegram.sendMessage(
+          game.master.chatId, 'Когда решишь, что разминки хватит - жми сюда!',
+          reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+            [
+              InlineKeyboardButton(
+                  text: 'Завершить разминку', callback_data: buildAction('end'))
+            ]
+          ]));
+      firstStep = true;
+      onNextTurn(message, telegram);
+    });
   }
 
   void onNextTurn(Message message, LitTelegram telegram) {
@@ -100,7 +108,7 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
         trainingFlow.currentUser.fullName +
         ')';
     sendImage(game.chatId, card.imgUrl, cardMsg, false);
-    copyChat((chatId) {
+    copyChat((chatId, _) {
       if (trainingFlow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, cardMsg, false);
     });
@@ -115,7 +123,7 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
     const litMsg = 'Разминку закончили, все молодцы!\r\n'
         'Сейчас таки начнём играть :-)';
     telegram.sendMessage(game.chatId, litMsg);
-    copyChat((chatId) {
+    copyChat((chatId, _) {
       telegram.sendMessage(chatId, litMsg);
     });
 

@@ -12,7 +12,7 @@ mixin EndTurn on ComplexCommand {
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(
-                    text: 'Заввершить ход', callback_data: buildAction('next-turn'))
+                    text: 'Завершить ход', callback_data: buildAction('next-turn'))
               ]
             ]))
         .then((msg) {

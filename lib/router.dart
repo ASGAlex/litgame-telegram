@@ -92,7 +92,7 @@ class Router {
       cmd = _buildCommand(commandName);
       if (cmd != null) {
         RouterController().clear(message.chat.id);
-        if (data.callback_query == null && cmd.system) {
+        if (!(data.callback_query == null && cmd.system)) {
           // FIXME: dirty hack
           if (data.callback_query?.from != null) {
             message.from = data.callback_query?.from;
