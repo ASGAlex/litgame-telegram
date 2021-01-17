@@ -50,12 +50,18 @@ class LitGame {
     _activeGames.remove(chatId);
   }
 
-  bool hasPlayer(LitUser user) {
-    return _players.containsKey(user.telegramUser.id);
+  LitUser? findPlayerInExistingGames(int chatId) {
+    for (var game in _activeGames.entries) {
+      if (game.value.players.containsKey(chatId)) {
+        return game.value.players[chatId];
+      }
+    }
   }
 
+  bool isPlayerPlaying(LitUser user) => findPlayerInExistingGames(user.chatId) == null;
+
   bool addPlayer(LitUser user) {
-    if (hasPlayer(user)) {
+    if (isPlayerPlaying(user)) {
       return false;
     }
     _players[user.telegramUser.id] = user;
