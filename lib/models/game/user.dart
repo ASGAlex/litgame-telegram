@@ -8,6 +8,7 @@ import 'package:litgame_telegram/services/redis.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 
+//TODO: heavy refactoring needed
 class LitUser extends ParseObject implements ParseCloneable {
   static late List<int> adminUsers;
   static final Map<int, Map<String, dynamic>> _usersDataCache = {};
@@ -72,7 +73,13 @@ class LitUser extends ParseObject implements ParseCloneable {
 
   bool get isAllowedAddCollection => this['allowAddCollection'] ?? false;
 
-  bool get isCopyChatSet => this['copychat'] ?? false;
+  //FIXME: dirty hotfix
+  bool get isCopyChatSet {
+    if (this['copychat'] is String) {
+      this['copychat'] = this['copychat'] == 'true' ? true : false;
+    }
+    return this['copychat'] ?? false;
+  }
 
   Future<bool> _findInStorage() async {
     var found = false;
