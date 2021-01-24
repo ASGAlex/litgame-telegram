@@ -59,6 +59,23 @@ class LitGame {
     }
   }
 
+  static LitGame? findGameOfPlayer(int chatId) {
+    for (var game in _activeGames.entries) {
+      final player = game.value.players[chatId];
+      if (player != null) {
+        return game.value;
+      }
+    }
+  }
+
+  @override
+  bool operator ==(other) {
+    if (other is LitGame) {
+      return chatId == other.chatId;
+    }
+    return false;
+  }
+
   bool isPlayerPlaying(LitUser user) => findPlayerInExistingGames(user.chatId) != null;
 
   bool addPlayer(LitUser user) {

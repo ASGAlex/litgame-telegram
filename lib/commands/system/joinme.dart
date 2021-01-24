@@ -26,11 +26,25 @@ class JoinMeCmd extends Command {
     if (_game == null) {
       throw 'В этом чате нет запущенных игр';
     }
-    var sendReport = _game.addPlayer(user);
+    final sendReport = _game.addPlayer(user);
     _sendChatIdRequest(message, user, telegram);
 
     if (sendReport) {
       sendStatisticsToAdmin(_game, telegram, message.chat.id);
+    } else {
+      final existingGame = LitGame.findGameOfPlayer(user.chatId);
+      if (existingGame != _game) {
+        telegram.sendMessage(message.chat.id,
+            user.nickname + ' играет в какой-то другой игре. Надо её сначала завершить.');
+        telegram.getChat(existingGame?.chatId).then((chat) {
+          var chatName = chat.title ?? chat.id.toString();
+          telegram.sendMessage(
+              user.chatId,
+              'Чтобы начать новую игру, нужно завершить текущую в чате "' +
+                  chatName +
+                  '"');
+        });
+      }
     }
   }
 
