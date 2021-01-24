@@ -12,7 +12,7 @@ import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 class CardCollection extends ParseObject implements ParseCloneable {
   CardCollection(String name) : super('CardCollection') {
-    name = name.isEmpty ? name : 'default';
+    this['name'] = name.isEmpty ? 'default' : name;
   }
 
   CardCollection.clone() : super('CardCollection');
