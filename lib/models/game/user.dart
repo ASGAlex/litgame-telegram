@@ -75,6 +75,7 @@ class LitUser extends ParseObject implements ParseCloneable {
 
   //FIXME: dirty hotfix
   bool get isCopyChatSet {
+    return true;
     if (this['copychat'] is String) {
       this['copychat'] = this['copychat'] == 'true' ? true : false;
     }
