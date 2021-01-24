@@ -47,6 +47,7 @@ class StartGameCmd extends Command {
         scheduleMessageDelete(msg.chat.id, msg.message_id);
       });
     } else {
+      LitGame.stopGame(message.chat.id);
       telegram.sendMessage(
           message.chat.id, 'Чтобы начать новую игру, нужно завершить начатую игру.');
       final existingGame = LitGame.findGameOfPlayer(message.from.id);
