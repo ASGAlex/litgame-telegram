@@ -7,8 +7,7 @@ import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/src/telegram/model.dart';
 
 /// TODO: наверное, это ненужно, удалить.
-/// @deprecated
-///
+@Deprecated('not useful')
 class CopyChatCmd extends Command {
   CopyChatCmd();
 
