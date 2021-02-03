@@ -122,7 +122,7 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
   void onTrainingEnd(Message message, LitTelegram telegram) {
     const litMsg = 'Разминку закончили, все молодцы!\r\n'
         'Сейчас таки начнём играть :-)';
-    telegram.sendMessage(game.chatId, litMsg);
+    final endMessageSent = telegram.sendMessage(game.chatId, litMsg);
     copyChat((chatId, _) {
       telegram.sendMessage(chatId, litMsg);
     });
@@ -131,7 +131,9 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
     gameFlow.turnNumber = 1;
     final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start',
         {'gci': game.chatId.toString(), 'cid': gameFlow.collectionId});
-    cmd.run(message, telegram);
+    endMessageSent.then((value) {
+      cmd.run(message, telegram);
+    });
   }
 
   @override
