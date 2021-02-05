@@ -20,8 +20,11 @@ class HelpCmd extends ComplexCommand {
   String get name => 'help';
 
   void onFirstRun(Message message, LitTelegram telegram) {
-    telegram.sendMessage(message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)');
-    _sendHelpInitialMessage();
+    telegram
+        .sendMessage(message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)')
+        .then((value) {
+      _sendHelpInitialMessage();
+    });
   }
 
   void onForPlayer(Message message, LitTelegram telegram) {
