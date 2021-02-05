@@ -2,7 +2,10 @@ import 'dart:io';
 
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
+import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/commands/endgame.dart';
+import 'package:litgame_telegram/commands/logger.dart';
+import 'package:litgame_telegram/commands/middleware.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
 import 'package:litgame_telegram/commands/system/finishjoin.dart';
@@ -49,6 +52,11 @@ class BotApp {
     () => GameFlowCmd(),
     () => AddCollectionCmd(),
     () => HelpCmd()
+  ];
+
+  List<MiddlewareConstructor> middleware = [
+    () => ComplexCommand.withAction(() => HelpCmd(), 'firstRun') as Middleware,
+    () => Logger()
   ];
 
   bool setupFromCliArguments() {
@@ -152,6 +160,9 @@ class BotApp {
     final router = Router(telegram);
     for (var cmdBuilder in commands) {
       router.registerCommand(cmdBuilder);
+    }
+    for (var cmdBuilder in middleware) {
+      router.registerMiddleware(cmdBuilder);
     }
     print('${commands.length} commands registered');
 

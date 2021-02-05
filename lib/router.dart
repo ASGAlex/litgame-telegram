@@ -1,8 +1,7 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 
-import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/commands/core_command.dart';
-import 'package:litgame_telegram/commands/pm/help.dart';
+import 'package:litgame_telegram/commands/middleware.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
@@ -14,34 +13,21 @@ class Router {
   Router(LitTelegram telegram) : _telegram = telegram;
   final LitTelegram _telegram;
   final Map<String, CommandConstructor> _commands = {};
+  final List<MiddlewareConstructor> _middleware = [];
 
   void registerCommand(CommandConstructor commandConstructor) {
     final cmd = commandConstructor();
     _commands[cmd.name] = commandConstructor;
   }
 
+  void registerMiddleware(MiddlewareConstructor commandConstructor) {
+    _middleware.add(commandConstructor);
+  }
+
   Command? _buildCommand(String name) {
     var builder = _commands[name];
     if (builder == null) return null;
     return builder();
-  }
-
-  //TODO: move to separate class maybe?
-  void _copyPMMessagesToGameChat(Message message, Telegram telegram) {
-    final player = LitGame.findPlayerInExistingGames(message.chat.id);
-    if (player != null && player.isCopyChatSet) {
-      final gameChatId = player.currentGame?.chatId;
-      if (gameChatId == null) {
-        throw 'Player is in game, but currentGame.chatId is null!';
-      }
-      final text = 'Игрок ' +
-          player.nickname +
-          ' (' +
-          player.fullName +
-          ') пишет: \r\n' +
-          message.text;
-      telegram.sendMessage(gameChatId, text);
-    }
   }
 
   //TODO: move to separate class maybe?
@@ -64,19 +50,9 @@ class Router {
   }
 
   void dispatch(Update data) {
-    print(data.toJson());
-
-    // юзер написал в личку, просто так или чтобы бот получил айди чата.
-    if (data.message?.chat.type == 'private') {
-      final user = LitUser(data.message.from);
-      user.registrationChecked.then((registered) {
-        if (!registered) {
-          user.save();
-          final help = ComplexCommand.withAction(() => HelpCmd(), 'firstRun');
-          help.run(data.message, _telegram);
-        }
-        _copyPMMessagesToGameChat(data.message, _telegram);
-      });
+    for (var builder in _middleware) {
+      var cmd = builder();
+      cmd.handle(data, _telegram);
     }
 
     var message = data.message ?? data.callback_query?.message;
