@@ -2,13 +2,10 @@
 import 'package:args/src/arg_parser.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/user.dart';
-import 'package:litgame_telegram/router.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-
-import '../../telegram.dart';
-import '../complex_command.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class AddCollectionCmd extends ComplexCommand {
   static final List<int> usersAwaitForUpload = [];
@@ -33,18 +30,18 @@ class AddCollectionCmd extends ComplexCommand {
   ArgParser getParser() => super.getParser()..addOption('userId');
 
   @override
-  void run(Message message, LitTelegram telegram) {
+  void run(Message message, TelegramEx telegram) {
     if (message.chat.type != 'private') {
       telegram.sendMessage(message.chat.id, 'Давай поговорим об этом в личке?');
       return;
     }
 
     user = LitUser(message.from);
-    cleanScheduledMessages(telegram);
+    deleteScheduledMessages(telegram);
     super.run(message, telegram);
   }
 
-  void onAskAccess(Message message, LitTelegram telegram) {
+  void onAskAccess(Message message, TelegramEx telegram) {
     LitUser.adminUsers.forEach((int chatId) {
       telegram
           .sendMessage(
@@ -72,15 +69,15 @@ class AddCollectionCmd extends ComplexCommand {
     });
   }
 
-  void onAllowAccess(Message message, LitTelegram telegram) {
+  void onAllowAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(true, message, telegram);
   }
 
-  void onDenyAccess(Message message, LitTelegram telegram) {
+  void onDenyAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(false, message, telegram);
   }
 
-  void _accessAllowDeny(bool allow, Message message, LitTelegram telegram) {
+  void _accessAllowDeny(bool allow, Message message, TelegramEx telegram) {
     var userId = arguments?['userId'];
     if (userId == null) return;
 
@@ -105,13 +102,13 @@ class AddCollectionCmd extends ComplexCommand {
     });
   }
 
-  void onCancelAccess(Message message, LitTelegram telegram) {
+  void onCancelAccess(Message message, TelegramEx telegram) {
     telegram.sendMessage(
         message.chat.id, 'Спасибо, что не беспокоите админа просто так :-)');
   }
 
   @override
-  void onNoAction(Message message, LitTelegram telegram) {
+  void onNoAction(Message message, TelegramEx telegram) {
     user.registrationChecked.then((value) {
       if (usersAwaitForUpload.contains(message.chat.id) && message.document != null) {
         telegram.getFile(message.document.file_id).then((file) {
@@ -148,10 +145,10 @@ class AddCollectionCmd extends ComplexCommand {
     });
   }
 
-  void _askArchUpload(Message message, LitTelegram telegram, int userId) {
+  void _askArchUpload(Message message, TelegramEx telegram, int userId) {
     telegram.sendMessage(userId, 'Загрузи в чат архив с новой коллекцией');
     usersAwaitForUpload.add(userId);
     reset();
-    RouterController().willProcessNextMessageInChat(userId, this);
+    callMeOnNextMessage(userId);
   }
 }

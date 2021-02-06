@@ -1,17 +1,12 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
-import 'package:args/src/arg_results.dart';
-import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-
-import '../../telegram.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class SetMasterCmd extends Command {
   SetMasterCmd();
-
-  SetMasterCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
   ArgParser getParser() => getGameBaseParser()..addOption('userId');
@@ -20,8 +15,8 @@ class SetMasterCmd extends Command {
   String get name => 'setmaster';
 
   @override
-  void run(Message message, LitTelegram telegram) {
-    cleanScheduledMessages(telegram);
+  void run(Message message, TelegramEx telegram) {
+    deleteScheduledMessages(telegram);
     final player = game.players[int.parse(arguments?['userId'])];
     player?.isGameMaster = true;
     if (player != null) {

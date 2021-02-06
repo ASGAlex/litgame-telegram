@@ -1,18 +1,13 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
-import 'package:args/src/arg_results.dart';
-import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/commands/system/setcollection.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-
-import '../../telegram.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class SetOrderCmd extends Command {
   SetOrderCmd();
-
-  SetOrderCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
   ArgParser? getParser() => getGameBaseParser()..addOption('userId')..addOption('reset');
@@ -21,8 +16,8 @@ class SetOrderCmd extends Command {
   String get name => 'setorder';
 
   @override
-  void run(Message message, LitTelegram telegram) {
-    cleanScheduledMessages(telegram);
+  void run(Message message, TelegramEx telegram) {
+    deleteScheduledMessages(telegram);
     if (arguments?['reset'] == true) {
       game.playersSorted.clear();
       game.playersSorted.add(LinkedUser(game.master));
@@ -51,8 +46,7 @@ class SetOrderCmd extends Command {
                   InlineKeyboardButton(
                       text: 'Играем!',
                       // callback_data: GameFlowCmd.args(arguments).buildAction('start')),
-                      callback_data:
-                          SetCollectionCmd.args(arguments).buildAction('list')),
+                      callback_data: SetCollectionCmd().buildAction('list')),
                   InlineKeyboardButton(
                       text: 'Отсортировать заново',
                       callback_data:

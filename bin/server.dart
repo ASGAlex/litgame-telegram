@@ -1,6 +1,6 @@
-import 'package:litgame_telegram/application.dart';
+import 'package:litgame_telegram/botapp.dart';
 
 Future main(List<String> arguments) async {
-  final app = BotApp(arguments);
+  final app = BotApp(BotAppConfig());
   app.run();
 }

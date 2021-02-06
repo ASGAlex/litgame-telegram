@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:litgame_telegram/commands/core_command.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 typedef MessageSender = void Function(int chatId, Completer completer);
 

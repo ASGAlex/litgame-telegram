@@ -1,12 +1,11 @@
-import 'package:litgame_telegram/middleware/middleware.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/user.dart';
-import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/src/telegram/model.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class MessageCopy with Middleware {
   @override
-  void handle(Update data, LitTelegram telegram) {
+  void handle(Update data, TelegramEx telegram) {
     if (data.message?.chat.type == 'private') {
       final user = LitUser(data.message.from);
       user.registrationChecked.then((registered) {
@@ -19,7 +18,7 @@ class MessageCopy with Middleware {
     }
   }
 
-  void _copyPMMessagesToGameChat(Message message, LitTelegram telegram) {
+  void _copyPMMessagesToGameChat(Message message, TelegramEx telegram) {
     final player = LitGame.findPlayerInExistingGames(message.chat.id);
     if (player != null && player.isCopyChatSet) {
       final gameChatId = player.currentGame?.chatId;
@@ -36,7 +35,7 @@ class MessageCopy with Middleware {
     }
   }
 
-  void _copyGameChatMessagesToPM(Message message, LitTelegram telegram) {
+  void _copyGameChatMessagesToPM(Message message, TelegramEx telegram) {
     final game = LitGame.find(message.chat.id);
     if (game == null) return;
     if (!game.players.containsKey(message.from.id)) return;

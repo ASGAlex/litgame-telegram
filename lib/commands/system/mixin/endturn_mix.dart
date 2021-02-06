@@ -1,8 +1,8 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
-import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/models/game/flow_interface.dart';
 import 'package:meta/meta.dart';
 import 'package:teledart/model.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 mixin EndTurn on ComplexCommand {
   @protected

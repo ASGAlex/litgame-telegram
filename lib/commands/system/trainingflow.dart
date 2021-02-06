@@ -9,17 +9,13 @@ import 'package:litgame_telegram/commands/system/mixin/image_mix.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:litgame_telegram/models/game/traning_flow.dart';
-import 'package:litgame_telegram/telegram.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-
-import '../complex_command.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
   TrainingFlowCmd();
-
-  TrainingFlowCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
   ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
@@ -39,8 +35,8 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
   bool firstStep = false;
 
   @override
-  void run(Message message, LitTelegram telegram) async {
-    cleanScheduledMessages(telegram);
+  void run(Message message, TelegramEx telegram) async {
+    deleteScheduledMessages(telegram);
     var collectionName = 'default';
     var collectionId = arguments?['cid'];
     if (collectionId != null) {
@@ -60,11 +56,11 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
   }
 
   @override
-  void onNoAction(Message message, LitTelegram telegram) {
+  void onNoAction(Message message, TelegramEx telegram) {
     // TODO: implement onNoAction
   }
 
-  void onTrainingStart(Message message, LitTelegram telegram) {
+  void onTrainingStart(Message message, TelegramEx telegram) {
     const litMsg = 'Небольшая разминка!\r\n'
         'Сейчас каждому из игроков будет выдаваться случайная карта из колоды,'
         'и нужно будет по ней рассказать что-то, что связано с миром/темой, '
@@ -95,7 +91,7 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
     });
   }
 
-  void onNextTurn(Message message, LitTelegram telegram) {
+  void onNextTurn(Message message, TelegramEx telegram) {
     if (!firstStep) {
       trainingFlow.nextTurn();
     }
@@ -119,7 +115,7 @@ class TrainingFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat
     });
   }
 
-  void onTrainingEnd(Message message, LitTelegram telegram) {
+  void onTrainingEnd(Message message, TelegramEx telegram) {
     const litMsg = 'Разминку закончили, все молодцы!\r\n'
         'Сейчас таки начнём играть :-)';
     final endMessageSent = telegram.sendMessage(game.chatId, litMsg);

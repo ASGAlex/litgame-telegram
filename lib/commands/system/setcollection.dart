@@ -1,12 +1,11 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
-import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/commands/endgame.dart';
 import 'package:litgame_telegram/commands/system/trainingflow.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
-import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class SetCollectionCmd extends ComplexCommand {
   SetCollectionCmd();
@@ -26,12 +25,12 @@ class SetCollectionCmd extends ComplexCommand {
   @override
   String get name => 'scl';
 
-  void onCollectionSelect(Message message, LitTelegram telegram) {
+  void onCollectionSelect(Message message, TelegramEx telegram) {
     final collectionName = arguments?['cid'];
     _startGameWithCollection(collectionName);
   }
 
-  void onCollectionList(Message message, LitTelegram telegram) {
+  void onCollectionList(Message message, TelegramEx telegram) {
     CardCollection.listCollections().then((collections) {
       if (collections.isEmpty) {
         _resumeGameWithError(message, telegram);
@@ -57,7 +56,7 @@ class SetCollectionCmd extends ComplexCommand {
     });
   }
 
-  void _resumeGameWithError(Message message, LitTelegram telegram) {
+  void _resumeGameWithError(Message message, TelegramEx telegram) {
     telegram
         .sendMessage(
             gameChatId, 'Не нашлось ни одной колоды карт, а без них сыграть не выйдет..')
@@ -77,7 +76,7 @@ class SetCollectionCmd extends ComplexCommand {
   }
 
   @override
-  void onNoAction(Message message, LitTelegram telegram) {
+  void onNoAction(Message message, TelegramEx telegram) {
     // TODO: implement onNoAction
   }
 

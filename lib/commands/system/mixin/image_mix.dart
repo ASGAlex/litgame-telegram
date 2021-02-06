@@ -1,5 +1,5 @@
-import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:meta/meta.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 mixin ImageSender on ComplexCommand {
   @protected

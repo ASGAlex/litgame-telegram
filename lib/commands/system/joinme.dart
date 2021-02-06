@@ -1,26 +1,21 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
-import 'package:args/src/arg_results.dart';
-import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/commands/system/finishjoin.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:meta/meta.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-
-import '../../telegram.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class JoinMeCmd extends Command {
   JoinMeCmd();
-
-  JoinMeCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
   String get name => 'joinme';
 
   @override
-  void run(Message message, LitTelegram telegram) {
+  void run(Message message, TelegramEx telegram) {
     final user = LitUser(message.from);
     final _game = LitGame.find(message.chat.id);
     if (_game == null) {
@@ -48,7 +43,7 @@ class JoinMeCmd extends Command {
     }
   }
 
-  void _sendChatIdRequest(Message message, LitUser user, LitTelegram telegram) {
+  void _sendChatIdRequest(Message message, LitUser user, TelegramEx telegram) {
     var text = user.nickname + ' подключился к игре!\r\n';
     user.registrationChecked.then((registered) {
       if (!registered) {
@@ -60,7 +55,7 @@ class JoinMeCmd extends Command {
   }
 
   @protected
-  void sendStatisticsToAdmin(LitGame game, LitTelegram telegram, int gameChatId) {
+  void sendStatisticsToAdmin(LitGame game, TelegramEx telegram, int gameChatId) {
     if (game.admin.noChatId) return;
     var text = '*В игре примут участие:*\r\n';
     late ReplyMarkup markup;
@@ -75,8 +70,8 @@ class JoinMeCmd extends Command {
         [
           InlineKeyboardButton(
               text: 'Завершить набор игроков',
-              callback_data: FinishJoinCmd.args(arguments)
-                  .buildCommandCall({'gci': gameChatId.toString()}))
+              callback_data:
+                  FinishJoinCmd().buildCommandCall({'gci': gameChatId.toString()}))
         ]
       ]);
     }

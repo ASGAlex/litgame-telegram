@@ -1,6 +1,5 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
-import 'package:args/src/arg_results.dart';
 import 'package:litgame_telegram/commands/system/mixin/copychat_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/endturn_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/image_mix.dart';
@@ -10,14 +9,10 @@ import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
 import 'package:teledart/src/telegram/telegram.dart';
-
-import '../../telegram.dart';
-import '../complex_command.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
   GameFlowCmd();
-
-  GameFlowCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
   ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
@@ -38,7 +33,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
 
   @override
   // ignore: must_call_super
-  void run(Message message, LitTelegram telegram) {
+  void run(Message message, TelegramEx telegram) {
     this.message = message;
     this.telegram = telegram;
     var collectionName = 'default';
@@ -111,8 +106,8 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
     }
   }
 
-  void onNextTurn(Message message, LitTelegram telegram) {
-    cleanScheduledMessages(telegram);
+  void onNextTurn(Message message, TelegramEx telegram) {
+    deleteScheduledMessages(telegram);
     flow.nextTurn();
     telegram.sendMessage(flow.game.chatId,
         'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
@@ -141,7 +136,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
   }
 
   void onSelectCard(Message message, Telegram telegram) {
-    cleanScheduledMessages(telegram);
+    deleteScheduledMessages(telegram);
     var sType = action.replaceAll('select-', '');
     var type = CardType.generic.getTypeByName(sType);
     var card = flow.getCard(type);

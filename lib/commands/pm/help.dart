@@ -1,10 +1,8 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
-import 'package:litgame_telegram/commands/complex_command.dart';
-import 'package:litgame_telegram/middleware/middleware.dart';
 import 'package:litgame_telegram/models/game/user.dart';
-import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class HelpCmd extends ComplexCommand with Middleware {
   @override
@@ -21,7 +19,7 @@ class HelpCmd extends ComplexCommand with Middleware {
   @override
   String get name => 'help';
 
-  void onFirstRun(Message message, LitTelegram telegram) {
+  void onFirstRun(Message message, TelegramEx telegram) {
     telegram
         .sendMessage(message.chat.id, 'Я запомнил тебя! Обещаю не спамить :-)')
         .then((value) {
@@ -29,7 +27,7 @@ class HelpCmd extends ComplexCommand with Middleware {
     });
   }
 
-  void onForPlayer(Message message, LitTelegram telegram) {
+  void onForPlayer(Message message, TelegramEx telegram) {
     const text = 'Вас позвали в игру, а вы не знаете, что делать? Или просто имеется '
         'неимоверная тяга к знаниям? Что ж, рассказываю. \r\n'
         '\r\n'
@@ -52,7 +50,7 @@ class HelpCmd extends ComplexCommand with Middleware {
         parse_mode: 'MarkdownV2');
   }
 
-  void onForMaster(Message message, LitTelegram telegram) {
+  void onForMaster(Message message, TelegramEx telegram) {
     const text = 'Начать новую игру можно вот так: \r\n'
         '1. Собрать всех участников игры в одном чате.\r\n'
         '2. Добавить бота (меня!) в этот чат.'
@@ -79,7 +77,7 @@ class HelpCmd extends ComplexCommand with Middleware {
         parse_mode: 'MarkdownV2');
   }
 
-  void onAboutGame(Message message, LitTelegram telegram) {
+  void onAboutGame(Message message, TelegramEx telegram) {
     const text =
         '*Суть и задача игры* - составить вместе с друзьями произвольную историю '
         'на определённую тему. И, конечно, получить удовольствие и от процесса и от '
@@ -109,7 +107,7 @@ class HelpCmd extends ComplexCommand with Middleware {
   }
 
   @override
-  void onNoAction(Message message, LitTelegram telegram) {
+  void onNoAction(Message message, TelegramEx telegram) {
     _sendHelpInitialMessage();
   }
 
@@ -137,7 +135,7 @@ class HelpCmd extends ComplexCommand with Middleware {
   /// Юзер написал в личку, просто так или чтобы бот получил айди чата.
   ///
   @override
-  void handle(Update data, LitTelegram telegram) {
+  void handle(Update data, TelegramEx telegram) {
     if (data.message?.chat.type == 'private') {
       final user = LitUser(data.message.from);
       user.registrationChecked.then((registered) {

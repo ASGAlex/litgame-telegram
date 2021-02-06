@@ -1,29 +1,24 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
-import 'package:args/src/arg_results.dart';
-import 'package:litgame_telegram/commands/core_command.dart';
 import 'package:litgame_telegram/commands/system/setmaster.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart/src/telegram/model.dart';
-
-import '../../telegram.dart';
+import 'package:teledart_app/teledart_app.dart';
 
 class FinishJoinCmd extends Command {
   FinishJoinCmd();
-
-  FinishJoinCmd.args(ArgResults? arguments) : super.args(arguments);
 
   @override
   String get name => 'finishjoin';
 
   @override
-  void run(Message message, LitTelegram telegram) {
+  void run(Message message, TelegramEx telegram) {
     if (message.chat.id != game.admin.chatId) {
       telegram.sendMessage(message.chat.id, 'Не ты админ текущей игры!');
       return;
     }
 
-    cleanScheduledMessages(telegram);
+    deleteScheduledMessages(telegram);
     final keyboard = <List<InlineKeyboardButton>>[];
     game.players.values.forEach((player) {
       var text = player.nickname + ' (' + player.fullName + ')';
@@ -37,7 +32,7 @@ class FinishJoinCmd extends Command {
       keyboard.add([
         InlineKeyboardButton(
             text: text,
-            callback_data: SetMasterCmd.args(arguments).buildCommandCall({
+            callback_data: SetMasterCmd().buildCommandCall({
               'gci': gameChatId.toString(),
               'userId': player.telegramUser.id.toString()
             }))
