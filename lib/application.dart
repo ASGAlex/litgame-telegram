@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:litgame_telegram/commands/complex_command.dart';
 import 'package:litgame_telegram/commands/endgame.dart';
-import 'package:litgame_telegram/commands/logger.dart';
-import 'package:litgame_telegram/commands/middleware.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';
 import 'package:litgame_telegram/commands/startgame.dart';
 import 'package:litgame_telegram/commands/system/finishjoin.dart';
@@ -15,6 +13,7 @@ import 'package:litgame_telegram/commands/system/kickme.dart';
 import 'package:litgame_telegram/commands/system/setcollection.dart';
 import 'package:litgame_telegram/commands/system/setmaster.dart';
 import 'package:litgame_telegram/commands/system/setorder.dart';
+import 'package:litgame_telegram/middleware/message_copy.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/user.dart';
@@ -27,6 +26,8 @@ import 'package:teledart/teledart.dart';
 import 'commands/core_command.dart';
 import 'commands/pm/help.dart';
 import 'commands/system/trainingflow.dart';
+import 'middleware/logger.dart';
+import 'middleware/middleware.dart';
 
 class BotApp {
   BotApp(this.arguments);
@@ -56,7 +57,8 @@ class BotApp {
 
   List<MiddlewareConstructor> middleware = [
     () => ComplexCommand.withAction(() => HelpCmd(), 'firstRun') as Middleware,
-    () => Logger()
+    () => Logger(),
+    () => MessageCopy()
   ];
 
   bool setupFromCliArguments() {

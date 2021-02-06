@@ -1,7 +1,6 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:litgame_telegram/commands/complex_command.dart';
-import 'package:litgame_telegram/commands/middleware.dart';
-import 'package:litgame_telegram/models/game/game.dart';
+import 'package:litgame_telegram/middleware/middleware.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
@@ -146,25 +145,7 @@ class HelpCmd extends ComplexCommand with Middleware {
           user.save();
           run(data.message, telegram);
         }
-        _copyPMMessagesToGameChat(data.message, telegram);
       });
-    }
-  }
-
-  void _copyPMMessagesToGameChat(Message message, LitTelegram telegram) {
-    final player = LitGame.findPlayerInExistingGames(message.chat.id);
-    if (player != null && player.isCopyChatSet) {
-      final gameChatId = player.currentGame?.chatId;
-      if (gameChatId == null) {
-        throw 'Player is in game, but currentGame.chatId is null!';
-      }
-      final text = 'Игрок ' +
-          player.nickname +
-          ' (' +
-          player.fullName +
-          ') пишет: \r\n' +
-          message.text;
-      telegram.sendMessage(gameChatId, text);
     }
   }
 }

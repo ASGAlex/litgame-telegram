@@ -1,13 +1,10 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 
 import 'package:litgame_telegram/commands/core_command.dart';
-import 'package:litgame_telegram/commands/middleware.dart';
-import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/model.dart';
-import 'package:teledart/telegram.dart';
 
-import 'models/game/user.dart';
+import 'middleware/middleware.dart';
 
 class Router {
   Router(LitTelegram telegram) : _telegram = telegram;
@@ -30,28 +27,10 @@ class Router {
     return builder();
   }
 
-  //TODO: move to separate class maybe?
-  void _copyGameChatMessagesToPM(Message message, Telegram telegram) {
-    final game = LitGame.find(message.chat.id);
-    if (game == null) return;
-    if (!game.players.containsKey(message.from.id)) return;
-    final messageAuthor = LitUser(message.from);
-    final baseText = 'Игрок ' +
-        messageAuthor.nickname +
-        '(' +
-        messageAuthor.fullName +
-        ') пишет: \r\n';
-    for (var player in game.players.entries) {
-      if (player.value.telegramUser.id == message.from.id) continue;
-      if (!player.value.isCopyChatSet) continue;
-
-      telegram.sendMessage(player.value.chatId, baseText + message.text);
-    }
-  }
-
   void dispatch(Update data) {
     for (var builder in _middleware) {
       var cmd = builder();
+      cmd.isCallbackQuery = data.callback_query != null;
       cmd.handle(data, _telegram);
     }
 
@@ -82,9 +61,6 @@ class Router {
           cmd.run(message, _telegram);
           return;
         }
-      }
-      if (message.chat.type != 'private') {
-        _copyGameChatMessagesToPM(message, _telegram);
       }
     }
   }

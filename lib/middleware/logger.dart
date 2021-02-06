@@ -1,6 +1,7 @@
-import 'package:litgame_telegram/commands/middleware.dart';
 import 'package:litgame_telegram/telegram.dart';
 import 'package:teledart/src/telegram/model.dart';
+
+import 'middleware.dart';
 
 class Logger with Middleware {
   @override

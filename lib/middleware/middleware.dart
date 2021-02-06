@@ -5,4 +5,5 @@ typedef MiddlewareConstructor = Middleware Function();
 
 mixin Middleware {
   void handle(Update data, LitTelegram telegram);
+  bool isCallbackQuery = false;
 }
