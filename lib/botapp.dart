@@ -67,7 +67,7 @@ class BotApp extends TeledartApp {
 }
 
 class BotAppConfig {
-  BotAppConfig() {
+  BotAppConfig(this.arguments) {
     var successSetup = _setupFromCliArguments();
     if (!successSetup) {
       successSetup = _setupFromEnv();
