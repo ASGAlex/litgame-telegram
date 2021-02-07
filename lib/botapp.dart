@@ -2,14 +2,6 @@ import 'dart:io';
 
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
-import 'package:litgame_telegram/commands/pm/addcollection.dart';
-import 'package:litgame_telegram/commands/system/finishjoin.dart';
-import 'package:litgame_telegram/commands/system/gameflow.dart';
-import 'package:litgame_telegram/commands/system/joinme.dart';
-import 'package:litgame_telegram/commands/system/kickme.dart';
-import 'package:litgame_telegram/commands/system/setcollection.dart';
-import 'package:litgame_telegram/commands/system/setmaster.dart';
-import 'package:litgame_telegram/commands/system/setorder.dart';
 import 'package:litgame_telegram/middleware/message_copy.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
@@ -18,11 +10,7 @@ import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
 
-import 'file:///C:/Users/asgal/Documents/Projects/litgame-telegram/lib/commands/chat/endgame.dart';
-import 'file:///C:/Users/asgal/Documents/Projects/litgame-telegram/lib/commands/chat/startgame.dart';
-
-import 'commands/pm/help.dart';
-import 'commands/system/trainingflow.dart';
+import 'commands/commands.dart';
 import 'middleware/logger.dart';
 
 class BotApp extends TeledartApp {

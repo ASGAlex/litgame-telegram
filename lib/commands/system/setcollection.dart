@@ -1,11 +1,6 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
-import 'package:args/args.dart';
-import 'package:litgame_telegram/commands/chat/endgame.dart';
-import 'package:litgame_telegram/commands/game_command.dart';
-import 'package:litgame_telegram/commands/system/trainingflow.dart';
-import 'package:litgame_telegram/models/cards/card_collection.dart';
-import 'package:teledart/model.dart';
-import 'package:teledart_app/teledart_app.dart';
+
+part of commands;
 
 class SetCollectionCmd extends ComplexGameCommand {
   SetCollectionCmd();

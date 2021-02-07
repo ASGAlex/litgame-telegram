@@ -1,8 +1,5 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
-import 'package:args/args.dart';
-import 'package:litgame_telegram/models/game/game.dart';
-import 'package:meta/meta.dart';
-import 'package:teledart_app/teledart_app.dart';
+part of commands;
 
 mixin GameCmdMix on Command {
   ArgParser getGameBaseParser() {

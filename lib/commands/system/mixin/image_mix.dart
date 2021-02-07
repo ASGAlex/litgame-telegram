@@ -1,5 +1,4 @@
-import 'package:meta/meta.dart';
-import 'package:teledart_app/teledart_app.dart';
+part of commands;
 
 mixin ImageSender on ComplexCommand {
   @protected

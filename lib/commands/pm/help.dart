@@ -1,8 +1,6 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
-import 'package:litgame_telegram/models/game/user.dart';
-import 'package:teledart/model.dart';
-import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart_app/teledart_app.dart';
+
+part of commands;
 
 class HelpCmd extends ComplexCommand with Middleware {
   @override
