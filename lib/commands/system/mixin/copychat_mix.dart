@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:teledart_app/teledart_app.dart';
+import 'package:litgame_telegram/commands/game_command.dart';
 
 typedef MessageSender = void Function(int chatId, Completer completer);
 
-mixin CopyChat on Command {
+mixin CopyChat on GameCmdMix {
   Future copyChat(MessageSender messageSender) {
     final completer = Completer();
     var found = false;

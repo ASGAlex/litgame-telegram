@@ -2,9 +2,7 @@ import 'dart:io';
 
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
-import 'package:litgame_telegram/commands/endgame.dart';
 import 'package:litgame_telegram/commands/pm/addcollection.dart';
-import 'package:litgame_telegram/commands/startgame.dart';
 import 'package:litgame_telegram/commands/system/finishjoin.dart';
 import 'package:litgame_telegram/commands/system/gameflow.dart';
 import 'package:litgame_telegram/commands/system/joinme.dart';
@@ -19,6 +17,9 @@ import 'package:litgame_telegram/models/game/user.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
+
+import 'file:///C:/Users/asgal/Documents/Projects/litgame-telegram/lib/commands/chat/endgame.dart';
+import 'file:///C:/Users/asgal/Documents/Projects/litgame-telegram/lib/commands/chat/startgame.dart';
 
 import 'commands/pm/help.dart';
 import 'commands/system/trainingflow.dart';

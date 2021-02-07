@@ -1,5 +1,6 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/src/arg_parser.dart';
+import 'package:litgame_telegram/commands/game_command.dart';
 import 'package:litgame_telegram/commands/system/mixin/copychat_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/endturn_mix.dart';
 import 'package:litgame_telegram/commands/system/mixin/image_mix.dart';
@@ -7,11 +8,9 @@ import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:teledart/model.dart';
-import 'package:teledart/src/telegram/model.dart';
-import 'package:teledart/src/telegram/telegram.dart';
 import 'package:teledart_app/teledart_app.dart';
 
-class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
+class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat {
   GameFlowCmd();
 
   @override
@@ -62,7 +61,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
     });
   }
 
-  void onGameStart(Message message, Telegram telegram) {
+  void onGameStart(Message message, TelegramEx telegram) {
     if (flow.currentUser.isGameMaster && flow.turnNumber == 1) {
       telegram.sendMessage(flow.game.chatId,
           'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
@@ -135,7 +134,7 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
     });
   }
 
-  void onSelectCard(Message message, Telegram telegram) {
+  void onSelectCard(Message message, TelegramEx telegram) {
     deleteScheduledMessages(telegram);
     var sType = action.replaceAll('select-', '');
     var type = CardType.generic.getTypeByName(sType);
@@ -158,5 +157,5 @@ class GameFlowCmd extends ComplexCommand with ImageSender, EndTurn, CopyChat {
   }
 
   @override
-  void onNoAction(Message message, Telegram telegram) {}
+  void onNoAction(Message message, TelegramEx telegram) {}
 }
