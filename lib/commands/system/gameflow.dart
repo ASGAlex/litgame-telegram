@@ -28,7 +28,7 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
     this.message = message;
     this.telegram = telegram;
     var collectionName = 'default';
-    if (arguments?['action'] == 'start') {
+    if (action == 'start') {
       var collectionId = arguments?['cid'];
       CardCollection.getName(collectionId).then((value) {
         collectionName = value.name;
