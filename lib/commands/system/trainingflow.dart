@@ -119,11 +119,4 @@ class TrainingFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, Copy
       cmd.run(message, telegram);
     });
   }
-
-  @override
-  String buildAction(String actionName, [Map<String, String>? parameters]) {
-    parameters ??= {};
-    parameters['gci'] = gameChatId.toString();
-    return super.buildAction(actionName, parameters);
-  }
 }

@@ -72,11 +72,4 @@ class SetCollectionCmd extends ComplexGameCommand {
   void onNoAction(Message message, TelegramEx telegram) {
     // TODO: implement onNoAction
   }
-
-  @override
-  String buildAction(String actionName, [Map<String, String>? parameters]) {
-    parameters ??= {};
-    parameters['gci'] = gameChatId.toString();
-    return super.buildAction(actionName, parameters);
-  }
 }

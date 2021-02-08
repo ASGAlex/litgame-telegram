@@ -33,4 +33,11 @@ abstract class GameCommand extends Command with GameCmdMix implements GameCmdMix
 
 abstract class ComplexGameCommand extends ComplexCommand
     with GameCmdMix
-    implements GameCmdMix {}
+    implements GameCmdMix {
+  @override
+  String buildAction(String actionName, [Map<String, String>? parameters]) {
+    parameters ??= {};
+    parameters['gci'] = gameChatId.toString();
+    return super.buildAction(actionName, parameters);
+  }
+}

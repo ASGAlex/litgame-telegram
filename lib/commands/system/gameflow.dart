@@ -142,12 +142,5 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
   }
 
   @override
-  String buildAction(String actionName, [Map<String, String>? parameters]) {
-    parameters ??= {};
-    parameters['gci'] = gameChatId.toString();
-    return super.buildAction(actionName, parameters);
-  }
-
-  @override
   void onNoAction(Message message, TelegramEx telegram) {}
 }

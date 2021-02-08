@@ -42,7 +42,8 @@ class SetOrderCmd extends GameCommand {
                   InlineKeyboardButton(
                       text: 'Играем!',
                       // callback_data: GameFlowCmd.args(arguments).buildAction('start')),
-                      callback_data: SetCollectionCmd().buildAction('list')),
+                      callback_data: SetCollectionCmd()
+                          .buildAction('list', {'gci': gameChatId.toString()})),
                   InlineKeyboardButton(
                       text: 'Отсортировать заново',
                       callback_data:
