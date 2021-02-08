@@ -7,6 +7,7 @@ class MessageCopy with Middleware {
   @override
   void handle(Update data, TelegramEx telegram) {
     if (isCmd) return;
+    if (data.message == null) return;
 
     if (data.message?.chat.type == 'private') {
       final user = LitUser(data.message.from);
