@@ -6,6 +6,8 @@ import 'package:teledart_app/teledart_app.dart';
 class MessageCopy with Middleware {
   @override
   void handle(Update data, TelegramEx telegram) {
+    if (isCmd) return;
+
     if (data.message?.chat.type == 'private') {
       final user = LitUser(data.message.from);
       user.registrationChecked.then((registered) {
