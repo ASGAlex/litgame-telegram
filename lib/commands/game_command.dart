@@ -37,7 +37,9 @@ abstract class ComplexGameCommand extends ComplexCommand
   @override
   String buildAction(String actionName, [Map<String, String>? parameters]) {
     parameters ??= {};
-    parameters['gci'] = gameChatId.toString();
+    if (parameters['gci'] == null) {
+      parameters['gci'] = gameChatId.toString();
+    }
     return super.buildAction(actionName, parameters);
   }
 }

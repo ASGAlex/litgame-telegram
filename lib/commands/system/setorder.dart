@@ -14,7 +14,7 @@ class SetOrderCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     deleteScheduledMessages(telegram);
-    if (arguments?['reset'] == true) {
+    if (arguments?['reset'] != null) {
       game.playersSorted.clear();
       game.playersSorted.add(LinkedUser(game.master));
       telegram
