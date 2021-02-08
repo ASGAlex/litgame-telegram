@@ -27,10 +27,13 @@ class SetOrderCmd extends GameCommand {
       return;
     }
 
-    final userId = int.parse(arguments?['userId']);
-    final user = game.players[userId];
-    if (user != null) {
-      game.playersSorted.add(LinkedUser(user));
+    final userId = arguments?['userId'];
+    if (userId != null) {
+      final uid = int.parse(userId);
+      final user = game.players[uid];
+      if (user != null) {
+        game.playersSorted.add(LinkedUser(user));
+      }
     }
 
     if (game.playersSorted.length == game.players.length) {
