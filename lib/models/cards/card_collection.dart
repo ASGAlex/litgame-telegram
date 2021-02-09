@@ -173,4 +173,20 @@ class CardCollection extends ParseObject implements ParseCloneable {
       });
     });
   }
+
+  Future deleteWithCards() {
+    var log = 'Delete collection ${name}...\r\n';
+    final builder = QueryBuilder<Card>(Card.clone())..whereEqualTo('collection', name);
+    return builder.query().then((ParseResponse response) {
+      if (response.results != null) {
+        for (Card item in response.results) {
+          log += 'Delete ${item.name}, ${item.objectId} ${item.collectionName} \r\n';
+          item.delete();
+        }
+      }
+      log += 'done';
+      print(log);
+      super.delete();
+    });
+  }
 }

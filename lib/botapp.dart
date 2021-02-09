@@ -31,7 +31,8 @@ class BotApp extends TeledartApp {
     () => TrainingFlowCmd(),
     () => GameFlowCmd(),
     () => AddCollectionCmd(),
-    () => HelpCmd()
+    () => DelCollectionCmd(),
+    () => HelpCmd(),
   ];
 
   @override

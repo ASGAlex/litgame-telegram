@@ -2,7 +2,7 @@
 
 part of commands;
 
-class AddCollectionCmd extends ComplexCommand {
+class AddCollectionCmd extends ComplexCommand with AskAccess {
   static final List<int> usersAwaitForUpload = [];
 
   @override
@@ -13,56 +13,8 @@ class AddCollectionCmd extends ComplexCommand {
         'deny-access': onDenyAccess
       };
 
-  late LitUser user;
-
-  @override
-  bool get system => false;
-
   @override
   String get name => 'addcollection';
-
-  @override
-  ArgParser getParser() => super.getParser()..addOption('userId');
-
-  @override
-  void run(Message message, TelegramEx telegram) {
-    if (message.chat.type != 'private') {
-      telegram.sendMessage(message.chat.id, 'Давай поговорим об этом в личке?');
-      return;
-    }
-
-    user = LitUser(message.from);
-    deleteScheduledMessages(telegram);
-    super.run(message, telegram);
-  }
-
-  void onAskAccess(Message message, TelegramEx telegram) {
-    LitUser.adminUsers.forEach((int chatId) {
-      telegram
-          .sendMessage(
-              chatId,
-              'Пользователь ' +
-                  user.nickname +
-                  '(' +
-                  user.fullName +
-                  ') хочет залить новый набор карт',
-              reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                [
-                  InlineKeyboardButton(
-                      text: 'Разрешить',
-                      callback_data: buildAction(
-                          'allow-access', {'userId': user.telegramUser.id.toString()})),
-                  InlineKeyboardButton(
-                      text: 'Отказать',
-                      callback_data: buildAction(
-                          'deny-access', {'userId': user.telegramUser.id.toString()}))
-                ]
-              ]))
-          .then((value) {
-        scheduleMessageDelete(chatId, value.message_id);
-      });
-    });
-  }
 
   void onAllowAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(true, message, telegram);
@@ -95,11 +47,6 @@ class AddCollectionCmd extends ComplexCommand {
         }
       });
     });
-  }
-
-  void onCancelAccess(Message message, TelegramEx telegram) {
-    telegram.sendMessage(
-        message.chat.id, 'Спасибо, что не беспокоите админа просто так :-)');
   }
 
   @override
