@@ -11,6 +11,9 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
   late GameFlow flow;
 
   @override
+  bool get system => true;
+
+  @override
   String get name => 'gf';
 
   @override

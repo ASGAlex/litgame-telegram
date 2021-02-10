@@ -5,6 +5,9 @@ class JoinMeCmd extends Command {
   JoinMeCmd();
 
   @override
+  bool get system => true;
+
+  @override
   String get name => 'joinme';
 
   @override

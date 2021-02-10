@@ -6,6 +6,9 @@ class KickMeCmd extends JoinMeCmd {
   KickMeCmd();
 
   @override
+  bool get system => true;
+
+  @override
   String get name => 'kickme';
 
   @override

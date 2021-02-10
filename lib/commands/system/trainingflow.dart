@@ -6,6 +6,9 @@ class TrainingFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, Copy
   TrainingFlowCmd();
 
   @override
+  bool get system => true;
+
+  @override
   ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
 
   @override

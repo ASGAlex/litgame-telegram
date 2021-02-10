@@ -5,6 +5,9 @@ class FinishJoinCmd extends GameCommand {
   FinishJoinCmd();
 
   @override
+  bool get system => true;
+
+  @override
   String get name => 'finishjoin';
 
   @override

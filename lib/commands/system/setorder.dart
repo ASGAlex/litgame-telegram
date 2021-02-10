@@ -6,6 +6,9 @@ class SetOrderCmd extends GameCommand {
   SetOrderCmd();
 
   @override
+  bool get system => true;
+
+  @override
   ArgParser? getParser() => getGameBaseParser()..addOption('userId')..addOption('reset');
 
   @override

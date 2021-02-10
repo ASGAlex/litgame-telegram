@@ -6,6 +6,9 @@ class SetMasterCmd extends GameCommand {
   SetMasterCmd();
 
   @override
+  bool get system => true;
+
+  @override
   ArgParser getParser() => getGameBaseParser()..addOption('userId');
 
   @override
