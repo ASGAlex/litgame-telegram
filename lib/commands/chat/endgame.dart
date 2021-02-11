@@ -16,7 +16,8 @@ class EndGameCmd extends GameCommand {
     var game = LitGame.find(message.chat.id);
     var userId = message.from.id;
     if (game != null) {
-      const errorMessage = 'У тебя нет власти надо мной! Пусть админ игры её остановит.';
+      const errorMessage =
+          'У тебя нет власти надо мной! Пусть админ игры её остановит.';
       var player = game.players[userId];
       if (player == null) {
         throw errorMessage;

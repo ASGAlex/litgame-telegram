@@ -51,12 +51,12 @@ mixin AskAccess on ComplexCommand {
                 [
                   InlineKeyboardButton(
                       text: 'Разрешить',
-                      callback_data: buildAction(
-                          'allow-access', {'userId': user.telegramUser.id.toString()})),
+                      callback_data: buildAction('allow-access',
+                          {'userId': user.telegramUser.id.toString()})),
                   InlineKeyboardButton(
                       text: 'Отказать',
-                      callback_data: buildAction(
-                          'deny-access', {'userId': user.telegramUser.id.toString()}))
+                      callback_data: buildAction('deny-access',
+                          {'userId': user.telegramUser.id.toString()}))
                 ]
               ]))
           .then((value) {
@@ -74,7 +74,8 @@ mixin AskAccess on ComplexCommand {
   @mustCallSuper
   void onNoAction(Message message, TelegramEx telegram) {
     user.registrationChecked.then((value) {
-      if (!user.isAllowedAddCollection && !LitUser.adminUsers.contains(user.chatId)) {
+      if (!user.isAllowedAddCollection &&
+          !LitUser.adminUsers.contains(user.chatId)) {
         accessAllowed = false;
         telegram
             .sendMessage(message.chat.id, askAccessTextUser,

@@ -18,8 +18,9 @@ mixin GameCmdMix on Command {
     return game;
   }
 
-  int? get gameChatId =>
-      (arguments?['gci'] is String) ? int.parse(arguments?['gci']) : arguments?['gci'];
+  int? get gameChatId => (arguments?['gci'] is String)
+      ? int.parse(arguments?['gci'])
+      : arguments?['gci'];
 
   @protected
   void checkGameChat(Message message) {
@@ -29,7 +30,9 @@ mixin GameCmdMix on Command {
   }
 }
 
-abstract class GameCommand extends Command with GameCmdMix implements GameCmdMix {}
+abstract class GameCommand extends Command
+    with GameCmdMix
+    implements GameCmdMix {}
 
 abstract class ComplexGameCommand extends ComplexCommand
     with GameCmdMix

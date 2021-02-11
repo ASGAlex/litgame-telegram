@@ -45,9 +45,11 @@ class LitUser extends ParseObject implements ParseCloneable {
   final User telegramUser;
   int chatId;
 
-  String get nickname => '@' + (telegramUser.username ?? telegramUser.first_name);
+  String get nickname =>
+      '@' + (telegramUser.username ?? telegramUser.first_name);
 
-  String get fullName => telegramUser.first_name + ' ' + (telegramUser.last_name ?? '');
+  String get fullName =>
+      telegramUser.first_name + ' ' + (telegramUser.last_name ?? '');
 
   bool get noChatId => chatId < 0;
 
@@ -104,7 +106,8 @@ class LitUser extends ParseObject implements ParseCloneable {
     this['objectId'] = userData['objectId'] ?? -1;
     this['allowAddCollection'] = userData['allowAddCollection'] ?? false;
     if (this['allowAddCollection'] is String) {
-      this['allowAddCollection'] = this['allowAddCollection'] == 'true' ? true : false;
+      this['allowAddCollection'] =
+          this['allowAddCollection'] == 'true' ? true : false;
     }
     this['copychat'] = userData['copychat'] ?? false;
     if (this['copychat'] is String) {
@@ -178,7 +181,8 @@ class LitUser extends ParseObject implements ParseCloneable {
       if (response.results == null) return false;
       if (response.results.isNotEmpty) {
         this['objectId'] = response.results.first['objectId'];
-        this['allowAddCollection'] = response.results.first['allowAddCollection'];
+        this['allowAddCollection'] =
+            response.results.first['allowAddCollection'];
         this['copychat'] = response.results.first['copychat'];
         _saveToMemory();
         _saveToRedis();
@@ -191,7 +195,8 @@ class LitUser extends ParseObject implements ParseCloneable {
   String toRedis() {
     final _json = <String, String>{};
     _json['objectId'] = this['objectId'] ?? (-1).toString();
-    _json['allowAddCollection'] = (this['allowAddCollection'] ?? false).toString();
+    _json['allowAddCollection'] =
+        (this['allowAddCollection'] ?? false).toString();
     _json['copychat'] = (this['copychat'] ?? false).toString();
     return jsonEncode(_json);
   }

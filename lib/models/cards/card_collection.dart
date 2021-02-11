@@ -18,7 +18,8 @@ class CardCollection extends ParseObject implements ParseCloneable {
   CardCollection.clone() : super('CardCollection');
 
   @override
-  CardCollection clone(Map<String, dynamic> map) => CardCollection.clone()..fromJson(map);
+  CardCollection clone(Map<String, dynamic> map) =>
+      CardCollection.clone()..fromJson(map);
 
   String get name => this['name'];
 
@@ -49,8 +50,10 @@ class CardCollection extends ParseObject implements ParseCloneable {
           final mFile = MemoryFileSystem().file(tmpPath + '/description.json');
           mFile.createSync(recursive: true);
           mFile.writeAsBytesSync(file.content as List<int>);
-          jsonFuture =
-              mFile.readAsString().then((value) => json.decode(value)).then((jsonData) {
+          jsonFuture = mFile
+              .readAsString()
+              .then((value) => json.decode(value))
+              .then((jsonData) {
             _fillCardsFromJson(jsonData);
           });
         } else {
@@ -113,8 +116,8 @@ class CardCollection extends ParseObject implements ParseCloneable {
       if (cards[cType] == null) {
         cards[cType] = <Card>[];
       }
-      cards[cType]
-          ?.add(Card(c['name'], c['file'], CardType.generic.getTypeByName(cType), name));
+      cards[cType]?.add(Card(
+          c['name'], c['file'], CardType.generic.getTypeByName(cType), name));
     }
   }
 
@@ -123,7 +126,8 @@ class CardCollection extends ParseObject implements ParseCloneable {
       ..whereEqualTo('name', name);
     var completer = Completer();
     var loadCards = completer.future;
-    var loadCollection = builder.query<CardCollection>().then((ParseResponse response) {
+    var loadCollection =
+        builder.query<CardCollection>().then((ParseResponse response) {
       if (response.results == null) return CardCollection('');
       var c = response.results.first;
       var collection = c as CardCollection;
@@ -132,7 +136,8 @@ class CardCollection extends ParseObject implements ParseCloneable {
       });
       return collection;
     });
-    return Future.wait([loadCollection, loadCards]).then((value) => loadCollection);
+    return Future.wait([loadCollection, loadCards])
+        .then((value) => loadCollection);
   }
 
   static Future<List> listCollections() {
@@ -159,7 +164,8 @@ class CardCollection extends ParseObject implements ParseCloneable {
   }
 
   Future _loadCards() {
-    final builder = QueryBuilder<Card>(Card.clone())..whereEqualTo('collection', name);
+    final builder = QueryBuilder<Card>(Card.clone())
+      ..whereEqualTo('collection', name);
     return builder.query().then((ParseResponse response) {
       if (response.results == null) throw 'Error loading cards';
       for (Card item in response.results) {
@@ -176,11 +182,13 @@ class CardCollection extends ParseObject implements ParseCloneable {
 
   Future deleteWithCards() {
     var log = 'Delete collection ${name}...\r\n';
-    final builder = QueryBuilder<Card>(Card.clone())..whereEqualTo('collection', name);
+    final builder = QueryBuilder<Card>(Card.clone())
+      ..whereEqualTo('collection', name);
     return builder.query().then((ParseResponse response) {
       if (response.results != null) {
         for (Card item in response.results) {
-          log += 'Delete ${item.name}, ${item.objectId} ${item.collectionName} \r\n';
+          log +=
+              'Delete ${item.name}, ${item.objectId} ${item.collectionName} \r\n';
           item.delete();
         }
       }

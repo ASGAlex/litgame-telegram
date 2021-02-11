@@ -20,11 +20,14 @@ class SetMasterCmd extends GameCommand {
     final player = game.players[int.parse(arguments?['userId'])];
     player?.isGameMaster = true;
     if (player != null) {
-      telegram.sendMessage(
-          gameChatId, player.nickname + '(' + player.fullName + ') будет игромастером!');
+      telegram.sendMessage(gameChatId,
+          player.nickname + '(' + player.fullName + ') будет игромастером!');
 
-      final cmd = Command.withArguments(() => SetOrderCmd(),
-          {'gci': gameChatId.toString(), 'userId': arguments?['userId'], 'reset': ''});
+      final cmd = Command.withArguments(() => SetOrderCmd(), {
+        'gci': gameChatId.toString(),
+        'userId': arguments?['userId'],
+        'reset': ''
+      });
       cmd.run(message, telegram);
     }
   }

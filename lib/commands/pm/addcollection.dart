@@ -52,7 +52,8 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
   @override
   void onNoAction(Message message, TelegramEx telegram) {
     user.registrationChecked.then((value) {
-      if (usersAwaitForUpload.contains(message.chat.id) && message.document != null) {
+      if (usersAwaitForUpload.contains(message.chat.id) &&
+          message.document != null) {
         telegram.getFile(message.document.file_id).then((file) {
           final url =
               'https://api.telegram.org/file/bot${telegram.token}/${file.file_path}';
@@ -65,7 +66,8 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
         });
         return;
       }
-      if (!user.isAllowedAddCollection && !LitUser.adminUsers.contains(user.chatId)) {
+      if (!user.isAllowedAddCollection &&
+          !LitUser.adminUsers.contains(user.chatId)) {
         telegram
             .sendMessage(message.chat.id,
                 'Чтобы продолжить, нужно запросить у админа разрешение на загрзку. Продолжить?',

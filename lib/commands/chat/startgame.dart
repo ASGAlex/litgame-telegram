@@ -16,8 +16,8 @@ class StartGameCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     checkGameChat(message);
-    final added =
-        LitGame.startNew(message.chat.id).addPlayer(LitUser(message.from, isAdmin: true));
+    final added = LitGame.startNew(message.chat.id)
+        .addPlayer(LitUser(message.from, isAdmin: true));
     if (added) {
       telegram
           .sendMessage(
@@ -41,8 +41,8 @@ class StartGameCmd extends GameCommand {
       });
     } else {
       LitGame.stopGame(message.chat.id);
-      telegram.sendMessage(
-          message.chat.id, 'Чтобы начать новую игру, нужно завершить начатую игру.');
+      telegram.sendMessage(message.chat.id,
+          'Чтобы начать новую игру, нужно завершить начатую игру.');
       final existingGame = LitGame.findGameOfPlayer(message.from.id);
       if (existingGame != null) {
         telegram.getChat(existingGame.chatId).then((chat) {

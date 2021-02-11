@@ -25,8 +25,10 @@ class JoinMeCmd extends Command {
     } else {
       final existingGame = LitGame.findGameOfPlayer(user.chatId);
       if (existingGame != _game) {
-        telegram.sendMessage(message.chat.id,
-            user.nickname + ' играет в какой-то другой игре. Надо её сначала завершить.');
+        telegram.sendMessage(
+            message.chat.id,
+            user.nickname +
+                ' играет в какой-то другой игре. Надо её сначала завершить.');
         telegram.getChat(existingGame?.chatId).then((chat) {
           var chatName = chat.title ?? chat.id.toString();
           telegram.sendMessage(
@@ -51,7 +53,8 @@ class JoinMeCmd extends Command {
   }
 
   @protected
-  void sendStatisticsToAdmin(LitGame game, TelegramEx telegram, int gameChatId) {
+  void sendStatisticsToAdmin(
+      LitGame game, TelegramEx telegram, int gameChatId) {
     if (game.admin.noChatId) return;
     var text = '*В игре примут участие:*\r\n';
     late ReplyMarkup markup;
@@ -66,13 +69,16 @@ class JoinMeCmd extends Command {
         [
           InlineKeyboardButton(
               text: 'Завершить набор игроков',
-              callback_data:
-                  FinishJoinCmd().buildCommandCall({'gci': gameChatId.toString()}))
+              callback_data: FinishJoinCmd()
+                  .buildCommandCall({'gci': gameChatId.toString()}))
         ]
       ]);
     }
 
-    text = text.replaceAll('-', '\\-').replaceAll('(', '\\(').replaceAll(')', '\\)');
+    text = text
+        .replaceAll('-', '\\-')
+        .replaceAll('(', '\\(')
+        .replaceAll(')', '\\)');
     telegram
         .sendMessage(game.admin.chatId, text,
             parse_mode: 'MarkdownV2', reply_markup: markup)

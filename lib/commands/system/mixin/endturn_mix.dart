@@ -6,11 +6,13 @@ mixin EndTurn on ComplexCommand {
   @protected
   void sendEndTurn(FlowInterface flow) {
     telegram
-        .sendMessage(flow.currentUser.chatId, 'Когда закончишь свою историю - жми:',
+        .sendMessage(
+            flow.currentUser.chatId, 'Когда закончишь свою историю - жми:',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(
-                    text: 'Завершить ход', callback_data: buildAction('next-turn'))
+                    text: 'Завершить ход',
+                    callback_data: buildAction('next-turn'))
               ]
             ]))
         .then((msg) {

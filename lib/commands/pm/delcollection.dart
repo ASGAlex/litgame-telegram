@@ -59,7 +59,8 @@ class DelCollectionCmd extends ComplexCommand with AskAccess {
         message.chat.id, 'Спасибо, что не беспокоите админа просто так :-)');
   }
 
-  void _askCollectionDelete(Message message, TelegramEx telegram, String userId) async {
+  void _askCollectionDelete(
+      Message message, TelegramEx telegram, String userId) async {
     final collections = await CardCollection.listCollections();
     var buttons = <List<InlineKeyboardButton>>[];
     for (var col in collections) {
@@ -100,7 +101,8 @@ class DelCollectionCmd extends ComplexCommand with AskAccess {
       }
       final collection = response.results.first as CardCollection;
       collection.deleteWithCards().then((value) {
-        telegram.sendMessage(message.chat.id, 'Коллекция ${collection.name} удалена.');
+        telegram.sendMessage(
+            message.chat.id, 'Коллекция ${collection.name} удалена.');
       });
     });
   }

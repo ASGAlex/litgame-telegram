@@ -10,7 +10,8 @@ class SetCollectionCmd extends ComplexGameCommand {
       {'list': onCollectionList, 'select': onCollectionSelect};
 
   @override
-  ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
+  ArgParser getParser() =>
+      super.getParser()..addOption('gci')..addOption('cid');
 
   @override
   bool get system => true;
@@ -45,14 +46,15 @@ class SetCollectionCmd extends ComplexGameCommand {
       });
 
       telegram.sendMessage(game.master.chatId, 'Выбери коллекцию карт для игры',
-          reply_markup: InlineKeyboardMarkup(inline_keyboard: collectionButtons));
+          reply_markup:
+              InlineKeyboardMarkup(inline_keyboard: collectionButtons));
     });
   }
 
   void _resumeGameWithError(Message message, TelegramEx telegram) {
     telegram
-        .sendMessage(
-            gameChatId, 'Не нашлось ни одной колоды карт, а без них сыграть не выйдет..')
+        .sendMessage(gameChatId,
+            'Не нашлось ни одной колоды карт, а без них сыграть не выйдет..')
         .then((value) {
       final cmd = EndGameCmd();
       cmd.arguments = arguments;
@@ -63,8 +65,8 @@ class SetCollectionCmd extends ComplexGameCommand {
   }
 
   void _startGameWithCollection(String id) {
-    final cmd = ComplexCommand.withAction(
-        () => TrainingFlowCmd(), 'start', {'gci': arguments?['gci'], 'cid': id});
+    final cmd = ComplexCommand.withAction(() => TrainingFlowCmd(), 'start',
+        {'gci': arguments?['gci'], 'cid': id});
     cmd.run(message, telegram);
   }
 

@@ -2,11 +2,13 @@
 
 part of commands;
 
-class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat {
+class GameFlowCmd extends ComplexGameCommand
+    with ImageSender, EndTurn, CopyChat {
   GameFlowCmd();
 
   @override
-  ArgParser getParser() => super.getParser()..addOption('gci')..addOption('cid');
+  ArgParser getParser() =>
+      super.getParser()..addOption('gci')..addOption('cid');
 
   late GameFlow flow;
 
@@ -46,7 +48,9 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
     flow = GameFlow.init(game, collectionName);
 
     if (message.chat.id != flow.currentUser.chatId) {
-      telegram.sendMessage(message.chat.id, 'Сейчас не твой ход!').then((value) {
+      telegram
+          .sendMessage(message.chat.id, 'Сейчас не твой ход!')
+          .then((value) {
         scheduleMessageDelete(value.chat.id, value.message_id);
       });
     }
@@ -58,13 +62,23 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
 
   void onGameStart(Message message, TelegramEx telegram) {
     if (flow.currentUser.isGameMaster && flow.turnNumber == 1) {
-      telegram.sendMessage(flow.game.chatId,
-          'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+      telegram.sendMessage(
+          flow.game.chatId,
+          'Ходит ' +
+              flow.currentUser.nickname +
+              '(' +
+              flow.currentUser.fullName +
+              ')');
 
       copyChat((chatId, _) {
         if (flow.currentUser.chatId == chatId) return;
-        telegram.sendMessage(chatId,
-            'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+        telegram.sendMessage(
+            chatId,
+            'Ходит ' +
+                flow.currentUser.nickname +
+                '(' +
+                flow.currentUser.fullName +
+                ')');
       });
 
       var cGeneric = flow.getCard(CardType.generic);
@@ -74,15 +88,18 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
           .then((value) {
         sendImage(flow.currentUser.chatId, cPlace.imgUrl, cPlace.name, false)
             .then((value) {
-          sendImage(flow.currentUser.chatId, cPerson.imgUrl, cPerson.name, false)
+          sendImage(
+                  flow.currentUser.chatId, cPerson.imgUrl, cPerson.name, false)
               .then((value) {
             sendEndTurn(flow);
           });
         });
       });
 
-      sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
-        sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
+      sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false)
+          .then((value) {
+        sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false)
+            .then((value) {
           sendImage(flow.game.chatId, cPerson.imgUrl, cPerson.name, false);
         });
       });
@@ -103,13 +120,23 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
   void onNextTurn(Message message, TelegramEx telegram) {
     deleteScheduledMessages(telegram);
     flow.nextTurn();
-    telegram.sendMessage(flow.game.chatId,
-        'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+    telegram.sendMessage(
+        flow.game.chatId,
+        'Ходит ' +
+            flow.currentUser.nickname +
+            '(' +
+            flow.currentUser.fullName +
+            ')');
 
     copyChat((chatId, _) {
       if (flow.currentUser.chatId == chatId) return;
-      telegram.sendMessage(chatId,
-          'Ходит ' + flow.currentUser.nickname + '(' + flow.currentUser.fullName + ')');
+      telegram.sendMessage(
+          chatId,
+          'Ходит ' +
+              flow.currentUser.nickname +
+              '(' +
+              flow.currentUser.fullName +
+              ')');
     });
 
     telegram
@@ -117,11 +144,13 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(
-                    text: 'Общая', callback_data: buildAction('select-generic')),
+                    text: 'Общая',
+                    callback_data: buildAction('select-generic')),
                 InlineKeyboardButton(
                     text: 'Место', callback_data: buildAction('select-place')),
                 InlineKeyboardButton(
-                    text: 'Персонаж', callback_data: buildAction('select-person')),
+                    text: 'Персонаж',
+                    callback_data: buildAction('select-person')),
               ]
             ]))
         .then((msg) {
@@ -134,7 +163,8 @@ class GameFlowCmd extends ComplexGameCommand with ImageSender, EndTurn, CopyChat
     var sType = action.replaceAll('select-', '');
     var type = CardType.generic.getTypeByName(sType);
     var card = flow.getCard(type);
-    sendImage(flow.currentUser.chatId, card.imgUrl, card.name, false).then((value) {
+    sendImage(flow.currentUser.chatId, card.imgUrl, card.name, false)
+        .then((value) {
       sendEndTurn(flow);
     });
     sendImage(flow.game.chatId, card.imgUrl, card.name, false);

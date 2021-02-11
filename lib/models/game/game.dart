@@ -76,7 +76,8 @@ class LitGame {
     return false;
   }
 
-  bool isPlayerPlaying(LitUser user) => findPlayerInExistingGames(user.chatId) != null;
+  bool isPlayerPlaying(LitUser user) =>
+      findPlayerInExistingGames(user.chatId) != null;
 
   bool addPlayer(LitUser user) {
     if (isPlayerPlaying(user)) {

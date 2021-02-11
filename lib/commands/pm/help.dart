@@ -26,7 +26,8 @@ class HelpCmd extends ComplexCommand with Middleware {
   }
 
   void onForPlayer(Message message, TelegramEx telegram) {
-    const text = 'Вас позвали в игру, а вы не знаете, что делать? Или просто имеется '
+    const text =
+        'Вас позвали в игру, а вы не знаете, что делать? Или просто имеется '
         'неимоверная тяга к знаниям? Что ж, рассказываю. \r\n'
         '\r\n'
         'Начинает игру мастер игры. Ему выпадает случайным образом три карты, по которым он '
@@ -115,7 +116,8 @@ class HelpCmd extends ComplexCommand with Middleware {
         reply_markup: InlineKeyboardMarkup(inline_keyboard: [
           [
             InlineKeyboardButton(
-                text: 'Что такое литигра?', callback_data: buildAction('aboutGame'))
+                text: 'Что такое литигра?',
+                callback_data: buildAction('aboutGame'))
           ],
           [
             InlineKeyboardButton(
