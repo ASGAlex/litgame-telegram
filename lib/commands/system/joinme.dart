@@ -75,12 +75,8 @@ class JoinMeCmd extends Command {
       ]);
     }
 
-    text = text
-        .replaceAll('-', '\\-')
-        .replaceAll('(', '\\(')
-        .replaceAll(')', '\\)');
     telegram
-        .sendMessage(game.admin.chatId, text,
+        .sendMessage(game.admin.chatId, text.escapeMarkdownV2(),
             parse_mode: 'MarkdownV2', reply_markup: markup)
         .then((message) {
       scheduleMessageDelete(message.chat.id, message.message_id);
