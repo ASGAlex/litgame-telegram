@@ -7,6 +7,7 @@ class MessageCopy with Middleware {
   @override
   void handle(Update data, TelegramEx telegram) {
     if (isCmd) return;
+    if (isCallbackQuery) return;
     if (data.message == null) return;
 
     if (data.message?.chat.type == 'private') {
@@ -15,9 +16,7 @@ class MessageCopy with Middleware {
         _copyPMMessagesToGameChat(data.message, telegram);
       });
     } else {
-      if (!isCallbackQuery) {
-        _copyGameChatMessagesToPM(data.message, telegram);
-      }
+      _copyGameChatMessagesToPM(data.message, telegram);
     }
   }
 
@@ -28,13 +27,7 @@ class MessageCopy with Middleware {
       if (gameChatId == null) {
         throw 'Player is in game, but currentGame.chatId is null!';
       }
-      final text = 'Игрок ' +
-          player.nickname +
-          ' (' +
-          player.fullName +
-          ') пишет: \r\n' +
-          message.text;
-      telegram.sendMessage(gameChatId, text);
+      telegram.forwardMessage(gameChatId, message.chat.id, message.message_id);
     }
   }
 
@@ -42,17 +35,12 @@ class MessageCopy with Middleware {
     final game = LitGame.find(message.chat.id);
     if (game == null) return;
     if (!game.players.containsKey(message.from.id)) return;
-    final messageAuthor = LitUser(message.from);
-    final baseText = 'Игрок ' +
-        messageAuthor.nickname +
-        '(' +
-        messageAuthor.fullName +
-        ') пишет: \r\n';
     for (var player in game.players.entries) {
       if (player.value.telegramUser.id == message.from.id) continue;
       if (!player.value.isCopyChatSet) continue;
 
-      telegram.sendMessage(player.value.chatId, baseText + message.text);
+      telegram.forwardMessage(
+          player.value.chatId, message.chat.id, message.message_id);
     }
   }
 }
