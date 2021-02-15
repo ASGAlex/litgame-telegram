@@ -12,9 +12,10 @@ dependencies:
   archive: ^2.0.13
   file: ^6.0.0-nullsafety.4
   dartis: ^0.5.0
-  teledart_app: ^0.0.1-dev.2
+  teledart_app: any
+
     #path: ../teledart_app
 
 dev_dependencies:
-  test: ^1.16.0
+  test: ^1.16.2
   pedantic: ^1.10.0
