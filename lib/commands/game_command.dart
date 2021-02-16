@@ -8,6 +8,10 @@ mixin GameCmdMix on Command {
     return parser;
   }
 
+  final GameBloc _logic = GameBloc(NoGame());
+
+  GameBloc get gameLogic => _logic;
+
   LitGame get game {
     var gameChatId = arguments?['gci'];
     if (arguments?['gci'] is String) {
