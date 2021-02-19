@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/models/game/game.dart';
+import 'package:litgame_telegram/models/game/game_flow.dart';
+import 'package:litgame_telegram/models/game/traning_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 import 'package:meta/meta.dart';
 
+part 'exceptions.dart';
 part 'game_event.dart';
 part 'game_state.dart';
 
@@ -13,17 +16,24 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   @override
   Stream<GameState> mapEventToState(GameEvent event) async* {
-    final eventResult = event.run();
+    var eventResult;
+    try {
+      eventResult = event.run();
+    } on GameBaseException catch (exception) {
+      addError(exception, StackTrace.current);
+      return;
+    }
     switch (event.runtimeType) {
       case StartNewGame:
         if (eventResult) {
           yield InvitingGameState();
         } else {
-          add(StopGame(event.gameId));
+          LitGame.stopGame(event.gameId);
+          yield NoGame();
         }
         break;
       case StopGame:
-        yield NoGame();
+        if (eventResult) yield NoGame();
         break;
     }
   }

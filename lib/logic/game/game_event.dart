@@ -47,9 +47,23 @@ class StartNewGame extends GameEvent<bool> {
 //   RunGame(int gameId) : super(gameId);
 // }
 
-class StopGame extends GameEvent<void> {
-  StopGame(int gameId) : super(gameId);
+class StopGame extends GameEvent<bool> {
+  StopGame(int gameId, this.triggeredBy) : super(gameId);
+  final LitUser triggeredBy;
 
   @override
-  void run() => LitGame.stopGame(gameId);
+  bool run() {
+    final game = LitGame.find(gameId);
+    if (game == null) {
+      throw GameNotFoundException('Game $gameId not found');
+    }
+    final player = game.players[triggeredBy.chatId];
+    if (player == null || !player.isAdmin) {
+      return false;
+    }
+    LitGame.stopGame(gameId);
+    GameFlow.stopGame(gameId);
+    TrainingFlow.stopGame(gameId);
+    return true;
+  }
 }

@@ -13,6 +13,16 @@ class EndGameCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     checkGameChat(message);
+    gameLogic.listen((state) {
+      if (state is NoGame) {
+        telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
+            reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
+        deleteScheduledMessages(telegram);
+      } else {}
+    });
+    gameLogic.add(StopGame(message.chat.id, LitUser(message.from)));
+    gameLogic.close();
+
     var game = LitGame.find(message.chat.id);
     var userId = message.from.id;
     if (game != null) {
@@ -29,9 +39,6 @@ class EndGameCmd extends GameCommand {
     LitGame.stopGame(message.chat.id);
     GameFlow.stopGame(message.chat.id);
     TrainingFlow.stopGame(message.chat.id);
-    telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
-        reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
-    deleteScheduledMessages(telegram);
   }
 
   @override
