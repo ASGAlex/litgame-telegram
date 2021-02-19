@@ -4,6 +4,7 @@ part of 'game_bloc.dart';
 abstract class GameEvent<T> {
   GameEvent(this.gameId);
   final int gameId;
+
   T run();
 }
 
@@ -14,10 +15,18 @@ class StartNewGame extends GameEvent<bool> {
   @override
   bool run() => LitGame.startNew(gameId).addPlayer(admin);
 }
-//
-// class JoinNewGame extends GameEvent {
-//   JoinNewGame(int gameId) : super(gameId);
-// }
+
+class JoinNewGame extends GameEvent<bool> {
+  JoinNewGame(int gameId, this.triggeredBy) : super(gameId);
+  final LitUser triggeredBy;
+
+  @override
+  bool run() {
+    final game = LitGame.find(gameId);
+    if (game == null) return false;
+    return game.addPlayer(triggeredBy);
+  }
+}
 //
 // class FinishJoinNewGame extends GameEvent {
 //   FinishJoinNewGame(int gameId) : super(gameId);

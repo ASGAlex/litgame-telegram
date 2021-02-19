@@ -20,7 +20,7 @@ class StartGameCmd extends GameCommand {
       if (state is InvitingGameState) {
         telegram
             .sendMessage(
-                message.chat.id,
+                state.gameId,
                 '=========================================\r\n'
                 'Начинаем новую игру! \r\n'
                 'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'

@@ -20,13 +20,14 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     try {
       eventResult = event.run();
     } on GameBaseException catch (exception) {
-      addError(exception, StackTrace.current);
+      print(exception);
+      //addError(exception, StackTrace.current);
       return;
     }
     switch (event.runtimeType) {
       case StartNewGame:
         if (eventResult) {
-          yield InvitingGameState();
+          yield InvitingGameState(event.gameId);
         } else {
           LitGame.stopGame(event.gameId);
           yield NoGame();
@@ -35,6 +36,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       case StopGame:
         if (eventResult) yield NoGame();
         break;
+      case JoinNewGame:
+        yield InvitingGameState(event.gameId, eventResult);
     }
   }
 }

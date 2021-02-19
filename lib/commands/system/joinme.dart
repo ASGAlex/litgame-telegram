@@ -1,7 +1,7 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 part of commands;
 
-class JoinMeCmd extends Command {
+class JoinMeCmd extends GameCommand {
   JoinMeCmd();
 
   @override
@@ -13,32 +13,40 @@ class JoinMeCmd extends Command {
   @override
   void run(Message message, TelegramEx telegram) {
     final user = LitUser(message.from);
-    final _game = LitGame.find(message.chat.id);
-    if (_game == null) {
-      throw 'В этом чате нет запущенных игр';
-    }
-    final sendReport = _game.addPlayer(user);
-    _sendChatIdRequest(message, user, telegram);
+    gameLogic.listen((state) {
+      if (state is InvitingGameState) {
+        if (state.lastInviteResult == null) return;
+        final game = state.game;
+        if (game == null) {
+          throw 'В этом чате нет запущенных игр';
+        }
+        _sendChatIdRequest(message, user, telegram);
 
-    if (sendReport) {
-      sendStatisticsToAdmin(_game, telegram, message.chat.id);
-    } else {
-      final existingGame = LitGame.findGameOfPlayer(user.chatId);
-      if (existingGame != _game) {
-        telegram.sendMessage(
-            message.chat.id,
-            user.nickname +
-                ' играет в какой-то другой игре. Надо её сначала завершить.');
-        telegram.getChat(existingGame?.chatId).then((chat) {
-          var chatName = chat.title ?? chat.id.toString();
-          telegram.sendMessage(
-              user.chatId,
-              'Чтобы начать новую игру, нужно завершить текущую в чате "' +
-                  chatName +
-                  '"');
-        });
+        if (state.lastInviteResult == true) {
+          sendStatisticsToAdmin(game, telegram, message.chat.id);
+        } else {
+          final existingGame = LitGame.findGameOfPlayer(user.chatId);
+          if (existingGame != game) {
+            telegram.sendMessage(
+                message.chat.id,
+                user.nickname +
+                    ' играет в какой-то другой игре. Надо её сначала завершить.');
+            telegram.getChat(existingGame?.chatId).then((chat) {
+              var chatName = chat.title ?? chat.id.toString();
+              telegram.sendMessage(
+                  user.chatId,
+                  'Чтобы начать новую игру, нужно завершить текущую в чате "' +
+                      chatName +
+                      '"');
+            });
+          }
+        }
       }
-    }
+    });
+
+    gameLogic.add(JoinNewGame(message.chat.id, user));
+
+    gameLogic.close();
   }
 
   void _sendChatIdRequest(Message message, LitUser user, TelegramEx telegram) {

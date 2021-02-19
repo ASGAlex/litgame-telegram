@@ -1,18 +1,29 @@
 part of 'game_bloc.dart';
 
 @immutable
-abstract class GameState {}
+abstract class GameState {
+  GameState(this.gameId);
 
-class NoGame extends GameState {}
+  final int gameId;
 
-class InvitingGameState extends GameState {}
+  LitGame? get game => LitGame.find(gameId);
+}
 
-class SelectGameMasterState extends GameState {}
+class NoGame extends GameState {
+  NoGame() : super(0);
+}
 
-class SetPlayersOrderState extends GameState {}
+class InvitingGameState extends GameState {
+  InvitingGameState(int gameId, [this.lastInviteResult]) : super(gameId);
+  final bool? lastInviteResult;
+}
 
-class SelectCardCollectionState extends GameState {}
-
-class TrainingFlowState extends GameState {}
-
-class GameFlowState extends GameState {}
+// class SelectGameMasterState extends GameState {}
+//
+// class SetPlayersOrderState extends GameState {}
+//
+// class SelectCardCollectionState extends GameState {}
+//
+// class TrainingFlowState extends GameState {}
+//
+// class GameFlowState extends GameState {}
