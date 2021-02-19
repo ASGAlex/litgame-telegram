@@ -4,6 +4,7 @@ part of 'game_bloc.dart';
 abstract class GameEvent<T> {
   GameEvent(this.gameId);
   final int gameId;
+  LitGame? get game => LitGame.find(gameId);
 
   T run();
 }
@@ -22,9 +23,40 @@ class JoinNewGame extends GameEvent<bool> {
 
   @override
   bool run() {
-    final game = LitGame.find(gameId);
+    final game = this.game;
     if (game == null) return false;
     return game.addPlayer(triggeredBy);
+  }
+}
+
+class KickFromNewGame extends GameEvent<int> {
+  KickFromNewGame(int gameId, this.triggeredBy) : super(gameId);
+  final LitUser triggeredBy;
+
+  static const int NEED_ADMIN = 3;
+  static const int END_GAME = 2;
+  static const int SUCCESS = 1;
+  static const int NO_CHANGE = 0;
+
+  @override
+  int run() {
+    final game = this.game;
+    if (game == null) {
+      throw GameNotLaunchedException(gameId);
+    }
+    final user = game.players[triggeredBy.chatId];
+    if (user?.isAdmin == true) {
+      LitGame.stopGame(gameId);
+      if (game.players.length <= 1) {
+        return END_GAME;
+      } else {
+        return NEED_ADMIN;
+      }
+    } else if (user != null) {
+      game.removePlayer(user);
+      return SUCCESS;
+    }
+    return NO_CHANGE;
   }
 }
 //
@@ -62,9 +94,10 @@ class StopGame extends GameEvent<bool> {
 
   @override
   bool run() {
+    throw GameNotFoundException(gameId);
     final game = LitGame.find(gameId);
     if (game == null) {
-      throw GameNotFoundException('Game $gameId not found');
+      throw GameNotFoundException(gameId);
     }
     final player = game.players[triggeredBy.chatId];
     if (player == null || !player.isAdmin) {

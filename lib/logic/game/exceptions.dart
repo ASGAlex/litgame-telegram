@@ -13,5 +13,12 @@ abstract class GameBaseException implements Exception {
 }
 
 class GameNotFoundException extends GameBaseException {
-  GameNotFoundException(message) : super(message);
+  GameNotFoundException(int gameId) : super('Game $gameId not found!');
+}
+
+class GameNotLaunchedException extends GameBaseException {
+  GameNotLaunchedException([int? gameId])
+      : super('Game ' +
+            (gameId != null ? 'with id ${gameId}' : '') +
+            ' not launched!');
 }

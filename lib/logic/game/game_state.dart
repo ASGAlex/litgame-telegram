@@ -14,8 +14,10 @@ class NoGame extends GameState {
 }
 
 class InvitingGameState extends GameState {
-  InvitingGameState(int gameId, [this.lastInviteResult]) : super(gameId);
+  InvitingGameState(int gameId, [this.lastInviteResult, this.lastInvitedUser])
+      : super(gameId);
   final bool? lastInviteResult;
+  final LitUser? lastInvitedUser;
 }
 
 // class SelectGameMasterState extends GameState {}

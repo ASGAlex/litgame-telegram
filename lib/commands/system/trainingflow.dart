@@ -124,4 +124,9 @@ class TrainingFlowCmd extends ComplexGameCommand
       cmd.run(message, telegram);
     });
   }
+
+  @override
+  void stateLogic(GameState state) {
+    // TODO: implement stateLogic
+  }
 }

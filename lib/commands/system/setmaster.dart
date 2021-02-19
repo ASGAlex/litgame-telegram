@@ -31,4 +31,9 @@ class SetMasterCmd extends GameCommand {
       cmd.run(message, telegram);
     }
   }
+
+  @override
+  void stateLogic(GameState state) {
+    // TODO: implement stateLogic
+  }
 }

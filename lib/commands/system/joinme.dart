@@ -12,40 +12,8 @@ class JoinMeCmd extends GameCommand {
 
   @override
   void run(Message message, TelegramEx telegram) {
-    final user = LitUser(message.from);
-    gameLogic.listen((state) {
-      if (state is InvitingGameState) {
-        if (state.lastInviteResult == null) return;
-        final game = state.game;
-        if (game == null) {
-          throw 'В этом чате нет запущенных игр';
-        }
-        _sendChatIdRequest(message, user, telegram);
-
-        if (state.lastInviteResult == true) {
-          sendStatisticsToAdmin(game, telegram, message.chat.id);
-        } else {
-          final existingGame = LitGame.findGameOfPlayer(user.chatId);
-          if (existingGame != game) {
-            telegram.sendMessage(
-                message.chat.id,
-                user.nickname +
-                    ' играет в какой-то другой игре. Надо её сначала завершить.');
-            telegram.getChat(existingGame?.chatId).then((chat) {
-              var chatName = chat.title ?? chat.id.toString();
-              telegram.sendMessage(
-                  user.chatId,
-                  'Чтобы начать новую игру, нужно завершить текущую в чате "' +
-                      chatName +
-                      '"');
-            });
-          }
-        }
-      }
-    });
-
-    gameLogic.add(JoinNewGame(message.chat.id, user));
-
+    initTeledart(message, telegram);
+    initGameLogic(JoinNewGame(message.chat.id, LitUser(message.from)));
     gameLogic.close();
   }
 
@@ -93,4 +61,40 @@ class JoinMeCmd extends GameCommand {
 
   @override
   ArgParser? getParser() => null;
+
+  @override
+  void stateLogic(GameState state) {
+    if (state is InvitingGameState) {
+      if (state.lastInviteResult == null) return;
+      final game = state.game;
+      if (game == null) {
+        throw 'В этом чате нет запущенных игр';
+      }
+      final user = state.lastInvitedUser;
+      if (user == null) {
+        throw 'Попытка инвайтить незнаю кого';
+      }
+      _sendChatIdRequest(message, user, telegram);
+
+      if (state.lastInviteResult == true) {
+        sendStatisticsToAdmin(game, telegram, message.chat.id);
+      } else {
+        final existingGame = LitGame.findGameOfPlayer(user.chatId);
+        if (existingGame != game) {
+          telegram.sendMessage(
+              message.chat.id,
+              user.nickname +
+                  ' играет в какой-то другой игре. Надо её сначала завершить.');
+          telegram.getChat(existingGame?.chatId).then((chat) {
+            var chatName = chat.title ?? chat.id.toString();
+            telegram.sendMessage(
+                user.chatId,
+                'Чтобы начать новую игру, нужно завершить текущую в чате "' +
+                    chatName +
+                    '"');
+          });
+        }
+      }
+    }
+  }
 }

@@ -74,4 +74,9 @@ class SetCollectionCmd extends ComplexGameCommand {
   void onNoAction(Message message, TelegramEx telegram) {
     // TODO: implement onNoAction
   }
+
+  @override
+  void stateLogic(GameState state) {
+    // TODO: implement stateLogic
+  }
 }

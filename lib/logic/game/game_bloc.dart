@@ -19,10 +19,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     var eventResult;
     try {
       eventResult = event.run();
-    } on GameBaseException catch (exception) {
-      print(exception);
-      //addError(exception, StackTrace.current);
-      return;
+    } catch (exception) {
+      if (exception is GameBaseException) {
+        print(exception);
+        return;
+      } else {
+        rethrow;
+      }
     }
     switch (event.runtimeType) {
       case StartNewGame:
@@ -37,7 +40,17 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         if (eventResult) yield NoGame();
         break;
       case JoinNewGame:
-        yield InvitingGameState(event.gameId, eventResult);
+        event as JoinNewGame;
+        yield InvitingGameState(event.gameId, eventResult, event.triggeredBy);
+        break;
+      case KickFromNewGame:
+        if (eventResult == KickFromNewGame.END_GAME ||
+            eventResult == KickFromNewGame.NEED_ADMIN) {
+          yield NoGame();
+        } else {
+          yield InvitingGameState(event.gameId);
+        }
+        break;
     }
   }
 }

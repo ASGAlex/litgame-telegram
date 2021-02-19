@@ -176,4 +176,9 @@ class GameFlowCmd extends ComplexGameCommand
 
   @override
   void onNoAction(Message message, TelegramEx telegram) {}
+
+  @override
+  void stateLogic(GameState state) {
+    // TODO: implement stateLogic
+  }
 }

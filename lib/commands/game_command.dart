@@ -12,6 +12,28 @@ mixin GameCmdMix on Command {
 
   GameBloc get gameLogic => _logic;
 
+  void initGameLogic(GameEvent? initialEvent,
+      [Duration duration = const Duration(seconds: 5)]) {
+    gameLogic.listen(_stateListener);
+    if (initialEvent != null) {
+      gameLogic.add(initialEvent);
+    }
+    Future.delayed(duration).then((_) {
+      gameLogic.close();
+    });
+  }
+
+  @protected
+  void stateLogic(GameState state);
+
+  void _stateListener(GameState state) {
+    try {
+      stateLogic(state);
+    } catch (exception) {
+      print(exception);
+    }
+  }
+
   LitGame get game {
     var gameChatId = arguments?['gci'];
     if (arguments?['gci'] is String) {
@@ -34,8 +56,18 @@ mixin GameCmdMix on Command {
   }
 }
 
+mixin TeledartClassVariables on Command {
+  late final TelegramEx telegram;
+  late final Message message;
+
+  void initTeledart(Message message, TelegramEx telegram) {
+    this.message = message;
+    this.telegram = telegram;
+  }
+}
+
 abstract class GameCommand extends Command
-    with GameCmdMix
+    with GameCmdMix, TeledartClassVariables
     implements GameCmdMix {}
 
 abstract class ComplexGameCommand extends ComplexCommand

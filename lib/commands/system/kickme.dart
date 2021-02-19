@@ -13,29 +13,25 @@ class KickMeCmd extends JoinMeCmd {
 
   @override
   void run(Message message, TelegramEx telegram) {
-    final game = LitGame.find(message.chat.id);
-    if (game == null) {
-      throw 'В этом чате нет запущенных игр';
-    }
-
-    final user = game.players[message.from.id];
-    if (user?.isAdmin == true) {
-      if (game.players.length <= 1) {
-        LitGame.stopGame(message.chat.id);
-        telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
-            reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
-      } else {
-        // TODO: show new admin selection dialog
-        LitGame.stopGame(message.chat.id);
-        telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
-            reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
-      }
-    } else if (user != null) {
-      game.removePlayer(user);
-      sendStatisticsToAdmin(game, telegram, message.chat.id);
-    }
+    initTeledart(message, telegram);
+    initGameLogic(KickFromNewGame(message.chat.id, LitUser(message.from)));
   }
 
   @override
   ArgParser? getParser() => null;
+
+  @override
+  void stateLogic(GameState state) {
+    if (state.game == null) {
+      throw GameNotLaunchedException(state.gameId);
+    }
+    if (state is NoGame) {
+      telegram.sendMessage(message.chat.id, 'Всё, наигрались!');
+    } else if (state is InvitingGameState) {
+      final game = state.game;
+      if (game != null) {
+        sendStatisticsToAdmin(game, telegram, message.chat.id);
+      }
+    }
+  }
 }
