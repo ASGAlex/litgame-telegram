@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:litgame_telegram/logic/game/game_bloc.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
 class LitGame {
@@ -9,6 +10,8 @@ class LitGame {
   final int chatId;
   final Map<int, LitUser> _players = {};
   final LinkedList<LinkedUser> _playersSorted;
+
+  GameState state = NoGame(LitUser.byId(0));
 
   Map<int, LitUser> get players => _players;
 

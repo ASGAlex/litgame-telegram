@@ -30,27 +30,41 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     switch (event.runtimeType) {
       case StartNewGame:
         if (eventResult) {
-          yield InvitingGameState(event.gameId);
+          yield InvitingGameState(event.gameId, event.triggeredBy);
         } else {
           LitGame.stopGame(event.gameId);
-          yield NoGame();
+          yield NoGame(event.triggeredBy);
         }
         break;
       case StopGame:
-        if (eventResult) yield NoGame();
+        if (eventResult == StopGame.SUCCESS) {
+          yield NoGame(event.triggeredBy);
+        } else if (eventResult == StopGame.NOT_ADMIN) {
+          yield GameState.WithError(state,
+              messageForGroup:
+                  'У тебя нет власти надо мной! Пусть админ игры её остановит.');
+        }
         break;
       case JoinNewGame:
         event as JoinNewGame;
-        yield InvitingGameState(event.gameId, eventResult, event.triggeredBy);
+        yield InvitingGameState(event.gameId, event.triggeredBy, eventResult);
         break;
       case KickFromNewGame:
         if (eventResult == KickFromNewGame.END_GAME ||
             eventResult == KickFromNewGame.NEED_ADMIN) {
-          yield NoGame();
+          yield NoGame(event.triggeredBy);
         } else {
-          yield InvitingGameState(event.gameId);
+          yield InvitingGameState(event.gameId, event.triggeredBy);
         }
         break;
     }
+  }
+
+  @override
+  void onChange(Change<GameState> change) {
+    try {
+      change.nextState.game?.state = change.nextState;
+    } catch (_) {}
+    super.onChange(change);
   }
 }

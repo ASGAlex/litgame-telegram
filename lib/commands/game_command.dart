@@ -2,18 +2,31 @@
 part of commands;
 
 mixin GameCmdMix on Command {
+  late final TelegramEx telegram;
+  late final Message message;
+
+  void initTeledart(Message message, TelegramEx telegram) {
+    this.message = message;
+    this.telegram = telegram;
+  }
+
   ArgParser getGameBaseParser() {
     var parser = ArgParser();
     parser.addOption('gci');
     return parser;
   }
 
-  final GameBloc _logic = GameBloc(NoGame());
+  late GameBloc _logic;
 
   GameBloc get gameLogic => _logic;
 
   void initGameLogic(GameEvent? initialEvent,
       [Duration duration = const Duration(seconds: 5)]) {
+    try {
+      _logic = GameBloc(game.state);
+    } catch (_) {
+      _logic = GameBloc(NoGame(LitUser.byId(0)));
+    }
     gameLogic.listen(_stateListener);
     if (initialEvent != null) {
       gameLogic.add(initialEvent);
@@ -29,8 +42,19 @@ mixin GameCmdMix on Command {
   void _stateListener(GameState state) {
     try {
       stateLogic(state);
+      _catchStateErrors(state);
     } catch (exception) {
       print(exception);
+    }
+  }
+
+  void _catchStateErrors(GameState state) {
+    if (state.messageForGroup != null) {
+      telegram.sendMessage(state.gameId, state.messageForGroup.toString());
+    }
+    if (state.messageForUser != null) {
+      telegram.sendMessage(
+          state.triggeredBy.chatId, state.messageForUser.toString());
     }
   }
 
@@ -38,6 +62,9 @@ mixin GameCmdMix on Command {
     var gameChatId = arguments?['gci'];
     if (arguments?['gci'] is String) {
       gameChatId = int.parse(arguments?['gci']);
+    }
+    if (gameChatId == null && message.chat.id < 0) {
+      gameChatId = message.chat.id;
     }
     var game = LitGame.find(gameChatId);
     if (game == null) throw 'В этом чате не играется ни одна игра';
@@ -56,18 +83,8 @@ mixin GameCmdMix on Command {
   }
 }
 
-mixin TeledartClassVariables on Command {
-  late final TelegramEx telegram;
-  late final Message message;
-
-  void initTeledart(Message message, TelegramEx telegram) {
-    this.message = message;
-    this.telegram = telegram;
-  }
-}
-
 abstract class GameCommand extends Command
-    with GameCmdMix, TeledartClassVariables
+    with GameCmdMix
     implements GameCmdMix {}
 
 abstract class ComplexGameCommand extends ComplexCommand

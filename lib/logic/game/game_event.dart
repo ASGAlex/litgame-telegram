@@ -2,15 +2,18 @@ part of 'game_bloc.dart';
 
 @immutable
 abstract class GameEvent<T> {
-  GameEvent(this.gameId);
+  GameEvent(this.gameId, this.triggeredBy);
+
   final int gameId;
+
   LitGame? get game => LitGame.find(gameId);
+  final LitUser triggeredBy;
 
   T run();
 }
 
 class StartNewGame extends GameEvent<bool> {
-  StartNewGame(int gameId, this.admin) : super(gameId);
+  StartNewGame(int gameId, this.admin) : super(gameId, admin);
   final LitUser admin;
 
   @override
@@ -18,8 +21,7 @@ class StartNewGame extends GameEvent<bool> {
 }
 
 class JoinNewGame extends GameEvent<bool> {
-  JoinNewGame(int gameId, this.triggeredBy) : super(gameId);
-  final LitUser triggeredBy;
+  JoinNewGame(int gameId, LitUser triggeredBy) : super(gameId, triggeredBy);
 
   @override
   bool run() {
@@ -30,8 +32,7 @@ class JoinNewGame extends GameEvent<bool> {
 }
 
 class KickFromNewGame extends GameEvent<int> {
-  KickFromNewGame(int gameId, this.triggeredBy) : super(gameId);
-  final LitUser triggeredBy;
+  KickFromNewGame(int gameId, LitUser triggeredBy) : super(gameId, triggeredBy);
 
   static const int NEED_ADMIN = 3;
   static const int END_GAME = 2;
@@ -88,24 +89,25 @@ class KickFromNewGame extends GameEvent<int> {
 //   RunGame(int gameId) : super(gameId);
 // }
 
-class StopGame extends GameEvent<bool> {
-  StopGame(int gameId, this.triggeredBy) : super(gameId);
-  final LitUser triggeredBy;
+class StopGame extends GameEvent<int> {
+  StopGame(int gameId, LitUser triggeredBy) : super(gameId, triggeredBy);
+
+  static const int SUCCESS = 1;
+  static const int NOT_ADMIN = 0;
 
   @override
-  bool run() {
-    throw GameNotFoundException(gameId);
+  int run() {
     final game = LitGame.find(gameId);
     if (game == null) {
       throw GameNotFoundException(gameId);
     }
     final player = game.players[triggeredBy.chatId];
     if (player == null || !player.isAdmin) {
-      return false;
+      return NOT_ADMIN;
     }
     LitGame.stopGame(gameId);
     GameFlow.stopGame(gameId);
     TrainingFlow.stopGame(gameId);
-    return true;
+    return SUCCESS;
   }
 }

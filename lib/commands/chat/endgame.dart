@@ -15,23 +15,6 @@ class EndGameCmd extends GameCommand {
     initTeledart(message, telegram);
     checkGameChat(message);
     initGameLogic(StopGame(message.chat.id, LitUser(message.from)));
-
-    // var game = LitGame.find(message.chat.id);
-    // var userId = message.from.id;
-    // if (game != null) {
-    //   const errorMessage =
-    //       'У тебя нет власти надо мной! Пусть админ игры её остановит.';
-    //   var player = game.players[userId];
-    //   if (player == null) {
-    //     throw errorMessage;
-    //   }
-    //   if (!player.isAdmin) {
-    //     throw errorMessage;
-    //   }
-    // }
-    // LitGame.stopGame(message.chat.id);
-    // GameFlow.stopGame(message.chat.id);
-    // TrainingFlow.stopGame(message.chat.id);
   }
 
   @override
@@ -43,6 +26,6 @@ class EndGameCmd extends GameCommand {
       telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
           reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
       deleteScheduledMessages(telegram);
-    } else {}
+    }
   }
 }
