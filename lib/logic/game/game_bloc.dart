@@ -47,7 +47,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         break;
       case JoinNewGame:
         event as JoinNewGame;
-        yield InvitingGameState(event.gameId, event.triggeredBy, eventResult);
+        yield InvitingGameState(
+            event.gameId, event.triggeredBy, eventResult, event.triggeredBy);
         break;
       case KickFromNewGame:
         if (eventResult == KickFromNewGame.END_GAME ||
