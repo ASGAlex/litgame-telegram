@@ -58,6 +58,14 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           yield InvitingGameState(event.gameId, event.triggeredBy);
         }
         break;
+      case FinishJoinNewGame:
+        if (eventResult) {
+          yield SelectGameMasterState(event.gameId, event.triggeredBy);
+        } else {
+          yield GameState.WithError(state,
+              messageForGroup:
+                  'Пресечена незаконная попытка остановить набор игроков!');
+        }
     }
   }
 

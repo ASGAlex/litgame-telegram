@@ -27,7 +27,10 @@ class JoinNewGame extends GameEvent<bool> {
   bool run() {
     final game = this.game;
     if (game == null) return false;
-    return game.addPlayer(triggeredBy);
+    if (game.state is InvitingGameState) {
+      return game.addPlayer(triggeredBy);
+    }
+    return false;
   }
 }
 
@@ -60,10 +63,16 @@ class KickFromNewGame extends GameEvent<int> {
     return NO_CHANGE;
   }
 }
-//
-// class FinishJoinNewGame extends GameEvent {
-//   FinishJoinNewGame(int gameId) : super(gameId);
-// }
+
+class FinishJoinNewGame extends GameEvent<bool> {
+  FinishJoinNewGame(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+
+  @override
+  bool run() {
+    return game?.state is InvitingGameState && triggeredBy == game?.admin;
+  }
+}
 //
 // class SelectGameMaster extends GameEvent {
 //   SelectGameMaster(int gameId) : super(gameId);

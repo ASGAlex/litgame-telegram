@@ -31,7 +31,10 @@ class InvitingGameState extends GameState {
   final LitUser? lastInvitedUser;
 }
 
-// class SelectGameMasterState extends GameState {}
+class SelectGameMasterState extends GameState {
+  SelectGameMasterState(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+}
 //
 // class SetPlayersOrderState extends GameState {}
 //
