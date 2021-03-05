@@ -35,8 +35,11 @@ class SelectGameMasterState extends GameState {
   SelectGameMasterState(int gameId, LitUser triggeredBy)
       : super(gameId, triggeredBy);
 }
-//
-// class SetPlayersOrderState extends GameState {}
+
+class SetPlayersOrderState extends GameState {
+  SetPlayersOrderState(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+}
 //
 // class SelectCardCollectionState extends GameState {}
 //

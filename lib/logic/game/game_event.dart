@@ -73,10 +73,21 @@ class FinishJoinNewGame extends GameEvent<bool> {
     return game?.state is InvitingGameState && triggeredBy == game?.admin;
   }
 }
-//
-// class SelectGameMaster extends GameEvent {
-//   SelectGameMaster(int gameId) : super(gameId);
-// }
+
+class SelectGameMaster extends GameEvent<bool> {
+  SelectGameMaster(int gameId, LitUser triggeredBy, this.master)
+      : super(gameId, triggeredBy);
+
+  final LitUser master;
+  @override
+  bool run() {
+    if (triggeredBy != game?.admin) {
+      return false;
+    }
+    master.isGameMaster = true;
+    return true;
+  }
+}
 //
 // class SetPlayerOrder extends GameEvent {
 //   SetPlayerOrder(int gameId) : super(gameId);

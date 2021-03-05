@@ -66,6 +66,15 @@ class GameBloc extends Bloc<GameEvent, GameState> {
               messageForGroup:
                   'Пресечена незаконная попытка остановить набор игроков!');
         }
+        break;
+      case SelectGameMaster:
+        if (eventResult) {
+          yield SetPlayersOrderState(event.gameId, event.triggeredBy);
+        } else {
+          yield GameState.WithError(state,
+              messageForGroup:
+                  'Данная операция доступна только администратору!');
+        }
     }
   }
 
