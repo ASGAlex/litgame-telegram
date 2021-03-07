@@ -1,3 +1,5 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
+
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
@@ -75,13 +77,20 @@ class GameBloc extends Bloc<GameEvent, GameState> {
               messageForGroup:
                   'Данная операция доступна только администратору!');
         }
+        break;
+      case SetPlayerOrder:
+        if (eventResult == null) {
+        } else {
+          yield SetPlayersOrderState(event.gameId, event.triggeredBy);
+        }
+        break;
     }
   }
 
   @override
   void onChange(Change<GameState> change) {
     try {
-      change.nextState.game?.state = change.nextState;
+      change.nextState.game.state = change.nextState;
     } catch (_) {}
     super.onChange(change);
   }

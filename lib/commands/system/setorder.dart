@@ -17,10 +17,13 @@ class SetOrderCmd extends GameCommand {
 
   @override
   void run(Message message, TelegramEx telegram) {
+    initTeledart(message, telegram);
+    initGameLogic();
+    final me = LitUser(message.from);
+
     deleteScheduledMessages(telegram);
     if (arguments?['reset'] != null) {
-      game.playersSorted.clear();
-      game.playersSorted.add(LinkedUser(game.master));
+      gameLogic.add(ResetPlayerOrder(game.chatId, me));
       telegram
           .sendMessage(
               message.chat.id,
@@ -39,7 +42,7 @@ class SetOrderCmd extends GameCommand {
       final uid = int.parse(userId);
       final user = game.players[uid];
       if (user != null) {
-        game.playersSorted.add(LinkedUser(user));
+        gameLogic.add(SetPlayerOrder(game.chatId, me, user));
       }
     }
 

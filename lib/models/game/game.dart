@@ -42,8 +42,12 @@ class LitGame {
     return game;
   }
 
-  static LitGame? find(int chatId) {
-    return _activeGames[chatId];
+  static LitGame find(int chatId) {
+    final game = _activeGames[chatId];
+    if (game == null) {
+      throw 'Игра не найдена';
+    }
+    return game;
   }
 
   static void stopGame(int chatId) {

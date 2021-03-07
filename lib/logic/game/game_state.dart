@@ -5,7 +5,7 @@ abstract class GameState {
 
   final int gameId;
 
-  LitGame? get game => LitGame.find(gameId);
+  LitGame get game => LitGame.find(gameId);
   final LitUser triggeredBy;
 
   factory GameState.WithError(GameState object,

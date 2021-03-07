@@ -66,10 +66,6 @@ class JoinMeCmd extends GameCommand {
   void stateLogic(GameState state) {
     if (state is InvitingGameState) {
       if (state.lastInviteResult == null) return;
-      final game = state.game;
-      if (game == null) {
-        throw 'В этом чате нет запущенных игр';
-      }
       final user = state.lastInvitedUser;
       if (user == null) {
         throw 'Попытка инвайтить незнаю кого';
@@ -77,10 +73,10 @@ class JoinMeCmd extends GameCommand {
       _sendChatIdRequest(message, user, telegram);
 
       if (state.lastInviteResult == true) {
-        sendStatisticsToAdmin(game, telegram, message.chat.id);
+        sendStatisticsToAdmin(state.game, telegram, message.chat.id);
       } else {
         final existingGame = LitGame.findGameOfPlayer(user.chatId);
-        if (existingGame != game) {
+        if (existingGame != state.game) {
           telegram.sendMessage(
               message.chat.id,
               user.nickname +

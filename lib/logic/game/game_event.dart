@@ -6,7 +6,7 @@ abstract class GameEvent<T> {
 
   final int gameId;
 
-  LitGame? get game => LitGame.find(gameId);
+  LitGame get game => LitGame.find(gameId);
   final LitUser triggeredBy;
 
   T run();
@@ -25,8 +25,6 @@ class JoinNewGame extends GameEvent<bool> {
 
   @override
   bool run() {
-    final game = this.game;
-    if (game == null) return false;
     if (game.state is InvitingGameState) {
       return game.addPlayer(triggeredBy);
     }
@@ -44,10 +42,6 @@ class KickFromNewGame extends GameEvent<int> {
 
   @override
   int run() {
-    final game = this.game;
-    if (game == null) {
-      throw GameNotLaunchedException(gameId);
-    }
     final user = game.players[triggeredBy.chatId];
     if (user?.isAdmin == true) {
       LitGame.stopGame(gameId);
@@ -70,7 +64,7 @@ class FinishJoinNewGame extends GameEvent<bool> {
 
   @override
   bool run() {
-    return game?.state is InvitingGameState && triggeredBy == game?.admin;
+    return game.state is InvitingGameState && triggeredBy == game.admin;
   }
 }
 
@@ -81,21 +75,41 @@ class SelectGameMaster extends GameEvent<bool> {
   final LitUser master;
   @override
   bool run() {
-    if (triggeredBy != game?.admin) {
+    if (triggeredBy != game.admin) {
       return false;
     }
     master.isGameMaster = true;
     return true;
   }
 }
-//
-// class SetPlayerOrder extends GameEvent {
-//   SetPlayerOrder(int gameId) : super(gameId);
-// }
-//
-// class ResetPlayerOrder extends GameEvent {
-//   ResetPlayerOrder(int gameId) : super(gameId);
-// }
+
+class SetPlayerOrder extends GameEvent<int> {
+  SetPlayerOrder(int gameId, LitUser triggeredBy, this.nextPlayer)
+      : super(gameId, triggeredBy);
+
+  final LitUser nextPlayer;
+  static const SORTED = 1;
+  static const NOT_SORTED = 0;
+
+  @override
+  int run() {
+    game.playersSorted.add(LinkedUser(nextPlayer));
+    return game.playersSorted.length == game.players.length
+        ? SORTED
+        : NOT_SORTED;
+  }
+}
+
+class ResetPlayerOrder extends GameEvent<void> {
+  ResetPlayerOrder(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+
+  @override
+  void run() {
+    game.playersSorted.clear();
+    game.playersSorted.add(LinkedUser(game.master));
+  }
+}
 //
 // class RunTraining extends GameEvent {
 //   RunTraining(int gameId) : super(gameId);
@@ -118,9 +132,6 @@ class StopGame extends GameEvent<int> {
   @override
   int run() {
     final game = LitGame.find(gameId);
-    if (game == null) {
-      throw GameNotFoundException(gameId);
-    }
     final player = game.players[triggeredBy.chatId];
     if (player == null || !player.isAdmin) {
       return NOT_ADMIN;

@@ -20,8 +20,9 @@ mixin GameCmdMix on Command {
 
   GameBloc get gameLogic => _logic;
 
-  void initGameLogic(GameEvent? initialEvent,
-      [Duration duration = const Duration(seconds: 5)]) {
+  void initGameLogic(
+      [GameEvent? initialEvent,
+      Duration duration = const Duration(seconds: 5)]) {
     try {
       _logic = GameBloc(game.state);
     } catch (_) {
@@ -66,9 +67,7 @@ mixin GameCmdMix on Command {
     if (gameChatId == null && message.chat.id < 0) {
       gameChatId = message.chat.id;
     }
-    var game = LitGame.find(gameChatId);
-    if (game == null) throw 'В этом чате не играется ни одна игра';
-    return game;
+    return LitGame.find(gameChatId);
   }
 
   int? get gameChatId => (arguments?['gci'] is String)

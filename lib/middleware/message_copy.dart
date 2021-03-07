@@ -1,6 +1,8 @@
+// ignore_for_file: import_of_legacy_library_into_null_safe
+
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/user.dart';
-import 'package:teledart/src/telegram/model.dart';
+import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
 
 class MessageCopy with Middleware {
@@ -33,7 +35,6 @@ class MessageCopy with Middleware {
 
   void _copyGameChatMessagesToPM(Message message, TelegramEx telegram) {
     final game = LitGame.find(message.chat.id);
-    if (game == null) return;
     if (!game.players.containsKey(message.from.id)) return;
     for (var player in game.players.entries) {
       if (player.value.telegramUser.id == message.from.id) continue;

@@ -18,13 +18,16 @@ class DelCollectionCmd extends ComplexCommand with AskAccess {
   @override
   ArgParser getParser() => super.getParser()..addOption('col');
 
+  @override
   @protected
-  get askAccessTextAdmin => 'хочет удалить набор карт';
+  String get askAccessTextAdmin => 'хочет удалить набор карт';
 
+  @override
   void onAllowAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(true, message, telegram);
   }
 
+  @override
   void onDenyAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(false, message, telegram);
   }
@@ -54,6 +57,7 @@ class DelCollectionCmd extends ComplexCommand with AskAccess {
     });
   }
 
+  @override
   void onCancelAccess(Message message, TelegramEx telegram) {
     telegram.sendMessage(
         message.chat.id, 'Спасибо, что не беспокоите админа просто так :-)');

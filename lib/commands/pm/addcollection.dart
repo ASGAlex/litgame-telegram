@@ -16,10 +16,12 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
   @override
   String get name => 'addcollection';
 
+  @override
   void onAllowAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(true, message, telegram);
   }
 
+  @override
   void onDenyAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(false, message, telegram);
   }
@@ -50,6 +52,7 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
   }
 
   @override
+  // ignore: must_call_super
   void onNoAction(Message message, TelegramEx telegram) {
     user.registrationChecked.then((value) {
       if (usersAwaitForUpload.contains(message.chat.id) &&

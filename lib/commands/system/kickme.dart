@@ -22,16 +22,10 @@ class KickMeCmd extends JoinMeCmd {
 
   @override
   void stateLogic(GameState state) {
-    if (state.game == null) {
-      throw GameNotLaunchedException(state.gameId);
-    }
     if (state is NoGame) {
       telegram.sendMessage(message.chat.id, 'Всё, наигрались!');
     } else if (state is InvitingGameState) {
-      final game = state.game;
-      if (game != null) {
-        sendStatisticsToAdmin(game, telegram, message.chat.id);
-      }
+      sendStatisticsToAdmin(state.game, telegram, message.chat.id);
     }
   }
 }
