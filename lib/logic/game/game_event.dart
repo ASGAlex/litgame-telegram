@@ -83,31 +83,28 @@ class SelectGameMaster extends GameEvent<bool> {
   }
 }
 
-class SetPlayerOrder extends GameEvent<int> {
+class SetPlayerOrder extends GameEvent<bool> {
   SetPlayerOrder(int gameId, LitUser triggeredBy, this.nextPlayer)
       : super(gameId, triggeredBy);
 
   final LitUser nextPlayer;
-  static const SORTED = 1;
-  static const NOT_SORTED = 0;
 
   @override
-  int run() {
+  bool run() {
     game.playersSorted.add(LinkedUser(nextPlayer));
-    return game.playersSorted.length == game.players.length
-        ? SORTED
-        : NOT_SORTED;
+    return game.playersSorted.length == game.players.length;
   }
 }
 
-class ResetPlayerOrder extends GameEvent<void> {
+class ResetPlayerOrder extends GameEvent<bool> {
   ResetPlayerOrder(int gameId, LitUser triggeredBy)
       : super(gameId, triggeredBy);
 
   @override
-  void run() {
+  bool run() {
     game.playersSorted.clear();
     game.playersSorted.add(LinkedUser(game.master));
+    return false;
   }
 }
 //

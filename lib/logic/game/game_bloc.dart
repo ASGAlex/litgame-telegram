@@ -71,18 +71,24 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         break;
       case SelectGameMaster:
         if (eventResult) {
-          yield SetPlayersOrderState(event.gameId, event.triggeredBy);
+          yield SetPlayersOrderState(event.gameId, event.triggeredBy, false);
         } else {
           yield GameState.WithError(state,
               messageForGroup:
                   'Данная операция доступна только администратору!');
         }
         break;
+
       case SetPlayerOrder:
-        if (eventResult == null) {
-        } else {
-          yield SetPlayersOrderState(event.gameId, event.triggeredBy);
-        }
+        yield SetPlayersOrderState(
+            event.gameId, event.triggeredBy, eventResult);
+
+        break;
+
+      case ResetPlayerOrder:
+        yield SetPlayersOrderState(
+            event.gameId, event.triggeredBy, eventResult);
+
         break;
     }
   }

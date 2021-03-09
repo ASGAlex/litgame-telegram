@@ -37,8 +37,9 @@ class SelectGameMasterState extends GameState {
 }
 
 class SetPlayersOrderState extends GameState {
-  SetPlayersOrderState(int gameId, LitUser triggeredBy)
+  SetPlayersOrderState(int gameId, LitUser triggeredBy, this.sorted)
       : super(gameId, triggeredBy);
+  final bool sorted;
 }
 //
 // class SelectCardCollectionState extends GameState {}
