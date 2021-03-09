@@ -21,7 +21,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   Stream<GameState> mapEventToState(GameEvent event) async* {
     var eventResult;
     try {
-      eventResult = event.run();
+      eventResult = await event.run();
     } catch (exception) {
       if (exception is GameBaseException) {
         print(exception);
@@ -87,14 +87,12 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         break;
 
       case RunTraining:
-        await eventResult;
         eventResult as GameFlow;
         final trainingFlow = TrainingFlow.init(eventResult);
         yield TrainingFlowState(event.gameId, event.triggeredBy, trainingFlow);
         break;
 
       case RunGame:
-        await eventResult;
         eventResult as GameFlow;
         yield GameFlowState(event.gameId, event.triggeredBy, eventResult);
         break;
