@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:litgame_telegram/models/game/traning_flow.dart';
@@ -80,15 +81,22 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         break;
 
       case SetPlayerOrder:
-        yield SetPlayersOrderState(
-            event.gameId, event.triggeredBy, eventResult);
-
-        break;
-
       case ResetPlayerOrder:
         yield SetPlayersOrderState(
             event.gameId, event.triggeredBy, eventResult);
+        break;
 
+      case RunTraining:
+        await eventResult;
+        eventResult as GameFlow;
+        final trainingFlow = TrainingFlow.init(eventResult);
+        yield TrainingFlowState(event.gameId, event.triggeredBy, trainingFlow);
+        break;
+
+      case RunGame:
+        await eventResult;
+        eventResult as GameFlow;
+        yield GameFlowState(event.gameId, event.triggeredBy, eventResult);
         break;
     }
   }

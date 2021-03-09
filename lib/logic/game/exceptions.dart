@@ -22,3 +22,10 @@ class GameNotLaunchedException extends GameBaseException {
             (gameId != null ? 'with id ${gameId}' : '') +
             ' not launched!');
 }
+
+class GameLaunchedException extends GameBaseException {
+  GameLaunchedException([int? gameId])
+      : super('Game ' +
+            (gameId != null ? 'with id ${gameId}' : '') +
+            ' already launched!');
+}

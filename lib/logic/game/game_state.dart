@@ -41,9 +41,15 @@ class SetPlayersOrderState extends GameState {
       : super(gameId, triggeredBy);
   final bool sorted;
 }
-//
-// class SelectCardCollectionState extends GameState {}
-//
-// class TrainingFlowState extends GameState {}
-//
-// class GameFlowState extends GameState {}
+
+class TrainingFlowState extends GameState {
+  TrainingFlowState(int gameId, LitUser triggeredBy, this.flow)
+      : super(gameId, triggeredBy);
+  final TrainingFlow flow;
+}
+
+class GameFlowState extends GameState {
+  GameFlowState(int gameId, LitUser triggeredBy, this.flow)
+      : super(gameId, triggeredBy);
+  final GameFlow flow;
+}

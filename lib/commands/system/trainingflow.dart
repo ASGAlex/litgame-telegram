@@ -30,21 +30,8 @@ class TrainingFlowCmd extends ComplexGameCommand
   @override
   void run(Message message, TelegramEx telegram) async {
     deleteScheduledMessages(telegram);
-    var collectionName = 'default';
-    var collectionId = arguments?['cid'];
-    if (collectionId != null) {
-      await CardCollection.getName(collectionId).then((value) {
-        collectionName = value.name;
-      });
-    }
-    gameFlow = GameFlow.init(game, collectionName);
-    if (gameFlow.turnNumber > 0) {
-      unawaited(telegram.sendMessage(
-          game.master.chatId, 'Какая разминка, игра уже в разгаре!'));
-      return;
-    }
-    trainingFlow = TrainingFlow.init(gameFlow);
-    await gameFlow.init;
+    initTeledart(message, telegram);
+    initGameLogic();
     super.run(message, telegram);
   }
 
@@ -85,48 +72,51 @@ class TrainingFlowCmd extends ComplexGameCommand
   }
 
   void onNextTurn(Message message, TelegramEx telegram) {
-    if (!firstStep) {
-      trainingFlow.nextTurn();
-    }
-    final card = trainingFlow.getCard();
-    final cardMsg = card.name +
-        '\r\n' +
-        'Ходит ' +
-        trainingFlow.currentUser.nickname +
-        '(' +
-        trainingFlow.currentUser.fullName +
-        ')';
-    sendImage(game.chatId, card.imgUrl, cardMsg, false);
-    copyChat((chatId, _) {
-      if (trainingFlow.currentUser.chatId == chatId) return;
-      sendImage(chatId, card.imgUrl, cardMsg, false);
-    });
-
-    sendImage(trainingFlow.currentUser.chatId, card.imgUrl, card.name, false)
-        .then((value) {
-      sendEndTurn(trainingFlow);
-    });
+    gameLogic.add(RunTraining(
+        game.chatId, LitUser(message.from), arguments?['cid'], false));
   }
 
   void onTrainingEnd(Message message, TelegramEx telegram) {
-    const litMsg = 'Разминку закончили, все молодцы!\r\n'
-        'Сейчас таки начнём играть :-)';
-    final endMessageSent = telegram.sendMessage(game.chatId, litMsg);
-    copyChat((chatId, _) {
-      telegram.sendMessage(chatId, litMsg);
-    });
-
-    TrainingFlow.stopGame(game.chatId);
-    gameFlow.turnNumber = 1;
-    final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start',
-        {'gci': game.chatId.toString(), 'cid': gameFlow.collectionId});
-    endMessageSent.then((value) {
-      cmd.run(message, telegram);
-    });
+    gameLogic
+        .add(RunGame(game.chatId, LitUser(message.from), arguments?['cid']));
   }
 
   @override
   void stateLogic(GameState state) {
-    // TODO: implement stateLogic
+    if (state is TrainingFlowState) {
+      if (!firstStep) {
+        state.flow.nextTurn();
+      }
+      final card = state.flow.getCard();
+      final cardMsg = card.name +
+          '\r\n' +
+          'Ходит ' +
+          state.flow.currentUser.nickname +
+          '(' +
+          state.flow.currentUser.fullName +
+          ')';
+      sendImage(game.chatId, card.imgUrl, cardMsg, false);
+      copyChat((chatId, _) {
+        if (state.flow.currentUser.chatId == chatId) return;
+        sendImage(chatId, card.imgUrl, cardMsg, false);
+      });
+
+      sendImage(state.flow.currentUser.chatId, card.imgUrl, card.name, false)
+          .then((value) {
+        sendEndTurn(state.flow);
+      });
+    } else if (state is GameFlowState) {
+      const litMsg = 'Разминку закончили, все молодцы!\r\n'
+          'Сейчас таки начнём играть :-)';
+      final endMessageSent = telegram.sendMessage(game.chatId, litMsg);
+      copyChat((chatId, _) {
+        telegram.sendMessage(chatId, litMsg);
+      });
+      final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start',
+          {'gci': game.chatId.toString(), 'cid': state.flow.collectionId});
+      endMessageSent.then((value) {
+        cmd.run(message, telegram);
+      });
+    }
   }
 }

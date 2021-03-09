@@ -107,18 +107,54 @@ class ResetPlayerOrder extends GameEvent<bool> {
     return false;
   }
 }
-//
-// class RunTraining extends GameEvent {
-//   RunTraining(int gameId) : super(gameId);
-// }
-//
-// class CardCollectionSelected extends GameEvent {
-//   CardCollectionSelected(int gameId) : super(gameId);
-// }
-//
-// class RunGame extends GameEvent {
-//   RunGame(int gameId) : super(gameId);
-// }
+
+abstract class GameFlowEvent extends GameEvent<Future<GameFlow>> {
+  GameFlowEvent(int gameId, LitUser triggeredBy, this.collectionId)
+      : super(gameId, triggeredBy);
+
+  final String collectionId;
+
+  Future<GameFlow> get flow async {
+    var collectionName = 'default';
+    await CardCollection.getName(collectionId).then((value) {
+      collectionName = value.name;
+    });
+
+    final gameFlow = GameFlow.init(game, collectionName);
+    if (gameFlow.turnNumber > 0) {
+      throw GameLaunchedException();
+    }
+    await gameFlow.init;
+    return gameFlow;
+  }
+}
+
+class RunTraining extends GameFlowEvent {
+  RunTraining(int gameId, LitUser triggeredBy, String collectionId, this.skip)
+      : super(gameId, triggeredBy, collectionId);
+
+  final bool skip;
+
+  @override
+  Future<GameFlow> run() async {
+    final gameFlow = await flow;
+    TrainingFlow.init(gameFlow);
+    return gameFlow;
+  }
+}
+
+class RunGame extends GameFlowEvent {
+  RunGame(int gameId, LitUser triggeredBy, collectionId)
+      : super(gameId, triggeredBy, collectionId);
+
+  @override
+  Future<GameFlow> run() async {
+    final gameFlow = await flow;
+    TrainingFlow.stopGame(gameId);
+    gameFlow.turnNumber = 1;
+    return gameFlow;
+  }
+}
 
 class StopGame extends GameEvent<int> {
   StopGame(int gameId, LitUser triggeredBy) : super(gameId, triggeredBy);
