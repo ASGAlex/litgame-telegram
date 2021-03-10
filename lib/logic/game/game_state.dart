@@ -48,8 +48,24 @@ class TrainingFlowState extends GameState {
   final TrainingFlow flow;
 }
 
-class GameFlowState extends GameState {
-  GameFlowState(int gameId, LitUser triggeredBy, this.flow)
+class GFMaster3CardStoryTellState extends GameState {
+  GFMaster3CardStoryTellState(
+      int gameId, LitUser triggeredBy, this.flow, this.selectedCards)
       : super(gameId, triggeredBy);
   final GameFlow flow;
+  final List<Card> selectedCards;
+}
+
+class GFStoryTellState extends GFMaster3CardStoryTellState {
+  GFStoryTellState(
+      int gameId, LitUser triggeredBy, GameFlow flow, List<Card> selectedCards)
+      : super(gameId, triggeredBy, flow, selectedCards);
+}
+
+class GFPlayerCardSelectionState extends GFMaster3CardStoryTellState {
+  GFPlayerCardSelectionState(
+    int gameId,
+    LitUser triggeredBy,
+    GameFlow flow,
+  ) : super(gameId, triggeredBy, flow, const []);
 }

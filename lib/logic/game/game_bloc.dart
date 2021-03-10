@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
 import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
@@ -86,15 +87,37 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             event.gameId, event.triggeredBy, eventResult);
         break;
 
-      case RunTraining:
+      case StartTraining:
+      case NextTurnTraining:
         eventResult as GameFlow;
         final trainingFlow = TrainingFlow.init(eventResult);
         yield TrainingFlowState(event.gameId, event.triggeredBy, trainingFlow);
         break;
 
-      case RunGame:
+      case StartGameEvent:
         eventResult as GameFlow;
-        yield GameFlowState(event.gameId, event.triggeredBy, eventResult);
+
+        final cGeneric = eventResult.getCard(CardType.generic);
+        final cPlace = eventResult.getCard(CardType.place);
+        final cPerson = eventResult.getCard(CardType.person);
+
+        final selectedCards = <Card>[cGeneric, cPlace, cPerson];
+        yield GFMaster3CardStoryTellState(
+            event.gameId, event.triggeredBy, eventResult, selectedCards);
+        break;
+
+      case NextTurnGameEvent:
+        eventResult as GameFlow;
+        yield GFPlayerCardSelectionState(
+            event.gameId, event.triggeredBy, eventResult);
+        break;
+
+      case GameStoryTellStartEvent:
+        eventResult as GameFlow;
+        event as GameStoryTellStartEvent;
+        final card = eventResult.getCard(event.selectedCardType);
+        yield GFStoryTellState(
+            event.gameId, event.triggeredBy, eventResult, [card]);
         break;
     }
   }

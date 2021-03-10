@@ -72,21 +72,18 @@ class TrainingFlowCmd extends ComplexGameCommand
   }
 
   void onNextTurn(Message message, TelegramEx telegram) {
-    gameLogic.add(RunTraining(
-        game.chatId, LitUser(message.from), arguments?['cid'], false));
+    gameLogic.add(NextTurnTraining(
+        game.chatId, LitUser(message.from), arguments?['cid']));
   }
 
   void onTrainingEnd(Message message, TelegramEx telegram) {
-    gameLogic
-        .add(RunGame(game.chatId, LitUser(message.from), arguments?['cid']));
+    gameLogic.add(
+        StartGameEvent(game.chatId, LitUser(message.from), arguments?['cid']));
   }
 
   @override
   void stateLogic(GameState state) {
     if (state is TrainingFlowState) {
-      if (!firstStep) {
-        state.flow.nextTurn();
-      }
       final card = state.flow.getCard();
       final cardMsg = card.name +
           '\r\n' +
@@ -105,7 +102,7 @@ class TrainingFlowCmd extends ComplexGameCommand
           .then((value) {
         sendEndTurn(state.flow);
       });
-    } else if (state is GameFlowState) {
+    } else if (state is GFMaster3CardStoryTellState) {
       const litMsg = 'Разминку закончили, все молодцы!\r\n'
           'Сейчас таки начнём играть :-)';
       final endMessageSent = telegram.sendMessage(game.chatId, litMsg);

@@ -129,8 +129,8 @@ abstract class GameFlowEvent extends GameEvent<Future<GameFlow>> {
   }
 }
 
-class RunTraining extends GameFlowEvent {
-  RunTraining(int gameId, LitUser triggeredBy, String collectionId, this.skip)
+class StartTraining extends GameFlowEvent {
+  StartTraining(int gameId, LitUser triggeredBy, String collectionId, this.skip)
       : super(gameId, triggeredBy, collectionId);
 
   final bool skip;
@@ -143,8 +143,21 @@ class RunTraining extends GameFlowEvent {
   }
 }
 
-class RunGame extends GameFlowEvent {
-  RunGame(int gameId, LitUser triggeredBy, collectionId)
+class NextTurnTraining extends GameFlowEvent {
+  NextTurnTraining(int gameId, LitUser triggeredBy, String collectionId)
+      : super(gameId, triggeredBy, collectionId);
+
+  @override
+  Future<GameFlow> run() async {
+    final gameFlow = await flow;
+    final trainingFlow = TrainingFlow.init(gameFlow);
+    trainingFlow.nextTurn();
+    return gameFlow;
+  }
+}
+
+class StartGameEvent extends GameFlowEvent {
+  StartGameEvent(int gameId, LitUser triggeredBy, collectionId)
       : super(gameId, triggeredBy, collectionId);
 
   @override
@@ -152,6 +165,32 @@ class RunGame extends GameFlowEvent {
     final gameFlow = await flow;
     TrainingFlow.stopGame(gameId);
     gameFlow.turnNumber = 1;
+    return gameFlow;
+  }
+}
+
+class NextTurnGameEvent extends GameFlowEvent {
+  NextTurnGameEvent(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy, '');
+
+  @override
+  Future<GameFlow> run() async {
+    final gameFlow = await flow;
+    gameFlow.nextTurn();
+    return gameFlow;
+  }
+}
+
+class GameStoryTellStartEvent extends NextTurnGameEvent {
+  GameStoryTellStartEvent(
+      int gameId, LitUser triggeredBy, this.selectedCardType)
+      : super(gameId, triggeredBy);
+
+  final CardType selectedCardType;
+
+  @override
+  Future<GameFlow> run() async {
+    final gameFlow = await super.run();
     return gameFlow;
   }
 }
