@@ -16,13 +16,140 @@ part 'game_event.dart';
 part 'game_state.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
-  GameBloc(GameState initialState) : super(initialState);
+  GameBloc(GameState initialState, this.game) : super(initialState);
+
+  final LitGame game;
+
+  void addEvent(GameEventType type, LitUser triggeredBy,
+      [dynamic additionalData]) {
+    super.add(GameEvent(type, triggeredBy, additionalData));
+  }
 
   @override
   Stream<GameState> mapEventToState(GameEvent event) async* {
-    var eventResult;
     try {
-      eventResult = await event.run();
+      switch (event.type) {
+        case GameEventType.startNewGame:
+          game.addPlayer(event.triggeredBy);
+          yield InvitingGameState(game.chatId, event.triggeredBy);
+          break;
+        case GameEventType.stopGame:
+          final player = game.players[event.triggeredBy.chatId];
+          if (player != null && player.isAdmin) {
+            LitGame.stopGame(game.chatId);
+            GameFlow.stopGame(game.chatId);
+            TrainingFlow.stopGame(game.chatId);
+            yield NoGameState(event.triggeredBy);
+          } else {
+            yield GameState.WithError(state,
+                messageForGroup:
+                    'У тебя нет власти надо мной! Пусть админ игры её остановит.');
+          }
+          break;
+        case GameEventType.joinGame:
+          if (state is InvitingGameState) {
+            final result = game.addPlayer(event.triggeredBy);
+            yield InvitingGameState(
+                game.chatId, event.triggeredBy, result, event.triggeredBy);
+          }
+          break;
+        case GameEventType.kickFromGame:
+          final user = game.players[event.triggeredBy.chatId];
+          if (user?.isAdmin == true) {
+            LitGame.stopGame(game.chatId);
+            yield NoGameState(event.triggeredBy);
+          } else if (user != null) {
+            game.removePlayer(user);
+            yield PlayerInvitedIntoGameState(game.chatId, event.triggeredBy);
+          }
+          break;
+        case GameEventType.finishJoin:
+          if (state is InvitingGameState && event.triggeredBy == game.admin) {
+            yield SelectGameMasterState(game.chatId, event.triggeredBy);
+          } else {
+            yield GameState.WithError(state,
+                messageForGroup:
+                    'Пресечена незаконная попытка остановить набор игроков!');
+          }
+          break;
+        case GameEventType.selectMaster:
+          if (event.triggeredBy.isAdmin) {
+            final master = event.additionalData as LitUser;
+            master.isGameMaster = true;
+            yield PlayerSortingState(game.chatId, event.triggeredBy, false);
+          } else {
+            yield GameState.WithError(state,
+                messageForGroup:
+                    'Данная операция доступна только администратору!');
+          }
+          break;
+
+        case GameEventType.resetPlayersOrder:
+          game.playersSorted.clear();
+          game.playersSorted.add(LinkedUser(game.master));
+          yield PlayerSortingState(game.chatId, event.triggeredBy, false);
+          break;
+
+        case GameEventType.sortPlayer:
+          final player = event.additionalData as LitUser;
+          game.playersSorted.add(LinkedUser(player));
+          final isAllSorted = game.playersSorted.length == game.players.length;
+          yield PlayerSortingState(game.chatId, event.triggeredBy, isAllSorted);
+          break;
+
+        case GameEventType.trainingStart:
+          var collectionName = 'default';
+          if (event.additionalData != null) {
+            await CardCollection.getName(event.additionalData)
+                .then((collection) {
+              collectionName = collection.name;
+            });
+          }
+
+          await game.gameFlowFactory(collectionName);
+          yield TrainingFlowState(
+              game.chatId, event.triggeredBy, await game.trainingFlow);
+
+          break;
+
+        case GameEventType.trainingNextTurn:
+          final trainingFlow = await game.trainingFlow;
+          trainingFlow.nextTurn();
+          yield TrainingFlowState(
+              game.chatId, event.triggeredBy, await trainingFlow);
+
+          break;
+
+        case GameEventType.trainingEnd:
+          TrainingFlow.stopGame(game.chatId);
+          yield TrainingFlowState(
+              game.chatId, event.triggeredBy, await game.trainingFlow);
+
+          break;
+
+        case GameEventType.gameFlowStart:
+          final gameFlow = await game.gameFlowFactory();
+
+          final cGeneric = gameFlow.getCard(CardType.generic);
+          final cPlace = gameFlow.getCard(CardType.place);
+          final cPerson = gameFlow.getCard(CardType.person);
+
+          final selectedCards = <Card>[cGeneric, cPlace, cPerson];
+          yield GameFlowMasterInitStory(
+              game.chatId, event.triggeredBy, selectedCards);
+          break;
+
+        case GameEventType.gameFlowNextTurn:
+          game.gameFlow.nextTurn();
+          yield GameFlowPlayerSelectCard(game.chatId, event.triggeredBy);
+          break;
+
+        case GameEventType.gameFlowCardSelected:
+          final type = CardType.generic.getTypeByName(event.additionalData);
+          final card = game.gameFlow.getCard(type);
+          yield GameFlowStoryTell(game.chatId, event.triggeredBy, card);
+          break;
+      }
     } catch (exception) {
       if (exception is GameBaseException) {
         print(exception);
@@ -31,102 +158,5 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         rethrow;
       }
     }
-    switch (event.runtimeType) {
-      case StartNewGame:
-        if (eventResult) {
-          yield InvitingGameState(event.gameId, event.triggeredBy);
-        } else {
-          LitGame.stopGame(event.gameId);
-          yield NoGame(event.triggeredBy);
-        }
-        break;
-      case StopGame:
-        if (eventResult == StopGame.SUCCESS) {
-          yield NoGame(event.triggeredBy);
-        } else if (eventResult == StopGame.NOT_ADMIN) {
-          yield GameState.WithError(state,
-              messageForGroup:
-                  'У тебя нет власти надо мной! Пусть админ игры её остановит.');
-        }
-        break;
-      case JoinNewGame:
-        event as JoinNewGame;
-        yield InvitingGameState(
-            event.gameId, event.triggeredBy, eventResult, event.triggeredBy);
-        break;
-      case KickFromNewGame:
-        if (eventResult == KickFromNewGame.END_GAME ||
-            eventResult == KickFromNewGame.NEED_ADMIN) {
-          yield NoGame(event.triggeredBy);
-        } else {
-          yield InvitingGameState(event.gameId, event.triggeredBy);
-        }
-        break;
-      case FinishJoinNewGame:
-        if (eventResult) {
-          yield SelectGameMasterState(event.gameId, event.triggeredBy);
-        } else {
-          yield GameState.WithError(state,
-              messageForGroup:
-                  'Пресечена незаконная попытка остановить набор игроков!');
-        }
-        break;
-      case SelectGameMaster:
-        if (eventResult) {
-          yield SetPlayersOrderState(event.gameId, event.triggeredBy, false);
-        } else {
-          yield GameState.WithError(state,
-              messageForGroup:
-                  'Данная операция доступна только администратору!');
-        }
-        break;
-
-      case SetPlayerOrder:
-      case ResetPlayerOrder:
-        yield SetPlayersOrderState(
-            event.gameId, event.triggeredBy, eventResult);
-        break;
-
-      case StartTraining:
-      case NextTurnTraining:
-        eventResult as GameFlow;
-        final trainingFlow = TrainingFlow.init(eventResult);
-        yield TrainingFlowState(event.gameId, event.triggeredBy, trainingFlow);
-        break;
-
-      case StartGameEvent:
-        eventResult as GameFlow;
-
-        final cGeneric = eventResult.getCard(CardType.generic);
-        final cPlace = eventResult.getCard(CardType.place);
-        final cPerson = eventResult.getCard(CardType.person);
-
-        final selectedCards = <Card>[cGeneric, cPlace, cPerson];
-        yield GFMaster3CardStoryTellState(
-            event.gameId, event.triggeredBy, eventResult, selectedCards);
-        break;
-
-      case NextTurnGameEvent:
-        eventResult as GameFlow;
-        yield GFPlayerCardSelectionState(
-            event.gameId, event.triggeredBy, eventResult);
-        break;
-
-      case GameStoryTellStartEvent:
-        eventResult as GameFlow;
-        event as GameStoryTellStartEvent;
-        final card = eventResult.getCard(event.selectedCardType);
-        yield GFStoryTellState(
-            event.gameId, event.triggeredBy, eventResult, [card]);
-        break;
-    }
-  }
-
-  @override
-  void onChange(Change<GameState> change) {
-    try {
-      change.nextState.game.state = change.nextState;
-    } catch (_) {}
-    super.onChange(change);
   }
 }

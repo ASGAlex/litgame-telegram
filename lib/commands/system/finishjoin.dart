@@ -13,41 +13,11 @@ class FinishJoinCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    initGameLogic(FinishJoinNewGame(game.chatId, LitUser(message.from)));
+    game.logic.addEvent(GameEventType.finishJoin, LitUser(message.from));
   }
 
   @override
-  void stateLogic(GameState state) {
-    if (state is SelectGameMasterState) {
-      deleteScheduledMessages(telegram);
-      final keyboard = <List<InlineKeyboardButton>>[];
-      game.players.values.forEach((player) {
-        var text = player.nickname + ' (' + player.fullName + ')';
-        if (player.isAdmin) {
-          text += '(admin)';
-        }
-        if (player.isGameMaster) {
-          text += '(master)';
-        }
-
-        keyboard.add([
-          InlineKeyboardButton(
-              text: text,
-              callback_data: SetMasterCmd().buildCommandCall({
-                'gci': gameChatId.toString(),
-                'userId': player.telegramUser.id.toString()
-              }))
-        ]);
-      });
-
-      telegram
-          .sendMessage(game.admin.chatId, 'Выберите мастера игры: ',
-              reply_markup: InlineKeyboardMarkup(inline_keyboard: keyboard))
-          .then((msg) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      });
-    }
-  }
+  void stateLogic(GameState state) {}
 
   @override
   ArgParser getParser() => getGameBaseParser();

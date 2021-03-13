@@ -14,18 +14,12 @@ class EndGameCmd extends GameCommand {
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
     checkGameChat(message);
-    initGameLogic(StopGame(message.chat.id, LitUser(message.from)));
+    game.logic.addEvent(GameEventType.stopGame, LitUser(message.from));
   }
 
   @override
   ArgParser? getParser() => null;
 
   @override
-  void stateLogic(GameState state) {
-    if (state is NoGame) {
-      telegram.sendMessage(message.chat.id, 'Всё, наигрались!',
-          reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
-      deleteScheduledMessages(telegram);
-    }
-  }
+  void stateLogic(GameState state) {}
 }

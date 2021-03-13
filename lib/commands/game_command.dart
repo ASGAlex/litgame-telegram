@@ -16,27 +16,6 @@ mixin GameCmdMix on Command {
     return parser;
   }
 
-  late GameBloc _logic;
-
-  GameBloc get gameLogic => _logic;
-
-  void initGameLogic(
-      [GameEvent? initialEvent,
-      Duration duration = const Duration(seconds: 5)]) {
-    try {
-      _logic = GameBloc(game.state);
-    } catch (_) {
-      _logic = GameBloc(NoGame(LitUser.byId(0)));
-    }
-    gameLogic.listen(_stateListener);
-    if (initialEvent != null) {
-      gameLogic.add(initialEvent);
-    }
-    Future.delayed(duration).then((_) {
-      gameLogic.close();
-    });
-  }
-
   @protected
   void stateLogic(GameState state);
 

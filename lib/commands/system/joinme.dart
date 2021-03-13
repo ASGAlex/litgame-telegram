@@ -13,22 +13,20 @@ class JoinMeCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    initGameLogic(JoinNewGame(message.chat.id, LitUser(message.from)));
-    gameLogic.close();
+    game.logic.addEvent(GameEventType.joinGame, LitUser(message.from));
   }
 
-  void _sendChatIdRequest(Message message, LitUser user, TelegramEx telegram) {
+  void sendChatIdRequest(LitGame game, LitUser user, TelegramEx telegram) {
     var text = user.nickname + ' подключился к игре!\r\n';
     user.registrationChecked.then((registered) {
       if (!registered) {
         text +=
             'Мы с тобой ещё не общались, напиши мне в личку, чтобы продолжить игру.\r\n';
       }
-      telegram.sendMessage(message.chat.id, text);
+      telegram.sendMessage(game.chatId, text);
     });
   }
 
-  @protected
   void sendStatisticsToAdmin(
       LitGame game, TelegramEx telegram, int gameChatId) {
     if (game.admin.noChatId) return;
@@ -64,33 +62,6 @@ class JoinMeCmd extends GameCommand {
 
   @override
   void stateLogic(GameState state) {
-    if (state is InvitingGameState) {
-      if (state.lastInviteResult == null) return;
-      final user = state.lastInvitedUser;
-      if (user == null) {
-        throw 'Попытка инвайтить незнаю кого';
-      }
-      _sendChatIdRequest(message, user, telegram);
-
-      if (state.lastInviteResult == true) {
-        sendStatisticsToAdmin(state.game, telegram, message.chat.id);
-      } else {
-        final existingGame = LitGame.findGameOfPlayer(user.chatId);
-        if (existingGame != state.game) {
-          telegram.sendMessage(
-              message.chat.id,
-              user.nickname +
-                  ' играет в какой-то другой игре. Надо её сначала завершить.');
-          telegram.getChat(existingGame?.chatId).then((chat) {
-            var chatName = chat.title ?? chat.id.toString();
-            telegram.sendMessage(
-                user.chatId,
-                'Чтобы начать новую игру, нужно завершить текущую в чате "' +
-                    chatName +
-                    '"');
-          });
-        }
-      }
-    }
+    if (state is InvitingGameState) {}
   }
 }

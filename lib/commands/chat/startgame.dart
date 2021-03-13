@@ -17,37 +17,11 @@ class StartGameCmd extends GameCommand {
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
     checkGameChat(message);
-    initGameLogic(
-        StartNewGame(message.chat.id, LitUser(message.from, isAdmin: true)));
-  }
-
-  @override
-  ArgParser? getParser() => null;
-
-  @override
-  void stateLogic(GameState state) {
-    if (state is InvitingGameState) {
-      telegram
-          .sendMessage(
-              state.gameId,
-              '=========================================\r\n'
-              'Начинаем новую игру! \r\n'
-              'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'
-              'У вас на планете дискриминация роботов, поэтому сам я вам просто так написать не смогу :-( \r\n'
-              '\r\n'
-              'Кто хочет поучаствовать?',
-              reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                [
-                  InlineKeyboardButton(
-                      text: StartGameCmd.BTN_YES, callback_data: '/joinme'),
-                  InlineKeyboardButton(
-                      text: StartGameCmd.BTN_NO, callback_data: '/kickme')
-                ]
-              ]))
-          .then((msg) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      });
-    } else {
+    try {
+      final game = LitGame.startNew(message.chat.id);
+      game.logic.addEvent(
+          GameEventType.startNewGame, LitUser(message.from, isAdmin: true));
+    } catch (_) {
       telegram.sendMessage(message.chat.id,
           'Чтобы начать новую игру, нужно завершить начатую игру.');
       final existingGame = LitGame.findGameOfPlayer(message.from.id);
@@ -63,4 +37,10 @@ class StartGameCmd extends GameCommand {
       }
     }
   }
+
+  @override
+  ArgParser? getParser() => null;
+
+  @override
+  void stateLogic(GameState state) {}
 }

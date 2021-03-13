@@ -19,8 +19,8 @@ abstract class GameState {
   Object? messageForGroup;
 }
 
-class NoGame extends GameState {
-  NoGame(LitUser triggeredBy) : super(0, triggeredBy);
+class NoGameState extends GameState {
+  NoGameState(LitUser triggeredBy) : super(0, triggeredBy);
 }
 
 class InvitingGameState extends GameState {
@@ -31,13 +31,18 @@ class InvitingGameState extends GameState {
   final LitUser? lastInvitedUser;
 }
 
+class PlayerInvitedIntoGameState extends InvitingGameState {
+  PlayerInvitedIntoGameState(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+}
+
 class SelectGameMasterState extends GameState {
   SelectGameMasterState(int gameId, LitUser triggeredBy)
       : super(gameId, triggeredBy);
 }
 
-class SetPlayersOrderState extends GameState {
-  SetPlayersOrderState(int gameId, LitUser triggeredBy, this.sorted)
+class PlayerSortingState extends GameState {
+  PlayerSortingState(int gameId, LitUser triggeredBy, this.sorted)
       : super(gameId, triggeredBy);
   final bool sorted;
 }
@@ -46,6 +51,28 @@ class TrainingFlowState extends GameState {
   TrainingFlowState(int gameId, LitUser triggeredBy, this.flow)
       : super(gameId, triggeredBy);
   final TrainingFlow flow;
+}
+
+class TrainingEndState extends GameState {
+  TrainingEndState(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+}
+
+class GameFlowMasterInitStory extends GameState {
+  GameFlowMasterInitStory(int gameId, LitUser triggeredBy, this.selectedCards)
+      : super(gameId, triggeredBy);
+  List<Card> selectedCards;
+}
+
+class GameFlowPlayerSelectCard extends GameState {
+  GameFlowPlayerSelectCard(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+}
+
+class GameFlowStoryTell extends GameState {
+  GameFlowStoryTell(int gameId, LitUser triggeredBy, this.selectedCard)
+      : super(gameId, triggeredBy);
+  Card selectedCard;
 }
 
 class GFMaster3CardStoryTellState extends GameState {

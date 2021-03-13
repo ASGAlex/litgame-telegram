@@ -18,23 +18,22 @@ class SetOrderCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    initGameLogic();
     final me = LitUser(message.from);
 
     deleteScheduledMessages(telegram);
     final userId = arguments?['userId'];
     if (arguments?['reset'] != null) {
-      gameLogic.add(ResetPlayerOrder(game.chatId, me));
+      game.logic.addEvent(GameEventType.resetPlayersOrder, me);
     } else if (userId != null) {
       final uid = int.parse(userId);
       final user = game.players[uid];
       if (user != null) {
-        gameLogic.add(SetPlayerOrder(game.chatId, me, user));
+        game.logic.addEvent(GameEventType.sortPlayer, me, user);
       }
     }
   }
 
-  String _getSortedUsersListText() {
+  String getSortedUsersListText() {
     if (game.playersSorted.isEmpty) {
       return '';
     }
@@ -78,40 +77,5 @@ class SetOrderCmd extends GameCommand {
   }
 
   @override
-  void stateLogic(GameState state) {
-    if (state is SetPlayersOrderState) {
-      if (state.sorted) {
-        telegram
-            .sendMessage(message.chat.id,
-                'Игроки отсортированы:\r\n' + _getSortedUsersListText(),
-                reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                  [
-                    InlineKeyboardButton(
-                        text: 'Играем!',
-                        // callback_data: GameFlowCmd.args(arguments).buildAction('start')),
-                        callback_data: SetCollectionCmd().buildAction(
-                            'list', {'gci': gameChatId.toString()})),
-                    InlineKeyboardButton(
-                        text: 'Отсортировать заново',
-                        callback_data: buildCommandCall(
-                            {'gci': gameChatId.toString(), 'reset': ''}))
-                  ]
-                ]))
-            .then((msg) {
-          scheduleMessageDelete(msg.chat.id, msg.message_id);
-        });
-      } else {
-        telegram
-            .sendMessage(
-                message.chat.id,
-                'В каком порядке будут ходить игроки:\r\n' +
-                    _getSortedUsersListText(),
-                reply_markup:
-                    InlineKeyboardMarkup(inline_keyboard: getSortButtons()))
-            .then((msg) {
-          scheduleMessageDelete(msg.chat.id, msg.message_id);
-        });
-      }
-    }
-  }
+  void stateLogic(GameState state) {}
 }

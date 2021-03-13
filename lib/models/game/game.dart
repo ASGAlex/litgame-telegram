@@ -1,17 +1,41 @@
 import 'dart:collection';
 
 import 'package:litgame_telegram/logic/game/game_bloc.dart';
+import 'package:litgame_telegram/models/game/game_flow.dart';
+import 'package:litgame_telegram/models/game/traning_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
 class LitGame {
-  LitGame(this.chatId) : _playersSorted = LinkedList<LinkedUser>();
+  LitGame(this.chatId) : _playersSorted = LinkedList<LinkedUser>() {
+    logic = GameBloc(NoGameState(LitUser.byId(0)), this);
+  }
 
   static final Map<int, LitGame> _activeGames = {};
   final int chatId;
   final Map<int, LitUser> _players = {};
   final LinkedList<LinkedUser> _playersSorted;
 
-  GameState state = NoGame(LitUser.byId(0));
+  late final GameBloc logic;
+
+  late TrainingFlow _trainingFlow;
+  late GameFlow _gameFlow;
+
+  Future<TrainingFlow> get trainingFlow async {
+    // ignore: unnecessary_null_comparison
+    _trainingFlow ??= TrainingFlow.init(await gameFlowFactory());
+    return _trainingFlow;
+  }
+
+  GameFlow get gameFlow => _gameFlow;
+
+  Future<GameFlow> gameFlowFactory([String collectionName = 'default']) async {
+    // ignore: unnecessary_null_comparison
+    if (_gameFlow == null) {
+      _gameFlow = GameFlow.init(this, collectionName);
+      await _gameFlow.init;
+    }
+    return _gameFlow;
+  }
 
   Map<int, LitUser> get players => _players;
 
@@ -54,7 +78,8 @@ class LitGame {
     if (_activeGames[chatId] == null) {
       throw 'Вообще-то мы даже не начинали...';
     }
-    _activeGames.remove(chatId);
+    final game = _activeGames.remove(chatId);
+    game?.logic.close();
   }
 
   static LitUser? findPlayerInExistingGames(int chatId) {

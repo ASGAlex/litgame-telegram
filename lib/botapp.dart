@@ -2,6 +2,8 @@ import 'dart:io';
 
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
+import 'package:bloc/bloc.dart';
+import 'package:litgame_telegram/game_event_observer.dart';
 import 'package:litgame_telegram/middleware/message_copy.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';
@@ -63,6 +65,7 @@ class BotApp extends TeledartApp {
       },
     );
 
+    Bloc.observer = GameEventObserver(telegram);
     super.run();
   }
 }

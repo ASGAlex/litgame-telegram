@@ -21,11 +21,6 @@ class SetMasterCmd extends GameCommand {
     if (master == null) {
       throw 'Ни один игрок не выбран в качестве мастера игры!';
     }
-    initGameLogic(SelectGameMaster(game.chatId, LitUser(message.from), master));
-  }
-
-  @override
-  void stateLogic(GameState state) {
     deleteScheduledMessages(telegram);
     telegram.sendMessage(
         gameChatId,
@@ -33,12 +28,10 @@ class SetMasterCmd extends GameCommand {
             '(' +
             game.master.fullName +
             ') будет игромастером!');
-
-    final cmd = Command.withArguments(() => SetOrderCmd(), {
-      'gci': gameChatId.toString(),
-      'userId': arguments?['userId'],
-      'reset': ''
-    });
-    cmd.run(message, telegram);
+    game.logic
+        .addEvent(GameEventType.selectMaster, LitUser(message.from), master);
   }
+
+  @override
+  void stateLogic(GameState state) {}
 }
