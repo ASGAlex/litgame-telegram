@@ -20,26 +20,21 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   final LitGame game;
 
-  void addEvent(GameEventType type, LitUser triggeredBy,
-      [dynamic additionalData]) {
-    super.add(GameEvent(type, triggeredBy, additionalData));
-  }
-
   @override
   Stream<GameState> mapEventToState(GameEvent event) async* {
     try {
-      switch (event.type) {
+      switch (event.runtimeType) {
 
         /// Начало новой игры. Игрок, сделавший запрос, подключается к игре и
         /// делается админом, запускается процесс инвайта остальных игроков.
         /// В [InvitingGameState] находимся, пока происходит подключение
-        case GameEventType.startNewGame:
+        case StartNewGameEvent:
           game.addPlayer(event.triggeredBy);
           yield InvitingGameState(game.id, event.triggeredBy);
           break;
 
         /// Добавление игрока в игру и возврат в состояние принятия инвайтов
-        case GameEventType.joinGame:
+        case JoinGameEvent:
           if (state is InvitingGameState) {
             final result = game.addPlayer(event.triggeredBy);
             yield InvitingGameState(
@@ -49,7 +44,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         /// Удаление из игры. Если это был админ, то игра останавливается.
         /// Возвращение в состояние принятия инвайтов
-        case GameEventType.kickFromGame:
+        case KickFromGameEvent:
           final user = game.players[event.triggeredBy.chatId];
           if (user?.isAdmin == true) {
             LitGame.stopGame(game.id);
@@ -62,7 +57,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         /// Остановка игры и очистка ресурсов.
         /// Перевод в состояние "отсутствие игры"
-        case GameEventType.stopGame:
+        case StopGameEvent:
           final player = game.players[event.triggeredBy.chatId];
           if (player != null && player.isAdmin) {
             LitGame.stopGame(game.id);
@@ -77,7 +72,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           break;
 
         /// Завершение приёма игроков. Перевод в сотояние выбора игромастера
-        case GameEventType.finishJoin:
+        case FinishJoinEvent:
           if (state is InvitingGameState && event.triggeredBy == game.admin) {
             yield SelectGameMasterState(game.id, event.triggeredBy);
           } else {
@@ -89,10 +84,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         /// Установка пользователя игромастером.
         /// Перевод в состояние выбора очерёдности ходов игроков.
-        case GameEventType.selectMaster:
+        case SelectMasterEvent:
+          event as SelectMasterEvent;
           if (event.triggeredBy.isAdmin) {
-            final master = event.additionalData as LitUser;
-            master.isGameMaster = true;
+            event.master.isGameMaster = true;
             yield PlayerSortingState(game.id, event.triggeredBy, false);
           } else {
             yield GameState.WithError(state,
@@ -104,7 +99,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Сброс установленного состояния сортировки игроков.
         /// Автоматическое добавление гейм-мастера в качестве первого ходящего.
         /// Возврат в состояние сортировки игроков
-        case GameEventType.resetPlayersOrder:
+        case ResetPlayersOrderEvent:
           game.playersSorted.clear();
           game.playersSorted.add(LinkedUser(game.master));
           yield PlayerSortingState(game.id, event.triggeredBy, false);
@@ -112,9 +107,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         /// В процессе сортировки игрок был указан, как следующий ходящий.
         /// Возврати в состояние сортировки игроков
-        case GameEventType.sortPlayer:
-          final player = event.additionalData as LitUser;
-          game.playersSorted.add(LinkedUser(player));
+        case SortPlayerEvent:
+          event as SortPlayerEvent;
+          game.playersSorted.add(LinkedUser(event.sortedPlayer));
           final isAllSorted = game.playersSorted.length == game.players.length;
           yield PlayerSortingState(game.id, event.triggeredBy, isAllSorted);
           break;
@@ -122,10 +117,11 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Запущена разминка
         /// Коллекцию для разминки передаём в дополнительных параметрах, процесс
         /// выбора коллекции не входит в основной flow приложения
-        case GameEventType.trainingStart:
+        case TrainingStartEvent:
+          event as TrainingStartEvent;
           var collectionName = 'default';
-          if (event.additionalData != null) {
-            await CardCollection.getName(event.additionalData)
+          if (event.collectionId != null) {
+            await CardCollection.getName(event.collectionId as String)
                 .then((collection) {
               collectionName = collection.name;
             });
@@ -138,7 +134,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           break;
 
         /// Игрок закончил свой рассказ на разминке и передал ход следующему.
-        case GameEventType.trainingNextTurn:
+        case TrainingNextTurnEvent:
           final trainingFlow = await game.trainingFlow;
           trainingFlow.nextTurn();
           yield TrainingFlowState(
@@ -159,7 +155,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Игромастеру выкидываются рандомно три карты, по которым
         /// он сразу должен начать рассказывать историю
         /// Переход в состояние рассказа истории
-        case GameEventType.gameFlowStart:
+        case GameFlowStartEvent:
           final gameFlow = await game.gameFlowFactory();
 
           final cGeneric = gameFlow.getCard(CardType.generic);
@@ -174,7 +170,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Игрок закончил рассказывать историю и пережал ход следующему игроку.
         /// Следующий игрок теперь должен вытянуть карту из одной из трёх колод.
         /// Перевод в состояние выбора карты
-        case GameEventType.gameFlowNextTurn:
+        case GameFlowNextTurnEvent:
           game.gameFlow.nextTurn();
           yield GameFlowPlayerSelectCard(game.id, event.triggeredBy);
           break;
@@ -182,8 +178,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Игрок выбрал карту
         /// Выбранная карта показывается всем игрокам,
         /// игрок начинает рассказ. Перевод в состояние рассказа истории
-        case GameEventType.gameFlowCardSelected:
-          final type = CardType.generic.getTypeByName(event.additionalData);
+        case GameFlowCardSelectedEvent:
+          event as GameFlowCardSelectedEvent;
+          final type = CardType.generic.getTypeByName(event.cardType);
           final card = game.gameFlow.getCard(type);
           yield GameFlowStoryTell(game.id, event.triggeredBy, card);
           break;

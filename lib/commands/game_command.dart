@@ -37,6 +37,8 @@ mixin GameCmdMix on Command {
       throw 'Эту команду надо не в личке запускать, а в чате с игроками ;-)';
     }
   }
+
+  void onTransition(Bloc bloc, Transition transition);
 }
 
 abstract class GameCommand extends Command

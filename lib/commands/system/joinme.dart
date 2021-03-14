@@ -13,7 +13,7 @@ class JoinMeCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    game.logic.addEvent(GameEventType.joinGame, LitUser(message.from));
+    game.logic.add(JoinGameEvent(LitUser(message.from)));
   }
 
   void sendChatIdRequest(LitGame game, LitUser user, TelegramEx telegram) {
@@ -59,4 +59,9 @@ class JoinMeCmd extends GameCommand {
 
   @override
   ArgParser? getParser() => null;
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
+  }
 }

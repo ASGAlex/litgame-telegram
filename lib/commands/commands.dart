@@ -5,6 +5,7 @@ library commands;
 import 'dart:async';
 
 import 'package:args/args.dart';
+import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/logic/game/game_bloc.dart';
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/cards/card_collection.dart';

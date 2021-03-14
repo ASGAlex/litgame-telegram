@@ -40,12 +40,12 @@ class TrainingFlowCmd extends ComplexGameCommand
   }
 
   void onTrainingStart(Message message, TelegramEx telegram) {
-    game.logic.addEvent(
-        GameEventType.trainingStart, LitUser(message.from), arguments?['cid']);
+    game.logic
+        .add(TrainingStartEvent(LitUser(message.from), arguments?['cid']));
   }
 
   void onNextTurn(Message message, TelegramEx telegram) {
-    game.logic.addEvent(GameEventType.trainingNextTurn, LitUser(message.from));
+    game.logic.add(TrainingNextTurnEvent(LitUser(message.from)));
   }
 
   void onTrainingEnd(Message message, TelegramEx telegram) {
@@ -83,5 +83,10 @@ class TrainingFlowCmd extends ComplexGameCommand
     return copyChat((chatId, _) {
       telegram.sendMessage(chatId, litMsg);
     });
+  }
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
   }
 }

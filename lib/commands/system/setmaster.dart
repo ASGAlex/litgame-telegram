@@ -28,7 +28,11 @@ class SetMasterCmd extends GameCommand {
             '(' +
             game.master.fullName +
             ') будет игромастером!');
-    game.logic
-        .addEvent(GameEventType.selectMaster, LitUser(message.from), master);
+    game.logic.add(SelectMasterEvent(LitUser(message.from), master));
+  }
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
   }
 }

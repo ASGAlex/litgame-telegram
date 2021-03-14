@@ -13,9 +13,14 @@ class FinishJoinCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    game.logic.addEvent(GameEventType.finishJoin, LitUser(message.from));
+    game.logic.add(FinishJoinEvent(LitUser(message.from)));
   }
 
   @override
   ArgParser getParser() => getGameBaseParser();
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
+  }
 }

@@ -19,8 +19,7 @@ class StartGameCmd extends GameCommand {
     checkGameChat(message);
     try {
       final game = LitGame.startNew(message.chat.id);
-      game.logic.addEvent(
-          GameEventType.startNewGame, LitUser(message.from, isAdmin: true));
+      game.logic.add(StartNewGameEvent(LitUser(message.from, isAdmin: true)));
     } catch (_) {
       telegram.sendMessage(message.chat.id,
           'Чтобы начать новую игру, нужно завершить начатую игру.');
@@ -40,4 +39,9 @@ class StartGameCmd extends GameCommand {
 
   @override
   ArgParser? getParser() => null;
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
+  }
 }

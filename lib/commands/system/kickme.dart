@@ -14,9 +14,14 @@ class KickMeCmd extends JoinMeCmd {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    game.logic.addEvent(GameEventType.kickFromGame, LitUser(message.from));
+    game.logic.add(KickFromGameEvent(LitUser(message.from)));
   }
 
   @override
   ArgParser? getParser() => null;
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
+  }
 }

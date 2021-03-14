@@ -14,9 +14,14 @@ class EndGameCmd extends GameCommand {
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
     checkGameChat(message);
-    game.logic.addEvent(GameEventType.stopGame, LitUser(message.from));
+    game.logic.add(StopGameEvent(LitUser(message.from)));
   }
 
   @override
   ArgParser? getParser() => null;
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
+  }
 }

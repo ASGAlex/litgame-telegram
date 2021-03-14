@@ -23,12 +23,12 @@ class SetOrderCmd extends GameCommand {
     deleteScheduledMessages(telegram);
     final userId = arguments?['userId'];
     if (arguments?['reset'] != null) {
-      game.logic.addEvent(GameEventType.resetPlayersOrder, me);
+      game.logic.add(ResetPlayersOrderEvent(me));
     } else if (userId != null) {
       final uid = int.parse(userId);
       final user = game.players[uid];
       if (user != null) {
-        game.logic.addEvent(GameEventType.sortPlayer, me, user);
+        game.logic.add(SortPlayerEvent(me, user));
       }
     }
   }
@@ -74,5 +74,10 @@ class SetOrderCmd extends GameCommand {
       ]);
     });
     return usersToSelect;
+  }
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    // TODO: implement onTransition
   }
 }

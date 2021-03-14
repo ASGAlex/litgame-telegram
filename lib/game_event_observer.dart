@@ -50,7 +50,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
       case PlayerInvitedIntoGameState:
         final cmd = JoinMeCmd();
         final event = transition.event as GameEvent;
-        if (event.type == GameEventType.kickFromGame) {
+        if (event.runtimeType == KickFromGameEvent) {
           cmd.sendStatisticsToAdmin(bloc.game, telegram, bloc.game.id);
         } else {
           final state = bloc.state as PlayerInvitedIntoGameState;
@@ -149,7 +149,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         break;
 
       case TrainingFlowState:
-        if (event.type == GameEventType.trainingStart) {
+        if (event.runtimeType == TrainingStartEvent) {
           const litMsg = 'Небольшая разминка!\r\n'
               'Сейчас каждому из игроков будет выдаваться случайная карта из колоды,'
               'и нужно будет по ней рассказать что-то, что связано с миром/темой, '
@@ -189,7 +189,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
       case TrainingEndState:
         final cmd = TrainingFlowCmd();
         await cmd.sendTrainingEndToChat(bloc.game, telegram);
-        bloc.addEvent(GameEventType.gameFlowStart, event.triggeredBy);
+        // bloc.addEvent(GameEventType.gameFlowStart, event.triggeredBy);
         break;
 
       case GameFlowMasterInitStory:
