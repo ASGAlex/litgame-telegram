@@ -25,7 +25,7 @@ class MessageCopy with Middleware {
   void _copyPMMessagesToGameChat(Message message, TelegramEx telegram) {
     final player = LitGame.findPlayerInExistingGames(message.chat.id);
     if (player != null && player.isCopyChatSet) {
-      final gameChatId = player.currentGame?.chatId;
+      final gameChatId = player.currentGame?.id;
       if (gameChatId == null) {
         throw 'Player is in game, but currentGame.chatId is null!';
       }

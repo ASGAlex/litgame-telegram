@@ -22,7 +22,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         if (transition.currentState.runtimeType != NoGameState) {
           unawaited(telegram
               .sendMessage(
-                  bloc.game.chatId,
+                  bloc.game.id,
                   '=========================================\r\n'
                   'Начинаем новую игру! \r\n'
                   'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'
@@ -43,7 +43,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         }
         break;
       case NoGameState:
-        unawaited(telegram.sendMessage(bloc.game.chatId, 'Всё, наигрались!',
+        unawaited(telegram.sendMessage(bloc.game.id, 'Всё, наигрались!',
             reply_markup: ReplyKeyboardRemove(remove_keyboard: true)));
         deleteScheduledMessages(telegram);
         break;
@@ -51,7 +51,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         final cmd = JoinMeCmd();
         final event = transition.event as GameEvent;
         if (event.type == GameEventType.kickFromGame) {
-          cmd.sendStatisticsToAdmin(bloc.game, telegram, bloc.game.chatId);
+          cmd.sendStatisticsToAdmin(bloc.game, telegram, bloc.game.id);
         } else {
           final state = bloc.state as PlayerInvitedIntoGameState;
           final user = state.lastInvitedUser;
@@ -61,15 +61,15 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
           cmd.sendChatIdRequest(bloc.game, user, telegram);
 
           if (state.lastInviteResult == true) {
-            cmd.sendStatisticsToAdmin(state.game, telegram, bloc.game.chatId);
+            cmd.sendStatisticsToAdmin(state.game, telegram, bloc.game.id);
           } else {
             final existingGame = LitGame.findGameOfPlayer(user.chatId);
             if (existingGame != state.game) {
               unawaited(telegram.sendMessage(
-                  bloc.game.chatId,
+                  bloc.game.id,
                   user.nickname +
                       ' играет в какой-то другой игре. Надо её сначала завершить или выйти.'));
-              unawaited(telegram.getChat(existingGame?.chatId).then((chat) {
+              unawaited(telegram.getChat(existingGame?.id).then((chat) {
                 var chatName = chat.title ?? chat.id.toString();
                 telegram.sendMessage(
                     user.chatId,
@@ -97,7 +97,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
             InlineKeyboardButton(
                 text: text,
                 callback_data: SetMasterCmd().buildCommandCall({
-                  'gci': bloc.game.chatId.toString(),
+                  'gci': bloc.game.id.toString(),
                   'userId': player.telegramUser.id.toString()
                 }))
           ]);
@@ -114,7 +114,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
       case PlayerSortingState:
         final state = transition.nextState as PlayerSortingState;
         final cmd = Command.withArguments(() => SetOrderCmd(),
-            {'gci': bloc.game.chatId.toString(), 'reset': ''}) as SetOrderCmd;
+            {'gci': bloc.game.id.toString(), 'reset': ''}) as SetOrderCmd;
         if (state.sorted) {
           unawaited(telegram
               .sendMessage(bloc.game.admin.chatId,
@@ -124,13 +124,11 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
                       InlineKeyboardButton(
                           text: 'Играем!',
                           callback_data: SetCollectionCmd().buildAction(
-                              'list', {'gci': bloc.game.chatId.toString()})),
+                              'list', {'gci': bloc.game.id.toString()})),
                       InlineKeyboardButton(
                           text: 'Отсортировать заново',
-                          callback_data: cmd.buildCommandCall({
-                            'gci': bloc.game.chatId.toString(),
-                            'reset': ''
-                          }))
+                          callback_data: cmd.buildCommandCall(
+                              {'gci': bloc.game.id.toString(), 'reset': ''}))
                     ]
                   ]))
               .then((msg) {
@@ -158,7 +156,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
               'на которую вы собираетесь играть.\r\n'
               'Это позволит немного разогреть мозги, вспомнить забытые факты и "прокачать"'
               'менее подготовленных к игре товарищей.\r\n';
-          unawaited(telegram.sendMessage(bloc.game.chatId, litMsg));
+          unawaited(telegram.sendMessage(bloc.game.id, litMsg));
           final cmd = TrainingFlowCmd();
           final msgToAdminIsCopied = cmd.copyChat((chatId, completer) {
             final future = telegram.sendMessage(chatId, litMsg);
@@ -197,7 +195,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
       case GameFlowMasterInitStory:
         final flow = await bloc.game.gameFlowFactory();
         final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start', {
-          'gci': bloc.game.chatId.toString(),
+          'gci': bloc.game.id.toString(),
           'cid': flow.collectionId
         }) as GameFlowCmd;
         cmd.onGameStart(Message(), telegram);
@@ -206,7 +204,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
       case GameFlowPlayerSelectCard:
         final cmd =
             ComplexCommand.withAction(() => GameFlowCmd(), 'onNextTurn', {
-          'gci': bloc.game.chatId.toString(),
+          'gci': bloc.game.id.toString(),
         }) as GameFlowCmd;
         cmd.printCardSelectionMessages();
         break;
@@ -214,7 +212,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
       case GameFlowStoryTell:
         final cmd =
             ComplexCommand.withAction(() => GameFlowCmd(), 'onNextTurn', {
-          'gci': bloc.game.chatId.toString(),
+          'gci': bloc.game.id.toString(),
         }) as GameFlowCmd;
         final state = transition.nextState as GameFlowStoryTell;
         cmd.printStoryTellMode(state.selectedCard);
@@ -226,7 +224,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
 
   void _handleStateWithError(GameBloc bloc, GameState state) {
     if (state.messageForGroup != null) {
-      telegram.sendMessage(state.game.chatId, state.messageForGroup.toString());
+      telegram.sendMessage(state.game.id, state.messageForGroup.toString());
     }
     if (state.messageForUser != null) {
       telegram.sendMessage(

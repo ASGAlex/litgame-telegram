@@ -35,7 +35,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// В [InvitingGameState] находимся, пока происходит подключение
         case GameEventType.startNewGame:
           game.addPlayer(event.triggeredBy);
-          yield InvitingGameState(game.chatId, event.triggeredBy);
+          yield InvitingGameState(game.id, event.triggeredBy);
           break;
 
         /// Добавление игрока в игру и возврат в состояние принятия инвайтов
@@ -43,7 +43,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           if (state is InvitingGameState) {
             final result = game.addPlayer(event.triggeredBy);
             yield InvitingGameState(
-                game.chatId, event.triggeredBy, result, event.triggeredBy);
+                game.id, event.triggeredBy, result, event.triggeredBy);
           }
           break;
 
@@ -52,11 +52,11 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         case GameEventType.kickFromGame:
           final user = game.players[event.triggeredBy.chatId];
           if (user?.isAdmin == true) {
-            LitGame.stopGame(game.chatId);
+            LitGame.stopGame(game.id);
             yield NoGameState(event.triggeredBy);
           } else if (user != null) {
             game.removePlayer(user);
-            yield PlayerInvitedIntoGameState(game.chatId, event.triggeredBy);
+            yield PlayerInvitedIntoGameState(game.id, event.triggeredBy);
           }
           break;
 
@@ -65,9 +65,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         case GameEventType.stopGame:
           final player = game.players[event.triggeredBy.chatId];
           if (player != null && player.isAdmin) {
-            LitGame.stopGame(game.chatId);
-            GameFlow.stopGame(game.chatId);
-            TrainingFlow.stopGame(game.chatId);
+            LitGame.stopGame(game.id);
+            GameFlow.stopGame(game.id);
+            TrainingFlow.stopGame(game.id);
             yield NoGameState(event.triggeredBy);
           } else {
             yield GameState.WithError(state,
@@ -79,7 +79,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Завершение приёма игроков. Перевод в сотояние выбора игромастера
         case GameEventType.finishJoin:
           if (state is InvitingGameState && event.triggeredBy == game.admin) {
-            yield SelectGameMasterState(game.chatId, event.triggeredBy);
+            yield SelectGameMasterState(game.id, event.triggeredBy);
           } else {
             yield GameState.WithError(state,
                 messageForGroup:
@@ -93,7 +93,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           if (event.triggeredBy.isAdmin) {
             final master = event.additionalData as LitUser;
             master.isGameMaster = true;
-            yield PlayerSortingState(game.chatId, event.triggeredBy, false);
+            yield PlayerSortingState(game.id, event.triggeredBy, false);
           } else {
             yield GameState.WithError(state,
                 messageForGroup:
@@ -107,7 +107,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         case GameEventType.resetPlayersOrder:
           game.playersSorted.clear();
           game.playersSorted.add(LinkedUser(game.master));
-          yield PlayerSortingState(game.chatId, event.triggeredBy, false);
+          yield PlayerSortingState(game.id, event.triggeredBy, false);
           break;
 
         /// В процессе сортировки игрок был указан, как следующий ходящий.
@@ -116,7 +116,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           final player = event.additionalData as LitUser;
           game.playersSorted.add(LinkedUser(player));
           final isAllSorted = game.playersSorted.length == game.players.length;
-          yield PlayerSortingState(game.chatId, event.triggeredBy, isAllSorted);
+          yield PlayerSortingState(game.id, event.triggeredBy, isAllSorted);
           break;
 
         /// Запущена разминка
@@ -133,7 +133,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
           await game.gameFlowFactory(collectionName);
           yield TrainingFlowState(
-              game.chatId, event.triggeredBy, await game.trainingFlow);
+              game.id, event.triggeredBy, await game.trainingFlow);
 
           break;
 
@@ -142,16 +142,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           final trainingFlow = await game.trainingFlow;
           trainingFlow.nextTurn();
           yield TrainingFlowState(
-              game.chatId, event.triggeredBy, await trainingFlow);
+              game.id, event.triggeredBy, await trainingFlow);
 
           break;
 
         /// Завершение разминки администратором
         /// FIXME: перевод в каой-то странный стейт, почему бы сразу не начать игру?
         case GameEventType.trainingEnd:
-          TrainingFlow.stopGame(game.chatId);
+          TrainingFlow.stopGame(game.id);
           yield TrainingFlowState(
-              game.chatId, event.triggeredBy, await game.trainingFlow);
+              game.id, event.triggeredBy, await game.trainingFlow);
 
           break;
 
@@ -168,7 +168,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
           final selectedCards = <Card>[cGeneric, cPlace, cPerson];
           yield GameFlowMasterInitStory(
-              game.chatId, event.triggeredBy, selectedCards);
+              game.id, event.triggeredBy, selectedCards);
           break;
 
         /// Игрок закончил рассказывать историю и пережал ход следующему игроку.
@@ -176,7 +176,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Перевод в состояние выбора карты
         case GameEventType.gameFlowNextTurn:
           game.gameFlow.nextTurn();
-          yield GameFlowPlayerSelectCard(game.chatId, event.triggeredBy);
+          yield GameFlowPlayerSelectCard(game.id, event.triggeredBy);
           break;
 
         /// Игрок выбрал карту
@@ -185,7 +185,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         case GameEventType.gameFlowCardSelected:
           final type = CardType.generic.getTypeByName(event.additionalData);
           final card = game.gameFlow.getCard(type);
-          yield GameFlowStoryTell(game.chatId, event.triggeredBy, card);
+          yield GameFlowStoryTell(game.id, event.triggeredBy, card);
           break;
       }
     } catch (exception) {

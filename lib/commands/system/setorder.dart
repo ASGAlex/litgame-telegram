@@ -68,7 +68,7 @@ class SetOrderCmd extends GameCommand {
         InlineKeyboardButton(
             text: user.nickname + '(' + user.fullName + ')',
             callback_data: buildCommandCall({
-              'gci': game.chatId.toString(),
+              'gci': game.id.toString(),
               'userId': user.telegramUser.id.toString()
             }))
       ]);

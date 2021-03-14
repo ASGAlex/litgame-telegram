@@ -63,7 +63,7 @@ class TrainingFlowCmd extends ComplexGameCommand
         '(' +
         flow.currentUser.fullName +
         ')';
-    unawaited(sendImage(game.chatId, card.imgUrl, cardMsg, false));
+    unawaited(sendImage(game.id, card.imgUrl, cardMsg, false));
     unawaited(copyChat((chatId, _) {
       if (flow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, cardMsg, false);
@@ -79,7 +79,7 @@ class TrainingFlowCmd extends ComplexGameCommand
     telegram = tele;
     const litMsg = 'Разминку закончили, все молодцы!\r\n'
         'Сейчас таки начнём играть :-)';
-    await telegram.sendMessage(game.chatId, litMsg);
+    await telegram.sendMessage(game.id, litMsg);
     return copyChat((chatId, _) {
       telegram.sendMessage(chatId, litMsg);
     });

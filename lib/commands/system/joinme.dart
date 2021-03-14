@@ -23,7 +23,7 @@ class JoinMeCmd extends GameCommand {
         text +=
             'Мы с тобой ещё не общались, напиши мне в личку, чтобы продолжить игру.\r\n';
       }
-      telegram.sendMessage(game.chatId, text);
+      telegram.sendMessage(game.id, text);
     });
   }
 

@@ -34,7 +34,7 @@ class GameFlowCmd extends ComplexGameCommand
 
   void onGameStart(Message message, TelegramEx telegram) {
     telegram.sendMessage(
-        game.chatId,
+        game.id,
         'Ходит ' +
             game.gameFlow.currentUser.nickname +
             '(' +
@@ -69,9 +69,9 @@ class GameFlowCmd extends ComplexGameCommand
       });
     });
 
-    sendImage(game.chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
-      sendImage(game.chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
-        sendImage(game.chatId, cPerson.imgUrl, cPerson.name, false);
+    sendImage(game.id, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+      sendImage(game.id, cPlace.imgUrl, cPlace.name, false).then((value) {
+        sendImage(game.id, cPerson.imgUrl, cPerson.name, false);
       });
     });
 
@@ -92,7 +92,7 @@ class GameFlowCmd extends ComplexGameCommand
   void printCardSelectionMessages() {
     deleteScheduledMessages(telegram);
     telegram.sendMessage(
-        game.chatId,
+        game.id,
         'Ходит ' +
             game.gameFlow.currentUser.nickname +
             '(' +
@@ -141,7 +141,7 @@ class GameFlowCmd extends ComplexGameCommand
         .then((value) {
       sendEndTurn(game.gameFlow);
     });
-    sendImage(game.chatId, card.imgUrl, card.name, false);
+    sendImage(game.id, card.imgUrl, card.name, false);
     copyChat((chatId, _) {
       if (game.gameFlow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, card.name, false);

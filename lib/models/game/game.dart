@@ -6,12 +6,12 @@ import 'package:litgame_telegram/models/game/traning_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
 class LitGame {
-  LitGame(this.chatId) : _playersSorted = LinkedList<LinkedUser>() {
+  LitGame(this.id) : _playersSorted = LinkedList<LinkedUser>() {
     logic = GameBloc(NoGameState(LitUser.byId(0)), this);
   }
 
   static final Map<int, LitGame> _activeGames = {};
-  final int chatId;
+  final int id;
   final Map<int, LitUser> _players = {};
   final LinkedList<LinkedUser> _playersSorted;
 
@@ -41,7 +41,7 @@ class LitGame {
 
   LinkedList<LinkedUser> get playersSorted => _playersSorted;
 
-  bool get isEmpty => chatId == -1;
+  bool get isEmpty => id == -1;
 
   LitUser get master {
     for (var u in _players.values) {
@@ -103,7 +103,7 @@ class LitGame {
   @override
   bool operator ==(other) {
     if (other is LitGame) {
-      return chatId == other.chatId;
+      return id == other.id;
     }
     return false;
   }

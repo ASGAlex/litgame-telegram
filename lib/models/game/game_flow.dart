@@ -32,9 +32,9 @@ class GameFlow implements FlowInterface {
   int turnNumber = 0;
 
   factory GameFlow.init(LitGame game, [String collectionName = '']) {
-    var flow = _runningGames[game.chatId];
+    var flow = _runningGames[game.id];
     flow ??= GameFlow(game, collectionName);
-    _runningGames[game.chatId] = flow;
+    _runningGames[game.id] = flow;
     return flow;
   }
 

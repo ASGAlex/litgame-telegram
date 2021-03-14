@@ -26,7 +26,7 @@ class StartGameCmd extends GameCommand {
           'Чтобы начать новую игру, нужно завершить начатую игру.');
       final existingGame = LitGame.findGameOfPlayer(message.from.id);
       if (existingGame != null) {
-        telegram.getChat(existingGame.chatId).then((chat) {
+        telegram.getChat(existingGame.id).then((chat) {
           var chatName = chat.title ?? chat.id.toString();
           telegram.sendMessage(
               message.from.id,
