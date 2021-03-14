@@ -19,26 +19,28 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     _handleStateWithError(bloc, transition.nextState as GameState);
     switch (transition.nextState.runtimeType) {
       case InvitingGameState:
-        unawaited(telegram
-            .sendMessage(
-                bloc.game.chatId,
-                '=========================================\r\n'
-                'Начинаем новую игру! \r\n'
-                'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'
-                'У вас на планете дискриминация роботов, поэтому сам я вам просто так написать не смогу :-( \r\n'
-                '\r\n'
-                'Кто хочет поучаствовать?',
-                reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                  [
-                    InlineKeyboardButton(
-                        text: StartGameCmd.BTN_YES, callback_data: '/joinme'),
-                    InlineKeyboardButton(
-                        text: StartGameCmd.BTN_NO, callback_data: '/kickme')
-                  ]
-                ]))
-            .then((msg) {
-          scheduleMessageDelete(msg.chat.id, msg.message_id);
-        }));
+        if (transition.currentState.runtimeType != NoGameState) {
+          unawaited(telegram
+              .sendMessage(
+                  bloc.game.chatId,
+                  '=========================================\r\n'
+                  'Начинаем новую игру! \r\n'
+                  'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'
+                  'У вас на планете дискриминация роботов, поэтому сам я вам просто так написать не смогу :-( \r\n'
+                  '\r\n'
+                  'Кто хочет поучаствовать?',
+                  reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+                    [
+                      InlineKeyboardButton(
+                          text: StartGameCmd.BTN_YES, callback_data: '/joinme'),
+                      InlineKeyboardButton(
+                          text: StartGameCmd.BTN_NO, callback_data: '/kickme')
+                    ]
+                  ]))
+              .then((msg) {
+            scheduleMessageDelete(msg.chat.id, msg.message_id);
+          }));
+        }
         break;
       case NoGameState:
         unawaited(telegram.sendMessage(bloc.game.chatId, 'Всё, наигрались!',
