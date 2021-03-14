@@ -16,28 +16,6 @@ mixin GameCmdMix on Command {
     return parser;
   }
 
-  @protected
-  void stateLogic(GameState state);
-
-  void _stateListener(GameState state) {
-    try {
-      stateLogic(state);
-      _catchStateErrors(state);
-    } catch (exception) {
-      print(exception);
-    }
-  }
-
-  void _catchStateErrors(GameState state) {
-    if (state.messageForGroup != null) {
-      telegram.sendMessage(state.gameId, state.messageForGroup.toString());
-    }
-    if (state.messageForUser != null) {
-      telegram.sendMessage(
-          state.triggeredBy.chatId, state.messageForUser.toString());
-    }
-  }
-
   LitGame get game {
     var gameChatId = arguments?['gci'];
     if (arguments?['gci'] is String) {

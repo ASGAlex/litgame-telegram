@@ -17,8 +17,5 @@ class FinishJoinCmd extends GameCommand {
   }
 
   @override
-  void stateLogic(GameState state) {}
-
-  @override
   ArgParser getParser() => getGameBaseParser();
 }

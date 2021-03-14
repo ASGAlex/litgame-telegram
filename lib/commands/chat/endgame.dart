@@ -19,7 +19,4 @@ class EndGameCmd extends GameCommand {
 
   @override
   ArgParser? getParser() => null;
-
-  @override
-  void stateLogic(GameState state) {}
 }

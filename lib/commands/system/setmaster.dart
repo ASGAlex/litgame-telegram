@@ -31,7 +31,4 @@ class SetMasterCmd extends GameCommand {
     game.logic
         .addEvent(GameEventType.selectMaster, LitUser(message.from), master);
   }
-
-  @override
-  void stateLogic(GameState state) {}
 }

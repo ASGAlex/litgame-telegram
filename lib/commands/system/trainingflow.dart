@@ -84,7 +84,4 @@ class TrainingFlowCmd extends ComplexGameCommand
       telegram.sendMessage(chatId, litMsg);
     });
   }
-
-  @override
-  void stateLogic(GameState state) {}
 }

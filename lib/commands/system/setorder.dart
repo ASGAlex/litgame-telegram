@@ -75,7 +75,4 @@ class SetOrderCmd extends GameCommand {
     });
     return usersToSelect;
   }
-
-  @override
-  void stateLogic(GameState state) {}
 }

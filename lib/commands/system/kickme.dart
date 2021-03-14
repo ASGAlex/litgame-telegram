@@ -19,7 +19,4 @@ class KickMeCmd extends JoinMeCmd {
 
   @override
   ArgParser? getParser() => null;
-
-  @override
-  void stateLogic(GameState state) {}
 }

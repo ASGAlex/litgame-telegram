@@ -59,9 +59,4 @@ class JoinMeCmd extends GameCommand {
 
   @override
   ArgParser? getParser() => null;
-
-  @override
-  void stateLogic(GameState state) {
-    if (state is InvitingGameState) {}
-  }
 }
