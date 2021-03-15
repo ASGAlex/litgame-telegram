@@ -20,8 +20,9 @@ class EndGameCmd extends GameCommand {
   @override
   ArgParser? getParser() => null;
 
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
+  void afterGameEnd(GameBloc bloc, Transition transition) {
+    telegram.sendMessage(bloc.game.id, 'Всё, наигрались!',
+        reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
+    deleteScheduledMessages(telegram);
   }
 }

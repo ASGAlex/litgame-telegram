@@ -17,11 +17,10 @@ class KickMeCmd extends JoinMeCmd {
     game.logic.add(KickFromGameEvent(LitUser(message.from)));
   }
 
-  @override
-  ArgParser? getParser() => null;
+  void sendKickMessage(LitGame game, LitUser user) {
+    telegram.sendMessage(game.id, user.nickname + ' покидает игру');
+  }
 
   @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
-  }
+  ArgParser? getParser() => null;
 }

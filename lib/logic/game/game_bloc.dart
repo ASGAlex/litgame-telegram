@@ -9,7 +9,6 @@ import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:litgame_telegram/models/game/traning_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
-import 'package:meta/meta.dart';
 
 part 'exceptions.dart';
 part 'game_event.dart';
@@ -29,16 +28,18 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// делается админом, запускается процесс инвайта остальных игроков.
         /// В [InvitingGameState] находимся, пока происходит подключение
         case StartNewGameEvent:
+          event.triggeredBy.isAdmin = true;
           game.addPlayer(event.triggeredBy);
-          yield InvitingGameState(game.id, event.triggeredBy);
+          yield InvitingGameState(
+              game.id, event.triggeredBy, false, LitUser.clone());
           break;
 
         /// Добавление игрока в игру и возврат в состояние принятия инвайтов
         case JoinGameEvent:
           if (state is InvitingGameState) {
-            final result = game.addPlayer(event.triggeredBy);
+            final success = game.addPlayer(event.triggeredBy);
             yield InvitingGameState(
-                game.id, event.triggeredBy, result, event.triggeredBy);
+                game.id, event.triggeredBy, success, event.triggeredBy);
           }
           break;
 
@@ -50,8 +51,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             LitGame.stopGame(game.id);
             yield NoGameState(event.triggeredBy);
           } else if (user != null) {
-            game.removePlayer(user);
-            yield PlayerInvitedIntoGameState(game.id, event.triggeredBy);
+            var success = game.removePlayer(user);
+            yield InvitingGameState(
+                game.id, event.triggeredBy, success, event.triggeredBy);
           }
           break;
 
@@ -144,12 +146,12 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         /// Завершение разминки администратором
         /// FIXME: перевод в каой-то странный стейт, почему бы сразу не начать игру?
-        case GameEventType.trainingEnd:
-          TrainingFlow.stopGame(game.id);
-          yield TrainingFlowState(
-              game.id, event.triggeredBy, await game.trainingFlow);
-
-          break;
+        // case GameEventType.trainingEnd:
+        //   TrainingFlow.stopGame(game.id);
+        //   yield TrainingFlowState(
+        //       game.id, event.triggeredBy, await game.trainingFlow);
+        //
+        //   break;
 
         /// Игромастером запущен основной процесс игры.
         /// Игромастеру выкидываются рандомно три карты, по которым

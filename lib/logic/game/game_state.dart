@@ -24,16 +24,11 @@ class NoGameState extends GameState {
 }
 
 class InvitingGameState extends GameState {
-  InvitingGameState(int gameId, LitUser triggeredBy,
-      [this.lastInviteResult, this.lastInvitedUser])
+  InvitingGameState(int gameId, LitUser triggeredBy, this.lastOperationSuccess,
+      this.lastProcessedUser)
       : super(gameId, triggeredBy);
-  final bool? lastInviteResult;
-  final LitUser? lastInvitedUser;
-}
-
-class PlayerInvitedIntoGameState extends InvitingGameState {
-  PlayerInvitedIntoGameState(int gameId, LitUser triggeredBy)
-      : super(gameId, triggeredBy);
+  final bool lastOperationSuccess;
+  final LitUser lastProcessedUser;
 }
 
 class SelectGameMasterState extends GameState {

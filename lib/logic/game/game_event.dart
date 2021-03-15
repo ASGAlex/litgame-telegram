@@ -17,7 +17,6 @@ enum GameEventType {
   gameFlowCardSelected,
 }
 
-@immutable
 class GameEvent {
   GameEvent(this.triggeredBy);
 

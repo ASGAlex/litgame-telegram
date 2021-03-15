@@ -120,8 +120,9 @@ class LitGame {
     return true;
   }
 
-  void removePlayer(LitUser user) {
+  bool removePlayer(LitUser user) {
     user.currentGame = null;
-    _players.remove(user.telegramUser.id);
+    var success = _players.remove(user.telegramUser.id);
+    return success != null;
   }
 }

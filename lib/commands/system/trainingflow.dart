@@ -49,7 +49,7 @@ class TrainingFlowCmd extends ComplexGameCommand
   }
 
   void onTrainingEnd(Message message, TelegramEx telegram) {
-    game.logic.addEvent(GameEventType.trainingEnd, LitUser(message.from));
+    //game.logic.addEvent(GameEventType.trainingEnd, LitUser(message.from));
   }
 
   void sendNextTurnToChat(LitGame game, TelegramEx tele) async {

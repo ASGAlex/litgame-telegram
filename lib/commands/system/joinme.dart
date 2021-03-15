@@ -1,7 +1,7 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 part of commands;
 
-class JoinMeCmd extends GameCommand {
+class JoinMeCmd extends GameCommand with ReportMultipleGames {
   JoinMeCmd();
 
   @override
@@ -27,8 +27,7 @@ class JoinMeCmd extends GameCommand {
     });
   }
 
-  void sendStatisticsToAdmin(
-      LitGame game, TelegramEx telegram, int gameChatId) {
+  void sendStatisticsToAdmin(LitGame game) {
     if (game.admin.noChatId) return;
     var text = '*В игре примут участие:*\r\n';
     late ReplyMarkup markup;
@@ -43,8 +42,8 @@ class JoinMeCmd extends GameCommand {
         [
           InlineKeyboardButton(
               text: 'Завершить набор игроков',
-              callback_data: FinishJoinCmd()
-                  .buildCommandCall({'gci': gameChatId.toString()}))
+              callback_data:
+                  FinishJoinCmd().buildCommandCall({'gci': game.id.toString()}))
         ]
       ]);
     }
@@ -59,9 +58,4 @@ class JoinMeCmd extends GameCommand {
 
   @override
   ArgParser? getParser() => null;
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
-  }
 }

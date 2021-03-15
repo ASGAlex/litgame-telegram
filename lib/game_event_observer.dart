@@ -5,7 +5,6 @@ import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
 
 import 'commands/commands.dart';
-import 'models/game/game.dart';
 
 class GameEventObserver extends BlocObserver with MessageDeleter {
   GameEventObserver(this.telegram);
@@ -19,67 +18,30 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     _handleStateWithError(bloc, transition.nextState as GameState);
     switch (transition.nextState.runtimeType) {
       case InvitingGameState:
-        if (transition.currentState.runtimeType != NoGameState) {
-          unawaited(telegram
-              .sendMessage(
-                  bloc.game.id,
-                  '=========================================\r\n'
-                  'Начинаем новую игру! \r\n'
-                  'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'
-                  'У вас на планете дискриминация роботов, поэтому сам я вам просто так написать не смогу :-( \r\n'
-                  '\r\n'
-                  'Кто хочет поучаствовать?',
-                  reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                    [
-                      InlineKeyboardButton(
-                          text: StartGameCmd.BTN_YES, callback_data: '/joinme'),
-                      InlineKeyboardButton(
-                          text: StartGameCmd.BTN_NO, callback_data: '/kickme')
-                    ]
-                  ]))
-              .then((msg) {
-            scheduleMessageDelete(msg.chat.id, msg.message_id);
-          }));
+        var state = transition.nextState as InvitingGameState;
+        if (transition.currentState.runtimeType == NoGameState) {
+          StartGameCmd().afterGameStart(bloc, transition);
+        } else if (transition.currentState.runtimeType == InvitingGameState) {
+          if (event.runtimeType == JoinGameEvent) {
+            final cmd = JoinMeCmd();
+            if (state.lastOperationSuccess) {
+              cmd.sendChatIdRequest(
+                  bloc.game, state.lastProcessedUser, telegram);
+              cmd.sendStatisticsToAdmin(bloc.game);
+            } else {
+              cmd.sendPrivateDetailedAlert(state.lastProcessedUser);
+              cmd.sendPublicAlert(state.gameId, state.lastProcessedUser);
+            }
+          } else if (event.runtimeType == KickFromGameEvent &&
+              state.lastOperationSuccess) {
+            final cmd = KickMeCmd();
+            cmd.sendStatisticsToAdmin(bloc.game);
+            cmd.sendKickMessage(bloc.game, state.lastProcessedUser);
+          }
         }
         break;
       case NoGameState:
-        unawaited(telegram.sendMessage(bloc.game.id, 'Всё, наигрались!',
-            reply_markup: ReplyKeyboardRemove(remove_keyboard: true)));
-        deleteScheduledMessages(telegram);
-        break;
-      case PlayerInvitedIntoGameState:
-        final cmd = JoinMeCmd();
-        final event = transition.event as GameEvent;
-        if (event.runtimeType == KickFromGameEvent) {
-          cmd.sendStatisticsToAdmin(bloc.game, telegram, bloc.game.id);
-        } else {
-          final state = bloc.state as PlayerInvitedIntoGameState;
-          final user = state.lastInvitedUser;
-          if (user == null) {
-            throw 'Попытка инвайтить незнаю кого';
-          }
-          cmd.sendChatIdRequest(bloc.game, user, telegram);
-
-          if (state.lastInviteResult == true) {
-            cmd.sendStatisticsToAdmin(state.game, telegram, bloc.game.id);
-          } else {
-            final existingGame = LitGame.findGameOfPlayer(user.chatId);
-            if (existingGame != state.game) {
-              unawaited(telegram.sendMessage(
-                  bloc.game.id,
-                  user.nickname +
-                      ' играет в какой-то другой игре. Надо её сначала завершить или выйти.'));
-              unawaited(telegram.getChat(existingGame?.id).then((chat) {
-                var chatName = chat.title ?? chat.id.toString();
-                telegram.sendMessage(
-                    user.chatId,
-                    'Чтобы начать новую игру, нужно завершить текущую в чате "' +
-                        chatName +
-                        '"');
-              }));
-            }
-          }
-        }
+        EndGameCmd().afterGameEnd(bloc, transition);
         break;
       case SelectGameMasterState:
         deleteScheduledMessages(telegram);
@@ -177,8 +139,8 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
                         callback_data: cmd.buildAction('end'))
                   ]
                 ]));
-            bloc.addEvent(
-                GameEventType.trainingNextTurn, event.triggeredBy, true);
+            // bloc.addEvent(
+            //     GameEventType.trainingNextTurn, event.triggeredBy, true);
           }));
         } else {
           final cmd = TrainingFlowCmd();

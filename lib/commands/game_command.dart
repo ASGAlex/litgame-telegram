@@ -2,13 +2,15 @@
 part of commands;
 
 mixin GameCmdMix on Command {
-  late final TelegramEx telegram;
+  static late TelegramEx _telegram;
   late final Message message;
 
-  void initTeledart(Message message, TelegramEx telegram) {
+  void initTeledart(Message message, TelegramEx tele) {
     this.message = message;
-    this.telegram = telegram;
+    _telegram = tele;
   }
+
+  TelegramEx get telegram => _telegram;
 
   ArgParser getGameBaseParser() {
     var parser = ArgParser();
@@ -37,8 +39,6 @@ mixin GameCmdMix on Command {
       throw 'Эту команду надо не в личке запускать, а в чате с игроками ;-)';
     }
   }
-
-  void onTransition(Bloc bloc, Transition transition);
 }
 
 abstract class GameCommand extends Command
@@ -55,5 +55,26 @@ abstract class ComplexGameCommand extends ComplexCommand
       parameters['gci'] = gameChatId.toString();
     }
     return super.buildAction(actionName, parameters);
+  }
+}
+
+mixin ReportMultipleGames on GameCmdMix {
+  void sendPublicAlert(int gameChatId, LitUser user) {
+    telegram.sendMessage(
+        gameChatId,
+        user.nickname +
+            ' играет в какой-то другой игре. Надо её сначала завершить или выйти.');
+  }
+
+  void sendPrivateDetailedAlert(LitUser user) {
+    final existingGame = LitGame.findGameOfPlayer(user.chatId);
+    telegram.getChat(existingGame?.id).then((chat) {
+      var chatName = chat.title ?? chat.id.toString();
+      telegram.sendMessage(
+          user.chatId,
+          'Чтобы включиться в игру, нужно завершить текущую в чате "' +
+              chatName +
+              '"');
+    });
   }
 }
