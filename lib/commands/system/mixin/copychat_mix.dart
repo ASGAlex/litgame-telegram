@@ -3,7 +3,7 @@ part of commands;
 typedef MessageSender = void Function(int chatId, Completer completer);
 
 mixin CopyChat on GameCmdMix {
-  Future copyChat(MessageSender messageSender) {
+  Future copyChat(MessageSender messageSender, LitGame game) {
     final completer = Completer();
     var found = false;
     for (var player in game.players.entries) {

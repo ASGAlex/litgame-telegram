@@ -17,67 +17,58 @@ class SetOrderCmd extends GameCommand {
 
   @override
   void run(Message message, TelegramEx telegram) {
-    deleteScheduledMessages(telegram);
-    if (arguments?['reset'] != null) {
-      game.playersSorted.clear();
-      game.playersSorted.add(LinkedUser(game.master));
-      telegram
-          .sendMessage(
-              message.chat.id,
-              'В каком порядке будут ходить игроки:\r\n' +
-                  _getSortedUsersListText(),
-              reply_markup:
-                  InlineKeyboardMarkup(inline_keyboard: getSortButtons()))
-          .then((msg) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      });
-      return;
-    }
+    initTeledart(message, telegram);
+    final me = LitUser(message.from);
 
+    deleteScheduledMessages(telegram);
     final userId = arguments?['userId'];
-    if (userId != null) {
+    final game = findGameByArguments();
+    if (arguments?['reset'] != null) {
+      game.logic.add(ResetPlayersOrderEvent(me));
+    } else if (userId != null) {
       final uid = int.parse(userId);
       final user = game.players[uid];
       if (user != null) {
-        game.playersSorted.add(LinkedUser(user));
+        game.logic.add(SortPlayerEvent(me, user));
       }
-    }
-
-    if (game.playersSorted.length == game.players.length) {
-      telegram
-          .sendMessage(message.chat.id,
-              'Игроки отсортированы:\r\n' + _getSortedUsersListText(),
-              reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                [
-                  InlineKeyboardButton(
-                      text: 'Играем!',
-                      // callback_data: GameFlowCmd.args(arguments).buildAction('start')),
-                      callback_data: SetCollectionCmd()
-                          .buildAction('list', {'gci': gameChatId.toString()})),
-                  InlineKeyboardButton(
-                      text: 'Отсортировать заново',
-                      callback_data: buildCommandCall(
-                          {'gci': gameChatId.toString(), 'reset': ''}))
-                ]
-              ]))
-          .then((msg) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      });
-    } else {
-      telegram
-          .sendMessage(
-              message.chat.id,
-              'В каком порядке будут ходить игроки:\r\n' +
-                  _getSortedUsersListText(),
-              reply_markup:
-                  InlineKeyboardMarkup(inline_keyboard: getSortButtons()))
-          .then((msg) {
-        scheduleMessageDelete(msg.chat.id, msg.message_id);
-      });
     }
   }
 
-  String _getSortedUsersListText() {
+  void showSelectOrderDialog(LitGame game) {
+    telegram
+        .sendMessage(
+            game.admin.chatId,
+            'В каком порядке будут ходить игроки:\r\n' +
+                _getSortedUsersListText(game),
+            reply_markup:
+                InlineKeyboardMarkup(inline_keyboard: _getSortButtons(game)))
+        .then((msg) {
+      scheduleMessageDelete(msg.chat.id, msg.message_id);
+    });
+  }
+
+  void showSortFinishedMessage(LitGame game) {
+    telegram
+        .sendMessage(game.admin.chatId,
+            'Игроки отсортированы:\r\n' + _getSortedUsersListText(game),
+            reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+              [
+                InlineKeyboardButton(
+                    text: 'Играем!',
+                    callback_data: SetCollectionCmd()
+                        .buildAction('list', {'gci': game.id.toString()})),
+                InlineKeyboardButton(
+                    text: 'Отсортировать заново',
+                    callback_data: buildCommandCall(
+                        {'gci': game.id.toString(), 'reset': ''}))
+              ]
+            ]))
+        .then((msg) {
+      scheduleMessageDelete(msg.chat.id, msg.message_id);
+    });
+  }
+
+  String _getSortedUsersListText(LitGame game) {
     if (game.playersSorted.isEmpty) {
       return '';
     }
@@ -100,7 +91,7 @@ class SetOrderCmd extends GameCommand {
     return usersList;
   }
 
-  List<List<InlineKeyboardButton>> getSortButtons() {
+  List<List<InlineKeyboardButton>> _getSortButtons(LitGame game) {
     var usersToSelect = <List<InlineKeyboardButton>>[];
     game.players.forEach((key, user) {
       var skip = false;
@@ -112,7 +103,7 @@ class SetOrderCmd extends GameCommand {
         InlineKeyboardButton(
             text: user.nickname + '(' + user.fullName + ')',
             callback_data: buildCommandCall({
-              'gci': game.chatId.toString(),
+              'gci': game.id.toString(),
               'userId': user.telegramUser.id.toString()
             }))
       ]);

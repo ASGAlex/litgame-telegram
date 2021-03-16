@@ -13,9 +13,9 @@ mixin AskAccess on ComplexCommand {
       };
 
   @protected
-  get askAccessTextAdmin => 'хочет залить новый набор карт';
+  String get askAccessTextAdmin => 'хочет залить новый набор карт';
 
-  get askAccessTextUser =>
+  String get askAccessTextUser =>
       'Чтобы продолжить, нужно запросить у админа разрешение. Продолжить?';
 
   @override

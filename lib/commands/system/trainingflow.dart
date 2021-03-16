@@ -28,23 +28,9 @@ class TrainingFlowCmd extends ComplexGameCommand
   bool firstStep = false;
 
   @override
-  void run(Message message, TelegramEx telegram) async {
+  void run(Message message, TelegramEx telegram) {
+    initTeledart(message, telegram);
     deleteScheduledMessages(telegram);
-    var collectionName = 'default';
-    var collectionId = arguments?['cid'];
-    if (collectionId != null) {
-      await CardCollection.getName(collectionId).then((value) {
-        collectionName = value.name;
-      });
-    }
-    gameFlow = GameFlow.init(game, collectionName);
-    if (gameFlow.turnNumber > 0) {
-      unawaited(telegram.sendMessage(
-          game.master.chatId, 'Какая разминка, игра уже в разгаре!'));
-      return;
-    }
-    trainingFlow = TrainingFlow.init(gameFlow);
-    await gameFlow.init;
     super.run(message, telegram);
   }
 
@@ -54,74 +40,81 @@ class TrainingFlowCmd extends ComplexGameCommand
   }
 
   void onTrainingStart(Message message, TelegramEx telegram) {
+    findGameByArguments()
+        .logic
+        .add(TrainingStartEvent(LitUser(message.from), arguments?['cid']));
+  }
+
+  void onNextTurn(Message message, TelegramEx telegram) {
+    findGameByArguments()
+        .logic
+        .add(TrainingNextTurnEvent(LitUser(message.from)));
+  }
+
+  void onTrainingEnd(Message message, TelegramEx telegram) {
+    findGameByArguments().logic.add(GameFlowStartEvent(LitUser(message.from)));
+  }
+
+  Future showTrainingDescriptionMessage(LitGame game) {
     const litMsg = 'Небольшая разминка!\r\n'
         'Сейчас каждому из игроков будет выдаваться случайная карта из колоды,'
         'и нужно будет по ней рассказать что-то, что связано с миром/темой, '
         'на которую вы собираетесь играть.\r\n'
         'Это позволит немного разогреть мозги, вспомнить забытые факты и "прокачать"'
         'менее подготовленных к игре товарищей.\r\n';
-    telegram.sendMessage(game.chatId, litMsg);
-    final msgToAdminIsCopied = copyChat((chatId, completer) {
+    telegram.sendMessage(game.id, litMsg);
+    return copyChat((chatId, completer) {
       final future = telegram.sendMessage(chatId, litMsg);
       if (chatId == game.master.chatId) {
         future.then((value) {
           completer.complete();
         });
       }
-    });
-
-    msgToAdminIsCopied.then((value) {
-      telegram.sendMessage(
-          game.master.chatId, 'Когда решишь, что разминки хватит - жми сюда!',
-          reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-            [
-              InlineKeyboardButton(
-                  text: 'Завершить разминку', callback_data: buildAction('end'))
-            ]
-          ]));
-      firstStep = true;
-      onNextTurn(message, telegram);
-    });
+    }, game);
   }
 
-  void onNextTurn(Message message, TelegramEx telegram) {
-    if (!firstStep) {
-      trainingFlow.nextTurn();
-    }
-    final card = trainingFlow.getCard();
+  Future showTrainingEndButtonToAdmin(LitGame game) {
+    return telegram.sendMessage(
+        game.master.chatId, 'Когда решишь, что разминки хватит - жми сюда!',
+        reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+          [
+            InlineKeyboardButton(
+                text: 'Завершить разминку',
+                callback_data: buildAction('end', {'gci': game.id.toString()}))
+          ]
+        ]));
+  }
+
+  void showNextTurnMessage(LitGame game, TelegramEx tele) async {
+    telegram = tele;
+    final flow = await game.trainingFlow;
+    final card = flow.getCard();
     final cardMsg = card.name +
         '\r\n' +
         'Ходит ' +
-        trainingFlow.currentUser.nickname +
+        flow.currentUser.nickname +
         '(' +
-        trainingFlow.currentUser.fullName +
+        flow.currentUser.fullName +
         ')';
-    sendImage(game.chatId, card.imgUrl, cardMsg, false);
-    copyChat((chatId, _) {
-      if (trainingFlow.currentUser.chatId == chatId) return;
+    unawaited(sendImage(game.id, card.imgUrl, cardMsg, false));
+    unawaited(copyChat((chatId, _) {
+      if (flow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, cardMsg, false);
-    });
+    }, game));
 
-    sendImage(trainingFlow.currentUser.chatId, card.imgUrl, card.name, false)
-        .then((value) {
-      sendEndTurn(trainingFlow);
-    });
+    unawaited(sendImage(flow.currentUser.chatId, card.imgUrl, card.name, false)
+        .then((_) {
+      sendEndTurn(flow);
+    }));
   }
 
-  void onTrainingEnd(Message message, TelegramEx telegram) {
+  Future showTrainingEndMessage(LitGame game, TelegramEx tele) async {
+    telegram = tele;
     const litMsg = 'Разминку закончили, все молодцы!\r\n'
         'Сейчас таки начнём играть :-)';
-    final endMessageSent = telegram.sendMessage(game.chatId, litMsg);
-    copyChat((chatId, _) {
+    await telegram.sendMessage(game.id, litMsg);
+    return copyChat((chatId, _) {
       telegram.sendMessage(chatId, litMsg);
-    });
-
-    TrainingFlow.stopGame(game.chatId);
-    gameFlow.turnNumber = 1;
-    final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start',
-        {'gci': game.chatId.toString(), 'cid': gameFlow.collectionId});
-    endMessageSent.then((value) {
-      cmd.run(message, telegram);
-    });
+    }, game);
   }
 }

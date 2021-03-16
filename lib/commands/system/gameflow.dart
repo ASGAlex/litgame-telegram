@@ -10,13 +10,13 @@ class GameFlowCmd extends ComplexGameCommand
   ArgParser getParser() =>
       super.getParser()..addOption('gci')..addOption('cid');
 
-  late GameFlow flow;
-
   @override
   bool get system => true;
 
   @override
   String get name => 'gf';
+
+  LitGame get game => findGameByArguments();
 
   @override
   Map<String, CmdAction> get actionMap => {
@@ -30,117 +30,90 @@ class GameFlowCmd extends ComplexGameCommand
   @override
   // ignore: must_call_super
   void run(Message message, TelegramEx telegram) {
-    this.message = message;
-    this.telegram = telegram;
-    var collectionName = 'default';
-    if (action == 'start') {
-      var collectionId = arguments?['cid'];
-      CardCollection.getName(collectionId).then((value) {
-        collectionName = value.name;
-        _gameFlowInitAndRun(collectionName);
-      });
-    } else {
-      _gameFlowInitAndRun(collectionName);
-    }
-  }
-
-  void _gameFlowInitAndRun(String collectionName) {
-    flow = GameFlow.init(game, collectionName);
-
-    if (message.chat.id != flow.currentUser.chatId) {
-      telegram
-          .sendMessage(message.chat.id, 'Сейчас не твой ход!')
-          .then((value) {
-        scheduleMessageDelete(value.chat.id, value.message_id);
-      });
-    }
-
-    flow.init.then((value) {
-      super.run(message, telegram);
-    });
+    initTeledart(message, telegram);
+    super.run(message, telegram);
   }
 
   void onGameStart(Message message, TelegramEx telegram) {
-    if (flow.currentUser.isGameMaster && flow.turnNumber == 1) {
-      telegram.sendMessage(
-          flow.game.chatId,
-          'Ходит ' +
-              flow.currentUser.nickname +
-              '(' +
-              flow.currentUser.fullName +
-              ')');
-
-      copyChat((chatId, _) {
-        if (flow.currentUser.chatId == chatId) return;
-        telegram.sendMessage(
-            chatId,
-            'Ходит ' +
-                flow.currentUser.nickname +
-                '(' +
-                flow.currentUser.fullName +
-                ')');
-      });
-
-      var cGeneric = flow.getCard(CardType.generic);
-      var cPlace = flow.getCard(CardType.place);
-      var cPerson = flow.getCard(CardType.person);
-      sendImage(flow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name, false)
-          .then((value) {
-        sendImage(flow.currentUser.chatId, cPlace.imgUrl, cPlace.name, false)
-            .then((value) {
-          sendImage(
-                  flow.currentUser.chatId, cPerson.imgUrl, cPerson.name, false)
-              .then((value) {
-            sendEndTurn(flow);
-          });
-        });
-      });
-
-      sendImage(flow.game.chatId, cGeneric.imgUrl, cGeneric.name, false)
-          .then((value) {
-        sendImage(flow.game.chatId, cPlace.imgUrl, cPlace.name, false)
-            .then((value) {
-          sendImage(flow.game.chatId, cPerson.imgUrl, cPerson.name, false);
-        });
-      });
-
-      copyChat((chatId, _) {
-        if (flow.currentUser.chatId == chatId) return;
-        sendImage(chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
-          sendImage(chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
-            sendImage(chatId, cPerson.imgUrl, cPerson.name, false);
-          });
-        });
-      });
-    } else {
-      throw 'Invalid game start process';
-    }
-  }
-
-  void onNextTurn(Message message, TelegramEx telegram) {
-    deleteScheduledMessages(telegram);
-    flow.nextTurn();
     telegram.sendMessage(
-        flow.game.chatId,
+        game.id,
         'Ходит ' +
-            flow.currentUser.nickname +
+            game.gameFlow.currentUser.nickname +
             '(' +
-            flow.currentUser.fullName +
+            game.gameFlow.currentUser.fullName +
             ')');
 
     copyChat((chatId, _) {
-      if (flow.currentUser.chatId == chatId) return;
+      if (game.gameFlow.currentUser.chatId == chatId) return;
       telegram.sendMessage(
           chatId,
           'Ходит ' +
-              flow.currentUser.nickname +
+              game.gameFlow.currentUser.nickname +
               '(' +
-              flow.currentUser.fullName +
+              game.gameFlow.currentUser.fullName +
               ')');
+    }, game);
+
+    var cGeneric = game.gameFlow.getCard(CardType.generic);
+    var cPlace = game.gameFlow.getCard(CardType.place);
+    var cPerson = game.gameFlow.getCard(CardType.person);
+    sendImage(game.gameFlow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name,
+            false)
+        .then((value) {
+      sendImage(game.gameFlow.currentUser.chatId, cPlace.imgUrl, cPlace.name,
+              false)
+          .then((value) {
+        sendImage(game.gameFlow.currentUser.chatId, cPerson.imgUrl,
+                cPerson.name, false)
+            .then((value) {
+          sendEndTurn(game.gameFlow);
+        });
+      });
     });
 
+    sendImage(game.id, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+      sendImage(game.id, cPlace.imgUrl, cPlace.name, false).then((value) {
+        sendImage(game.id, cPerson.imgUrl, cPerson.name, false);
+      });
+    });
+
+    copyChat((chatId, _) {
+      if (game.gameFlow.currentUser.chatId == chatId) return;
+      sendImage(chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+        sendImage(chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
+          sendImage(chatId, cPerson.imgUrl, cPerson.name, false);
+        });
+      });
+    }, game);
+  }
+
+  void onNextTurn(Message message, TelegramEx telegram) {
+    game.logic.add(GameFlowNextTurnEvent(LitUser(message.from)));
+  }
+
+  void printCardSelectionMessages() {
+    deleteScheduledMessages(telegram);
+    telegram.sendMessage(
+        game.id,
+        'Ходит ' +
+            game.gameFlow.currentUser.nickname +
+            '(' +
+            game.gameFlow.currentUser.fullName +
+            ')');
+
+    copyChat((chatId, _) {
+      if (game.gameFlow.currentUser.chatId == chatId) return;
+      telegram.sendMessage(
+          chatId,
+          'Ходит ' +
+              game.gameFlow.currentUser.nickname +
+              '(' +
+              game.gameFlow.currentUser.fullName +
+              ')');
+    }, game);
+
     telegram
-        .sendMessage(flow.currentUser.chatId, 'Тянем карту!',
+        .sendMessage(game.gameFlow.currentUser.chatId, 'Тянем карту!',
             reply_markup: InlineKeyboardMarkup(inline_keyboard: [
               [
                 InlineKeyboardButton(
@@ -159,19 +132,20 @@ class GameFlowCmd extends ComplexGameCommand
   }
 
   void onSelectCard(Message message, TelegramEx telegram) {
-    deleteScheduledMessages(telegram);
-    var sType = action.replaceAll('select-', '');
-    var type = CardType.generic.getTypeByName(sType);
-    var card = flow.getCard(type);
-    sendImage(flow.currentUser.chatId, card.imgUrl, card.name, false)
+    final sType = action.replaceAll('select-', '');
+    game.logic.add(GameFlowCardSelectedEvent(LitUser(message.from), sType));
+  }
+
+  void printStoryTellMode(Card card) {
+    sendImage(game.gameFlow.currentUser.chatId, card.imgUrl, card.name, false)
         .then((value) {
-      sendEndTurn(flow);
+      sendEndTurn(game.gameFlow);
     });
-    sendImage(flow.game.chatId, card.imgUrl, card.name, false);
+    sendImage(game.id, card.imgUrl, card.name, false);
     copyChat((chatId, _) {
-      if (flow.currentUser.chatId == chatId) return;
+      if (game.gameFlow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, card.name, false);
-    });
+    }, game);
   }
 
   @override

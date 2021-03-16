@@ -16,10 +16,12 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
   @override
   String get name => 'addcollection';
 
+  @override
   void onAllowAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(true, message, telegram);
   }
 
+  @override
   void onDenyAccess(Message message, TelegramEx telegram) {
     _accessAllowDeny(false, message, telegram);
   }
@@ -50,13 +52,13 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
   }
 
   @override
+  // ignore: must_call_super
   void onNoAction(Message message, TelegramEx telegram) {
     user.registrationChecked.then((value) {
       if (usersAwaitForUpload.contains(message.chat.id) &&
           message.document != null) {
         telegram.getFile(message.document.file_id).then((file) {
-          final url =
-              'https://api.telegram.org/file/bot${telegram.token}/${file.file_path}';
+          final url = file.getDownloadLink(telegram.token);
           final collection = CardCollection.fromArchive(url);
           telegram.sendMessage(message.chat.id, 'Обрабатываем коллекцию...');
           collection.loaded?.then((value) {

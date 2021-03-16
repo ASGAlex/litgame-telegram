@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/game/flow_interface.dart';
+import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
@@ -24,9 +25,9 @@ class TrainingFlow implements FlowInterface {
   LitUser get currentUser => _user.user;
 
   factory TrainingFlow.init(GameFlow flow) {
-    var trainingFlow = _runningTrainings[flow.game.chatId];
+    var trainingFlow = _runningTrainings[flow.game.id];
     trainingFlow ??= TrainingFlow(flow);
-    _runningTrainings[flow.game.chatId] = trainingFlow;
+    _runningTrainings[flow.game.id] = trainingFlow;
     return trainingFlow;
   }
 
@@ -58,4 +59,7 @@ class TrainingFlow implements FlowInterface {
     }
     return cards.removeLast();
   }
+
+  @override
+  LitGame get game => gameFlow.game;
 }

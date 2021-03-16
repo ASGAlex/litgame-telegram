@@ -1,20 +1,43 @@
 import 'dart:collection';
 
+import 'package:litgame_telegram/logic/game/game_bloc.dart';
+import 'package:litgame_telegram/models/game/game_flow.dart';
+import 'package:litgame_telegram/models/game/traning_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
 class LitGame {
-  LitGame(this.chatId) : _playersSorted = LinkedList<LinkedUser>();
+  LitGame(this.id) : _playersSorted = LinkedList<LinkedUser>() {
+    logic = GameBloc(NoGameState(LitUser.byId(0)), this);
+  }
 
   static final Map<int, LitGame> _activeGames = {};
-  final int chatId;
+  final int id;
   final Map<int, LitUser> _players = {};
   final LinkedList<LinkedUser> _playersSorted;
+
+  late final GameBloc logic;
+
+  TrainingFlow? _trainingFlow;
+  GameFlow? _gameFlow;
+
+  Future<TrainingFlow> get trainingFlow async {
+    _trainingFlow ??= TrainingFlow.init(await gameFlowFactory());
+    return _trainingFlow as TrainingFlow;
+  }
+
+  GameFlow get gameFlow => _gameFlow as GameFlow;
+
+  Future<GameFlow> gameFlowFactory([String collectionName = 'default']) async {
+    _gameFlow ??= GameFlow.init(this, collectionName);
+    await _gameFlow?.init;
+    return _gameFlow as GameFlow;
+  }
 
   Map<int, LitUser> get players => _players;
 
   LinkedList<LinkedUser> get playersSorted => _playersSorted;
 
-  bool get isEmpty => chatId == -1;
+  bool get isEmpty => id == -1;
 
   LitUser get master {
     for (var u in _players.values) {
@@ -39,15 +62,20 @@ class LitGame {
     return game;
   }
 
-  static LitGame? find(int chatId) {
-    return _activeGames[chatId];
+  static LitGame find(int chatId) {
+    final game = _activeGames[chatId];
+    if (game == null) {
+      throw 'Игра не найдена';
+    }
+    return game;
   }
 
   static void stopGame(int chatId) {
     if (_activeGames[chatId] == null) {
       throw 'Вообще-то мы даже не начинали...';
     }
-    _activeGames.remove(chatId);
+    final game = _activeGames.remove(chatId);
+    game?.logic.close();
   }
 
   static LitUser? findPlayerInExistingGames(int chatId) {
@@ -71,7 +99,7 @@ class LitGame {
   @override
   bool operator ==(other) {
     if (other is LitGame) {
-      return chatId == other.chatId;
+      return id == other.id;
     }
     return false;
   }
@@ -88,8 +116,9 @@ class LitGame {
     return true;
   }
 
-  void removePlayer(LitUser user) {
+  bool removePlayer(LitUser user) {
     user.currentGame = null;
-    _players.remove(user.telegramUser.id);
+    var success = _players.remove(user.telegramUser.id);
+    return success != null;
   }
 }
