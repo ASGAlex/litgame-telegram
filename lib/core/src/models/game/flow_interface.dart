@@ -1,6 +1,4 @@
-import 'package:litgame_telegram/models/game/user.dart';
-
-import 'game.dart';
+import 'package:litgame_telegram/core/core.dart';
 
 abstract class FlowInterface {
   void nextTurn();

@@ -1,10 +1,6 @@
 import 'dart:math';
 
-import 'package:litgame_telegram/models/cards/card.dart';
-import 'package:litgame_telegram/models/game/flow_interface.dart';
-import 'package:litgame_telegram/models/game/game.dart';
-import 'package:litgame_telegram/models/game/game_flow.dart';
-import 'package:litgame_telegram/models/game/user.dart';
+import 'package:litgame_telegram/core/core.dart';
 
 class TrainingFlow implements FlowInterface {
   static final Map<int, TrainingFlow> _runningTrainings = {};

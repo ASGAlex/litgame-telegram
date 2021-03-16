@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:litgame_telegram/logic/game/game_bloc.dart';
-import 'package:litgame_telegram/models/game/game.dart';
+import 'package:litgame_telegram/core/core.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
 

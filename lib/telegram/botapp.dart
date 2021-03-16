@@ -3,17 +3,15 @@ import 'dart:io';
 // ignore_for_file: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
 import 'package:bloc/bloc.dart';
-import 'package:litgame_telegram/game_event_observer.dart';
-import 'package:litgame_telegram/middleware/message_copy.dart';
-import 'package:litgame_telegram/models/cards/card.dart';
-import 'package:litgame_telegram/models/cards/card_collection.dart';
-import 'package:litgame_telegram/models/game/user.dart';
+import 'package:litgame_telegram/core/core.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
 
 import 'commands/commands.dart';
+import 'game_event_observer.dart';
 import 'middleware/logger.dart';
+import 'middleware/message_copy.dart';
 
 class BotApp extends TeledartApp {
   BotApp(this._conf) : super(_conf.botKey);

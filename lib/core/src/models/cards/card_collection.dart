@@ -7,7 +7,7 @@ import 'dart:math';
 import 'package:archive/archive.dart';
 import 'package:file/memory.dart';
 import 'package:http/http.dart' as http;
-import 'package:litgame_telegram/models/cards/card.dart';
+import 'package:litgame_telegram/core/core.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 class CardCollection extends ParseObject implements ParseCloneable {
