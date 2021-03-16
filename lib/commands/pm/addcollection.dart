@@ -58,8 +58,7 @@ class AddCollectionCmd extends ComplexCommand with AskAccess {
       if (usersAwaitForUpload.contains(message.chat.id) &&
           message.document != null) {
         telegram.getFile(message.document.file_id).then((file) {
-          final url =
-              'https://api.telegram.org/file/bot${telegram.token}/${file.file_path}';
+          final url = file.getDownloadLink(telegram.token);
           final collection = CardCollection.fromArchive(url);
           telegram.sendMessage(message.chat.id, 'Обрабатываем коллекцию...');
           collection.loaded?.then((value) {
