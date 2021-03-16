@@ -66,69 +66,16 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         EndGameCmd().afterGameEnd(bloc, transition);
         break;
       case SelectGameMasterState:
-        deleteScheduledMessages(telegram);
-        final keyboard = <List<InlineKeyboardButton>>[];
-        bloc.game.players.values.forEach((player) {
-          var text = player.nickname + ' (' + player.fullName + ')';
-          if (player.isAdmin) {
-            text += '(admin)';
-          }
-          if (player.isGameMaster) {
-            text += '(master)';
-          }
-
-          keyboard.add([
-            InlineKeyboardButton(
-                text: text,
-                callback_data: SetMasterCmd().buildCommandCall({
-                  'gci': bloc.game.id.toString(),
-                  'userId': player.telegramUser.id.toString()
-                }))
-          ]);
-        });
-
-        unawaited(telegram
-            .sendMessage(bloc.game.admin.chatId, 'Выберите мастера игры: ',
-                reply_markup: InlineKeyboardMarkup(inline_keyboard: keyboard))
-            .then((msg) {
-          scheduleMessageDelete(msg.chat.id, msg.message_id);
-        }));
+        SetMasterCmd().showSelectionDialogToAdmin(bloc.game);
         break;
 
       case PlayerSortingState:
         final state = transition.nextState as PlayerSortingState;
-        final cmd = Command.withArguments(() => SetOrderCmd(),
-            {'gci': bloc.game.id.toString(), 'reset': ''}) as SetOrderCmd;
+        final cmd = SetOrderCmd();
         if (state.sorted) {
-          unawaited(telegram
-              .sendMessage(bloc.game.admin.chatId,
-                  'Игроки отсортированы:\r\n' + cmd.getSortedUsersListText(),
-                  reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                    [
-                      InlineKeyboardButton(
-                          text: 'Играем!',
-                          callback_data: SetCollectionCmd().buildAction(
-                              'list', {'gci': bloc.game.id.toString()})),
-                      InlineKeyboardButton(
-                          text: 'Отсортировать заново',
-                          callback_data: cmd.buildCommandCall(
-                              {'gci': bloc.game.id.toString(), 'reset': ''}))
-                    ]
-                  ]))
-              .then((msg) {
-            scheduleMessageDelete(msg.chat.id, msg.message_id);
-          }));
+          cmd.showSortFinishedMessage(bloc.game);
         } else {
-          unawaited(telegram
-              .sendMessage(
-                  bloc.game.admin.chatId,
-                  'В каком порядке будут ходить игроки:\r\n' +
-                      cmd.getSortedUsersListText(),
-                  reply_markup: InlineKeyboardMarkup(
-                      inline_keyboard: cmd.getSortButtons()))
-              .then((msg) {
-            scheduleMessageDelete(msg.chat.id, msg.message_id);
-          }));
+          cmd.showSelectOrderDialog(bloc.game);
         }
         break;
 

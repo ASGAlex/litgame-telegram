@@ -91,7 +91,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           event as SelectMasterEvent;
           if (event.triggeredBy.isAdmin) {
             event.master.isGameMaster = true;
-            yield PlayerSortingState(game.id, event.triggeredBy, false);
+            if (state is SelectGameMasterState) {
+              game.playersSorted.add(LinkedUser(event.master));
+              yield PlayerSortingState(game.id, event.triggeredBy, false);
+            } else {
+              // игромастера сменили посередине игры, нужнро вывести сообщение
+              // и венруть предыдущее состояние.
+            }
           } else {
             addError(BlocError(
                 messageForGroup:

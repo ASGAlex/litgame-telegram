@@ -33,7 +33,41 @@ class SetOrderCmd extends GameCommand {
     }
   }
 
-  String getSortedUsersListText() {
+  void showSelectOrderDialog(LitGame game) {
+    telegram
+        .sendMessage(
+            game.admin.chatId,
+            'В каком порядке будут ходить игроки:\r\n' +
+                _getSortedUsersListText(game),
+            reply_markup:
+                InlineKeyboardMarkup(inline_keyboard: _getSortButtons(game)))
+        .then((msg) {
+      scheduleMessageDelete(msg.chat.id, msg.message_id);
+    });
+  }
+
+  void showSortFinishedMessage(LitGame game) {
+    telegram
+        .sendMessage(game.admin.chatId,
+            'Игроки отсортированы:\r\n' + _getSortedUsersListText(game),
+            reply_markup: InlineKeyboardMarkup(inline_keyboard: [
+              [
+                InlineKeyboardButton(
+                    text: 'Играем!',
+                    callback_data: SetCollectionCmd()
+                        .buildAction('list', {'gci': game.id.toString()})),
+                InlineKeyboardButton(
+                    text: 'Отсортировать заново',
+                    callback_data: buildCommandCall(
+                        {'gci': game.id.toString(), 'reset': ''}))
+              ]
+            ]))
+        .then((msg) {
+      scheduleMessageDelete(msg.chat.id, msg.message_id);
+    });
+  }
+
+  String _getSortedUsersListText(LitGame game) {
     if (game.playersSorted.isEmpty) {
       return '';
     }
@@ -56,7 +90,7 @@ class SetOrderCmd extends GameCommand {
     return usersList;
   }
 
-  List<List<InlineKeyboardButton>> getSortButtons() {
+  List<List<InlineKeyboardButton>> _getSortButtons(LitGame game) {
     var usersToSelect = <List<InlineKeyboardButton>>[];
     game.players.forEach((key, user) {
       var skip = false;
@@ -74,10 +108,5 @@ class SetOrderCmd extends GameCommand {
       ]);
     });
     return usersToSelect;
-  }
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
   }
 }
