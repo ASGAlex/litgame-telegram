@@ -151,15 +151,6 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
           break;
 
-        /// Завершение разминки администратором
-        /// FIXME: перевод в каой-то странный стейт, почему бы сразу не начать игру?
-        // case GameEventType.trainingEnd:
-        //   TrainingFlow.stopGame(game.id);
-        //   yield TrainingFlowState(
-        //       game.id, event.triggeredBy, await game.trainingFlow);
-        //
-        //   break;
-
         /// Игромастером запущен основной процесс игры.
         /// Игромастеру выкидываются рандомно три карты, по которым
         /// он сразу должен начать рассказывать историю
@@ -208,6 +199,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   @override
   void onError(Object error, StackTrace stackTrace) {
     //keep to avoid exceptions
+    // ignore: invalid_use_of_protected_member
     Bloc.observer.onError(this, error, stackTrace);
   }
 }

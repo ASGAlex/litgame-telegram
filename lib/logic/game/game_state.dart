@@ -46,11 +46,6 @@ class TrainingFlowState extends GameState {
   final TrainingFlow flow;
 }
 
-class TrainingEndState extends GameState {
-  TrainingEndState(int gameId, LitUser triggeredBy)
-      : super(gameId, triggeredBy);
-}
-
 class GameFlowMasterInitStory extends GameState {
   GameFlowMasterInitStory(int gameId, LitUser triggeredBy, this.selectedCards)
       : super(gameId, triggeredBy);

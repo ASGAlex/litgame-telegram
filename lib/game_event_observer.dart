@@ -87,12 +87,6 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         cmd.showNextTurnMessage(bloc.game, telegram);
         break;
 
-      case TrainingEndState:
-        final cmd = TrainingFlowCmd();
-        await cmd.showTrainingEndMessage(bloc.game, telegram);
-        // bloc.addEvent(GameEventType.gameFlowStart, event.triggeredBy);
-        break;
-
       case GameFlowMasterInitStory:
         final flow = await bloc.game.gameFlowFactory();
         final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start', {

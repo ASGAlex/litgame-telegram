@@ -134,7 +134,6 @@ class GameFlowCmd extends ComplexGameCommand
   void onSelectCard(Message message, TelegramEx telegram) {
     final sType = action.replaceAll('select-', '');
     game.logic.add(GameFlowCardSelectedEvent(LitUser(message.from), sType));
-    //gameLogic.add(GameStoryTellStartEvent(game.chatId, LitUser(message.from)));
   }
 
   void printStoryTellMode(Card card) {
@@ -151,9 +150,4 @@ class GameFlowCmd extends ComplexGameCommand
 
   @override
   void onNoAction(Message message, TelegramEx telegram) {}
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
-  }
 }
