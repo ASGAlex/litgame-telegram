@@ -1,5 +1,6 @@
 part of 'game_bloc.dart';
 
+@immutable
 abstract class GameState {
   GameState(this.gameId, this.triggeredBy);
 
@@ -7,13 +8,10 @@ abstract class GameState {
 
   LitGame get game => LitGame.find(gameId);
   final LitUser triggeredBy;
+}
 
-  factory GameState.WithError(GameState object,
-      {Object? messageForUser, Object? messageForGroup}) {
-    object.messageForUser = messageForUser;
-    object.messageForGroup = messageForGroup;
-    return object;
-  }
+class BlocError {
+  BlocError({this.messageForUser, this.messageForGroup});
 
   Object? messageForUser;
   Object? messageForGroup;

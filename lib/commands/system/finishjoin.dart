@@ -18,9 +18,4 @@ class FinishJoinCmd extends GameCommand {
 
   @override
   ArgParser getParser() => getGameBaseParser();
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
-  }
 }

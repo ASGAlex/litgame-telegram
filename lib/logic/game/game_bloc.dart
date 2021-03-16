@@ -9,6 +9,7 @@ import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:litgame_telegram/models/game/traning_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
+import 'package:meta/meta.dart';
 
 part 'exceptions.dart';
 part 'game_event.dart';
@@ -67,9 +68,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             TrainingFlow.stopGame(game.id);
             yield NoGameState(event.triggeredBy);
           } else {
-            yield GameState.WithError(state,
+            addError(BlocError(
                 messageForGroup:
-                    'У тебя нет власти надо мной! Пусть админ игры её остановит.');
+                    'У тебя нет власти надо мной! Пусть админ игры её остановит.'));
           }
           break;
 
@@ -78,9 +79,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           if (state is InvitingGameState && event.triggeredBy == game.admin) {
             yield SelectGameMasterState(game.id, event.triggeredBy);
           } else {
-            yield GameState.WithError(state,
+            addError(BlocError(
                 messageForGroup:
-                    'Пресечена незаконная попытка остановить набор игроков!');
+                    'Пресечена незаконная попытка остановить набор игроков!'));
           }
           break;
 
@@ -92,9 +93,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             event.master.isGameMaster = true;
             yield PlayerSortingState(game.id, event.triggeredBy, false);
           } else {
-            yield GameState.WithError(state,
+            addError(BlocError(
                 messageForGroup:
-                    'Данная операция доступна только администратору!');
+                    'Данная операция доступна только администратору!'));
           }
           break;
 
@@ -195,5 +196,23 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         rethrow;
       }
     }
+  }
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    //keep to avoid exceptions
+    Bloc.observer.onError(this, error, stackTrace);
+  }
+
+  @override
+  void onTransition(Transition<GameEvent, GameState> transition) {
+    print('onTransition');
+    super.onTransition(transition);
+  }
+
+  @override
+  void onChange(Change<GameState> change) {
+    print('onChange');
+    super.onChange(change);
   }
 }

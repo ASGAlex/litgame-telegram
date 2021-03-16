@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/logic/game/game_bloc.dart';
+import 'package:litgame_telegram/models/game/game.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
@@ -12,10 +13,27 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
   final TelegramEx telegram;
 
   @override
+  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
+    if (error.runtimeType != BlocError) {
+      print(error);
+    } else {
+      error as BlocError;
+      if (error.messageForGroup != null) {
+        telegram.sendMessage(
+            cubit.state.game.id, error.messageForGroup.toString());
+      }
+      if (error.messageForUser != null) {
+        telegram.sendMessage(
+            cubit.state.triggeredBy.chatId, error.messageForUser.toString());
+      }
+    }
+    super.onError(cubit, error, stackTrace);
+  }
+
+  @override
   void onTransition(Bloc bloc, Transition transition) async {
     bloc as GameBloc;
     final event = transition.event as GameEvent;
-    _handleStateWithError(bloc, transition.nextState as GameState);
     switch (transition.nextState.runtimeType) {
       case InvitingGameState:
         var state = transition.nextState as InvitingGameState;
@@ -29,8 +47,12 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
                   bloc.game, state.lastProcessedUser, telegram);
               cmd.sendStatisticsToAdmin(bloc.game);
             } else {
-              cmd.sendPrivateDetailedAlert(state.lastProcessedUser);
-              cmd.sendPublicAlert(state.gameId, state.lastProcessedUser);
+              final curGame =
+                  LitGame.findGameOfPlayer(event.triggeredBy.chatId);
+              if (curGame != bloc.game) {
+                cmd.sendPrivateDetailedAlert(state.lastProcessedUser);
+                cmd.sendPublicAlert(state.gameId, state.lastProcessedUser);
+              }
             }
           } else if (event.runtimeType == KickFromGameEvent &&
               state.lastOperationSuccess) {
@@ -182,15 +204,5 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     }
 
     super.onTransition(bloc, transition);
-  }
-
-  void _handleStateWithError(GameBloc bloc, GameState state) {
-    if (state.messageForGroup != null) {
-      telegram.sendMessage(state.game.id, state.messageForGroup.toString());
-    }
-    if (state.messageForUser != null) {
-      telegram.sendMessage(
-          state.triggeredBy.chatId, state.messageForUser.toString());
-    }
   }
 }
