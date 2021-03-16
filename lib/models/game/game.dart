@@ -17,24 +17,20 @@ class LitGame {
 
   late final GameBloc logic;
 
-  late TrainingFlow _trainingFlow;
-  late GameFlow _gameFlow;
+  TrainingFlow? _trainingFlow;
+  GameFlow? _gameFlow;
 
   Future<TrainingFlow> get trainingFlow async {
-    // ignore: unnecessary_null_comparison
     _trainingFlow ??= TrainingFlow.init(await gameFlowFactory());
-    return _trainingFlow;
+    return _trainingFlow as TrainingFlow;
   }
 
-  GameFlow get gameFlow => _gameFlow;
+  GameFlow get gameFlow => _gameFlow as GameFlow;
 
   Future<GameFlow> gameFlowFactory([String collectionName = 'default']) async {
-    // ignore: unnecessary_null_comparison
-    if (_gameFlow == null) {
-      _gameFlow = GameFlow.init(this, collectionName);
-      await _gameFlow.init;
-    }
-    return _gameFlow;
+    _gameFlow ??= GameFlow.init(this, collectionName);
+    await _gameFlow?.init;
+    return _gameFlow as GameFlow;
   }
 
   Map<int, LitUser> get players => _players;

@@ -11,9 +11,9 @@ class FinishJoinCmd extends GameCommand {
   String get name => 'finishjoin';
 
   @override
-  void run(Message message, TelegramEx telegram) {
+  void run(Message message, TelegramEx telegramg) {
     initTeledart(message, telegram);
-    game.logic.add(FinishJoinEvent(LitUser(message.from)));
+    findGameByArguments().logic.add(FinishJoinEvent(LitUser(message.from)));
   }
 
   @override

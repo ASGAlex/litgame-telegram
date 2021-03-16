@@ -18,20 +18,20 @@ mixin GameCmdMix on Command {
     return parser;
   }
 
-  LitGame get game {
-    var gameChatId = arguments?['gci'];
-    if (arguments?['gci'] is String) {
-      gameChatId = int.parse(arguments?['gci']);
-    }
-    if (gameChatId == null && message.chat.id < 0) {
-      gameChatId = message.chat.id;
+  LitGame findGameByArguments() {
+    final sGameChatId = arguments?['gci'];
+    if (sGameChatId == null) throw 'команда запущена без указания ID игры';
+
+    int gameChatId;
+    if (sGameChatId is String) {
+      gameChatId = int.parse(sGameChatId);
+    } else if (sGameChatId is int) {
+      gameChatId = sGameChatId;
+    } else {
+      throw 'неверный тип аргумента';
     }
     return LitGame.find(gameChatId);
   }
-
-  int? get gameChatId => (arguments?['gci'] is String)
-      ? int.parse(arguments?['gci'])
-      : arguments?['gci'];
 
   @protected
   void checkGameChat(Message message) {
@@ -52,7 +52,7 @@ abstract class ComplexGameCommand extends ComplexCommand
   String buildAction(String actionName, [Map<String, String>? parameters]) {
     parameters ??= {};
     if (parameters['gci'] == null) {
-      parameters['gci'] = gameChatId.toString();
+      parameters['gci'] = findGameByArguments().id.toString();
     }
     return super.buildAction(actionName, parameters);
   }

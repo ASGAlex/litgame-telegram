@@ -14,6 +14,7 @@ class EndGameCmd extends GameCommand {
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
     checkGameChat(message);
+    final game = LitGame.find(message.chat.id);
     game.logic.add(StopGameEvent(LitUser(message.from)));
   }
 

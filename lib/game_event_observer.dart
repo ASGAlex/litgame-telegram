@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/logic/game/game_bloc.dart';
 import 'package:litgame_telegram/models/game/game.dart';
-import 'package:pedantic/pedantic.dart';
 import 'package:teledart/model.dart';
 import 'package:teledart_app/teledart_app.dart';
 
@@ -80,46 +79,17 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         break;
 
       case TrainingFlowState:
+        final cmd = TrainingFlowCmd();
         if (event.runtimeType == TrainingStartEvent) {
-          const litMsg = 'Небольшая разминка!\r\n'
-              'Сейчас каждому из игроков будет выдаваться случайная карта из колоды,'
-              'и нужно будет по ней рассказать что-то, что связано с миром/темой, '
-              'на которую вы собираетесь играть.\r\n'
-              'Это позволит немного разогреть мозги, вспомнить забытые факты и "прокачать"'
-              'менее подготовленных к игре товарищей.\r\n';
-          unawaited(telegram.sendMessage(bloc.game.id, litMsg));
-          final cmd = TrainingFlowCmd();
-          final msgToAdminIsCopied = cmd.copyChat((chatId, completer) {
-            final future = telegram.sendMessage(chatId, litMsg);
-            if (chatId == bloc.game.master.chatId) {
-              future.then((value) {
-                completer.complete();
-              });
-            }
-          });
-
-          unawaited(msgToAdminIsCopied.then((value) {
-            telegram.sendMessage(bloc.game.master.chatId,
-                'Когда решишь, что разминки хватит - жми сюда!',
-                reply_markup: InlineKeyboardMarkup(inline_keyboard: [
-                  [
-                    InlineKeyboardButton(
-                        text: 'Завершить разминку',
-                        callback_data: cmd.buildAction('end'))
-                  ]
-                ]));
-            // bloc.addEvent(
-            //     GameEventType.trainingNextTurn, event.triggeredBy, true);
-          }));
-        } else {
-          final cmd = TrainingFlowCmd();
-          cmd.sendNextTurnToChat(bloc.game, telegram);
+          await cmd.showTrainingDescriptionMessage(bloc.game);
+          await cmd.showTrainingEndButtonToAdmin(bloc.game);
         }
+        cmd.showNextTurnMessage(bloc.game, telegram);
         break;
 
       case TrainingEndState:
         final cmd = TrainingFlowCmd();
-        await cmd.sendTrainingEndToChat(bloc.game, telegram);
+        await cmd.showTrainingEndMessage(bloc.game, telegram);
         // bloc.addEvent(GameEventType.gameFlowStart, event.triggeredBy);
         break;
 

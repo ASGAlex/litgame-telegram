@@ -14,6 +14,7 @@ class KickMeCmd extends JoinMeCmd {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
+    final game = LitGame.find(message.chat.id);
     game.logic.add(KickFromGameEvent(LitUser(message.from)));
   }
 

@@ -26,8 +26,9 @@ class SetCollectionCmd extends ComplexGameCommand {
 
   void onCollectionList(Message message, TelegramEx telegram) {
     CardCollection.listCollections().then((collections) {
+      final game = findGameByArguments();
       if (collections.isEmpty) {
-        _resumeGameWithError(message, telegram);
+        _resumeGameWithError(message, telegram, game);
         return;
       }
 
@@ -51,14 +52,15 @@ class SetCollectionCmd extends ComplexGameCommand {
     });
   }
 
-  void _resumeGameWithError(Message message, TelegramEx telegram) {
+  void _resumeGameWithError(
+      Message message, TelegramEx telegram, LitGame game) {
     telegram
-        .sendMessage(gameChatId,
+        .sendMessage(game.id,
             'Не нашлось ни одной колоды карт, а без них сыграть не выйдет..')
         .then((value) {
       final cmd = EndGameCmd();
       cmd.arguments = arguments;
-      message.chat.id = gameChatId;
+      message.chat.id = game.id;
       message.from.id = game.admin.chatId;
       cmd.run(message, telegram);
     });
@@ -73,10 +75,5 @@ class SetCollectionCmd extends ComplexGameCommand {
   @override
   void onNoAction(Message message, TelegramEx telegram) {
     // TODO: implement onNoAction
-  }
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // TODO: implement onTransition
   }
 }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:litgame_telegram/models/cards/card.dart';
 import 'package:litgame_telegram/models/game/flow_interface.dart';
+import 'package:litgame_telegram/models/game/game.dart';
 import 'package:litgame_telegram/models/game/game_flow.dart';
 import 'package:litgame_telegram/models/game/user.dart';
 
@@ -58,4 +59,7 @@ class TrainingFlow implements FlowInterface {
     }
     return cards.removeLast();
   }
+
+  @override
+  LitGame get game => gameFlow.game;
 }

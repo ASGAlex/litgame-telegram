@@ -12,7 +12,8 @@ mixin EndTurn on ComplexCommand {
               [
                 InlineKeyboardButton(
                     text: 'Завершить ход',
-                    callback_data: buildAction('next-turn'))
+                    callback_data: buildAction(
+                        'next-turn', {'gci': flow.game.id.toString()}))
               ]
             ]))
         .then((msg) {

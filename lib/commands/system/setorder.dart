@@ -22,6 +22,7 @@ class SetOrderCmd extends GameCommand {
 
     deleteScheduledMessages(telegram);
     final userId = arguments?['userId'];
+    final game = findGameByArguments();
     if (arguments?['reset'] != null) {
       game.logic.add(ResetPlayersOrderEvent(me));
     } else if (userId != null) {

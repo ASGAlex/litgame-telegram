@@ -16,6 +16,8 @@ class GameFlowCmd extends ComplexGameCommand
   @override
   String get name => 'gf';
 
+  LitGame get game => findGameByArguments();
+
   @override
   Map<String, CmdAction> get actionMap => {
         'start': onGameStart,
@@ -50,7 +52,7 @@ class GameFlowCmd extends ComplexGameCommand
               '(' +
               game.gameFlow.currentUser.fullName +
               ')');
-    });
+    }, game);
 
     var cGeneric = game.gameFlow.getCard(CardType.generic);
     var cPlace = game.gameFlow.getCard(CardType.place);
@@ -82,7 +84,7 @@ class GameFlowCmd extends ComplexGameCommand
           sendImage(chatId, cPerson.imgUrl, cPerson.name, false);
         });
       });
-    });
+    }, game);
   }
 
   void onNextTurn(Message message, TelegramEx telegram) {
@@ -108,7 +110,7 @@ class GameFlowCmd extends ComplexGameCommand
               '(' +
               game.gameFlow.currentUser.fullName +
               ')');
-    });
+    }, game);
 
     telegram
         .sendMessage(game.gameFlow.currentUser.chatId, 'Тянем карту!',
@@ -144,7 +146,7 @@ class GameFlowCmd extends ComplexGameCommand
     copyChat((chatId, _) {
       if (game.gameFlow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, card.name, false);
-    });
+    }, game);
   }
 
   @override

@@ -165,6 +165,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// он сразу должен начать рассказывать историю
         /// Переход в состояние рассказа истории
         case GameFlowStartEvent:
+          TrainingFlow.stopGame(game.id);
           final gameFlow = await game.gameFlowFactory();
 
           final cGeneric = gameFlow.getCard(CardType.generic);
@@ -208,17 +209,5 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   void onError(Object error, StackTrace stackTrace) {
     //keep to avoid exceptions
     Bloc.observer.onError(this, error, stackTrace);
-  }
-
-  @override
-  void onTransition(Transition<GameEvent, GameState> transition) {
-    print('onTransition');
-    super.onTransition(transition);
-  }
-
-  @override
-  void onChange(Change<GameState> change) {
-    print('onChange');
-    super.onChange(change);
   }
 }

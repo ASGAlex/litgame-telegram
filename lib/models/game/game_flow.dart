@@ -20,6 +20,7 @@ class GameFlow implements FlowInterface {
     });
   }
 
+  @override
   final LitGame game;
   final String collectionName;
   late final Future init;
