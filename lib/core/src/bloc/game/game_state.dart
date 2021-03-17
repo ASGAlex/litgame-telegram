@@ -35,6 +35,11 @@ class PlayerKickedDuringGame extends InvitingGameState {
       : super(gameId, triggeredBy, lastOperationSuccess, lastProcessedUser);
 }
 
+class SelectAdminState extends GameState {
+  SelectAdminState(int gameId, LitUser triggeredBy)
+      : super(gameId, triggeredBy);
+}
+
 class SelectGameMasterState extends GameState {
   SelectGameMasterState(int gameId, LitUser triggeredBy)
       : super(gameId, triggeredBy);

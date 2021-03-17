@@ -1,22 +1,5 @@
 part of 'game_bloc.dart';
 
-enum GameEventType {
-  startNewGame,
-  stopGame,
-  joinGame,
-  kickFromGame,
-  finishJoin,
-  selectMaster,
-  sortPlayer,
-  resetPlayersOrder,
-  trainingStart,
-  trainingNextTurn,
-  trainingEnd, // FIXME: ненужно!
-  gameFlowStart,
-  gameFlowNextTurn,
-  gameFlowCardSelected,
-}
-
 class GameEvent {
   GameEvent(this.triggeredBy);
 
@@ -53,6 +36,13 @@ class SelectMasterEvent extends GameEvent {
   SelectMasterEvent(LitUser triggeredBy, this.master) : super(triggeredBy);
 
   final LitUser master;
+}
+
+/// Выбран игромастер
+class SelectAdminEvent extends GameEvent {
+  SelectAdminEvent(LitUser triggeredBy, this.admin) : super(triggeredBy);
+
+  final LitUser admin;
 }
 
 /// Задан порядок хода для указанного игрока
@@ -95,4 +85,9 @@ class GameFlowCardSelectedEvent extends GameEvent {
   GameFlowCardSelectedEvent(LitUser triggeredBy, this.cardType)
       : super(triggeredBy);
   final String cardType;
+}
+
+/// Возвращает сохранённое предыдущее состояние, если есть
+class RestoreLastStateEvent extends GameEvent {
+  RestoreLastStateEvent(LitUser triggeredBy) : super(triggeredBy);
 }

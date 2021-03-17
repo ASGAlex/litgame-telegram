@@ -27,6 +27,7 @@ part 'system/kickme.dart';
 part 'system/mixin/copychat_mix.dart';
 part 'system/mixin/endturn_mix.dart';
 part 'system/mixin/image_mix.dart';
+part 'system/selectadmin.dart';
 part 'system/setcollection.dart';
 part 'system/setmaster.dart';
 part 'system/setorder.dart';

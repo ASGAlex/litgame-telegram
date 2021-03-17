@@ -35,11 +35,12 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     switch (transition.nextState.runtimeType) {
       case InvitingGameState:
         var state = transition.nextState as InvitingGameState;
-        if (transition.currentState.runtimeType == NoGameState) {
+        if (transition.currentState is NoGameState) {
           StartGameCmd().afterGameStart(bloc, transition);
-        } else if (transition.currentState.runtimeType == InvitingGameState) {
-          if (event.runtimeType == JoinGameEvent) {
-            final cmd = JoinMeCmd();
+        } else if (transition.currentState is InvitingGameState ||
+            transition.currentState is SelectAdminState) {
+          final cmd = JoinMeCmd();
+          if (event is JoinGameEvent) {
             if (state.lastOperationSuccess) {
               cmd.sendChatIdRequest(
                   bloc.game, state.lastProcessedUser, telegram);
@@ -52,6 +53,8 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
                 cmd.sendPublicAlert(state.gameId, state.lastProcessedUser);
               }
             }
+          } else if (event is RestoreLastStateEvent) {
+            cmd.sendStatisticsToAdmin(bloc.game);
           }
         }
         if (event.runtimeType == KickFromGameEvent &&
@@ -133,6 +136,11 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
             bloc.add(ResetPlayersOrderEvent(state.lastProcessedUser));
             break;
         }
+        break;
+
+      case SelectAdminState:
+        SelectAdminCmd()
+            .showSelectionDialogToAdmin(bloc.game, event.triggeredBy);
         break;
     }
 

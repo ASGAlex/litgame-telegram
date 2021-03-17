@@ -6,7 +6,6 @@ import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/core/core.dart';
 import 'package:meta/meta.dart';
 
-part 'exceptions.dart';
 part 'game_event.dart';
 part 'game_state.dart';
 
@@ -14,6 +13,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   GameBloc(GameState initialState, this.game) : super(initialState);
 
   final LitGame game;
+
+  GameState? _lastState;
 
   @override
   Stream<GameState> mapEventToState(GameEvent event) async* {
@@ -42,36 +43,10 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Удаление из игры. Если это был админ, то игра останавливается.
         /// Возвращение в состояние принятия инвайтов
         case KickFromGameEvent:
-          final user = game.players[event.triggeredBy.chatId];
-          if (user?.isAdmin == true) {
-            LitGame.stopGame(game.id);
-            yield NoGameState(event.triggeredBy);
-          } else if (user != null) {
-            if (state is InvitingGameState || state is SelectGameMasterState) {
-              var success = game.removePlayer(user);
-              yield InvitingGameState(
-                  game.id, event.triggeredBy, success, user);
-            } else {
-              var canContinue = true;
-              try {
-                final linkedUser = game.playersSorted
-                    .firstWhere((element) => element.user == user);
-                game.playersSorted.remove(linkedUser);
-              } catch (_) {
-                if (state.runtimeType != PlayerSortingState) {
-                  addError(BlocError(
-                      messageForGroup:
-                          'Не удалось кикнуть игрока ${user.nickname}'));
-                  canContinue = false;
-                }
-              }
-
-              if (canContinue) {
-                var success = game.removePlayer(user);
-                yield PlayerKickedDuringGame(
-                    game.id, event.triggeredBy, success, user);
-              }
-            }
+          final newState =
+              onKickFromGame(event as KickFromGameEvent, event.triggeredBy);
+          if (newState != null) {
+            yield newState;
           }
           break;
 
@@ -120,6 +95,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
                 messageForGroup:
                     'Данная операция доступна только администратору!'));
           }
+          break;
+
+        /// Установка пользователя игромастером.
+        /// Перевод в состояние выбора очерёдности ходов игроков.
+        case SelectAdminEvent:
+          event as SelectAdminEvent;
+          event.admin.isAdmin = true;
+          event.triggeredBy.isAdmin = false;
+          add(RestoreLastStateEvent(event.triggeredBy));
+
           break;
 
         /// Сброс установленного состояния сортировки игроков.
@@ -202,18 +187,65 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           final card = game.gameFlow.getCard(type);
           yield GameFlowStoryTell(game.id, event.triggeredBy, card);
           break;
+
+        case RestoreLastStateEvent:
+          if (_lastState != null) {
+            yield _lastState as GameState;
+            _lastState = null;
+          }
+          break;
       }
     } catch (exception) {
-      if (exception is GameBaseException) {
-        print(exception);
-        return;
+      print(exception);
+      rethrow;
+    }
+  }
+
+  GameState? onKickFromGame(KickFromGameEvent event, LitUser target) {
+    final user = game.players[target.chatId];
+    if (user?.isAdmin == true) {
+      if (game.players.length == 1) {
+        LitGame.stopGame(game.id);
+        return NoGameState(event.triggeredBy);
       } else {
-        rethrow;
+        game.removePlayer(user as LitUser);
+        try {
+          final linkedUser =
+              game.playersSorted.firstWhere((element) => element.user == user);
+          game.playersSorted.remove(linkedUser);
+        } catch (_) {}
+        _lastState = state;
+        return SelectAdminState(game.id, event.triggeredBy);
+      }
+    } else if (user != null) {
+      if (state is InvitingGameState || state is SelectGameMasterState) {
+        var success = game.removePlayer(user);
+        return InvitingGameState(game.id, event.triggeredBy, success, user);
+      } else {
+        var canContinue = true;
+        try {
+          final linkedUser =
+              game.playersSorted.firstWhere((element) => element.user == user);
+          game.playersSorted.remove(linkedUser);
+        } catch (_) {
+          if (state.runtimeType != PlayerSortingState) {
+            addError(BlocError(
+                messageForGroup: 'Не удалось кикнуть игрока ${user.nickname}'));
+            canContinue = false;
+          }
+        }
+
+        if (canContinue) {
+          var success = game.removePlayer(user);
+          return PlayerKickedDuringGame(
+              game.id, event.triggeredBy, success, user);
+        }
       }
     }
   }
 
   @override
+  // ignore: must_call_super
   void onError(Object error, StackTrace stackTrace) {
     //keep to avoid exceptions
     // ignore: invalid_use_of_protected_member

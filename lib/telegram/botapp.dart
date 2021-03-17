@@ -26,6 +26,7 @@ class BotApp extends TeledartApp {
     () => KickMeCmd(),
     () => FinishJoinCmd(),
     () => SetMasterCmd(),
+    () => SelectAdminCmd(),
     () => SetOrderCmd(),
     () => SetCollectionCmd(),
     () => TrainingFlowCmd(),
