@@ -29,6 +29,12 @@ class InvitingGameState extends GameState {
   final LitUser lastProcessedUser;
 }
 
+class PlayerKickedDuringGame extends InvitingGameState {
+  PlayerKickedDuringGame(int gameId, LitUser triggeredBy,
+      bool lastOperationSuccess, LitUser lastProcessedUser)
+      : super(gameId, triggeredBy, lastOperationSuccess, lastProcessedUser);
+}
+
 class SelectGameMasterState extends GameState {
   SelectGameMasterState(int gameId, LitUser triggeredBy)
       : super(gameId, triggeredBy);
@@ -49,7 +55,7 @@ class TrainingFlowState extends GameState {
 class GameFlowMasterInitStory extends GameState {
   GameFlowMasterInitStory(int gameId, LitUser triggeredBy, this.selectedCards)
       : super(gameId, triggeredBy);
-  List<Card> selectedCards;
+  final List<Card> selectedCards;
 }
 
 class GameFlowPlayerSelectCard extends GameState {
@@ -60,27 +66,5 @@ class GameFlowPlayerSelectCard extends GameState {
 class GameFlowStoryTell extends GameState {
   GameFlowStoryTell(int gameId, LitUser triggeredBy, this.selectedCard)
       : super(gameId, triggeredBy);
-  Card selectedCard;
-}
-
-class GFMaster3CardStoryTellState extends GameState {
-  GFMaster3CardStoryTellState(
-      int gameId, LitUser triggeredBy, this.flow, this.selectedCards)
-      : super(gameId, triggeredBy);
-  final GameFlow flow;
-  final List<Card> selectedCards;
-}
-
-class GFStoryTellState extends GFMaster3CardStoryTellState {
-  GFStoryTellState(
-      int gameId, LitUser triggeredBy, GameFlow flow, List<Card> selectedCards)
-      : super(gameId, triggeredBy, flow, selectedCards);
-}
-
-class GFPlayerCardSelectionState extends GFMaster3CardStoryTellState {
-  GFPlayerCardSelectionState(
-    int gameId,
-    LitUser triggeredBy,
-    GameFlow flow,
-  ) : super(gameId, triggeredBy, flow, const []);
+  final Card selectedCard;
 }

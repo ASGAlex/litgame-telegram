@@ -6,7 +6,7 @@ class KickMeCmd extends JoinMeCmd {
   KickMeCmd();
 
   @override
-  bool get system => true;
+  bool get system => false;
 
   @override
   String get name => 'kickme';
@@ -14,7 +14,16 @@ class KickMeCmd extends JoinMeCmd {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    final game = LitGame.find(message.chat.id);
+    LitGame game;
+    if (message.chat.type == 'private') {
+      var possibleGame = LitGame.findGameOfPlayer(message.chat.id);
+      if (possibleGame == null) {
+        throw 'Игра не найдена';
+      }
+      game = possibleGame;
+    } else {
+      game = LitGame.find(message.chat.id);
+    }
     game.logic.add(KickFromGameEvent(LitUser(message.from)));
   }
 

@@ -52,12 +52,13 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
                 cmd.sendPublicAlert(state.gameId, state.lastProcessedUser);
               }
             }
-          } else if (event.runtimeType == KickFromGameEvent &&
-              state.lastOperationSuccess) {
-            final cmd = KickMeCmd();
-            cmd.sendStatisticsToAdmin(bloc.game);
-            cmd.sendKickMessage(bloc.game, state.lastProcessedUser);
           }
+        }
+        if (event.runtimeType == KickFromGameEvent &&
+            state.lastOperationSuccess) {
+          final cmd = KickMeCmd();
+          cmd.sendStatisticsToAdmin(bloc.game);
+          cmd.sendKickMessage(bloc.game, state.lastProcessedUser);
         }
         break;
       case NoGameState:
@@ -110,6 +111,28 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         }) as GameFlowCmd;
         final state = transition.nextState as GameFlowStoryTell;
         cmd.printStoryTellMode(state.selectedCard);
+        break;
+
+      case PlayerKickedDuringGame:
+        var state = transition.nextState as PlayerKickedDuringGame;
+        final cmd = KickMeCmd();
+        cmd.sendKickMessage(bloc.game, state.lastProcessedUser);
+
+        switch (transition.currentState.runtimeType) {
+          case GameFlowStoryTell:
+          case GameFlowPlayerSelectCard:
+          case GameFlowMasterInitStory:
+            bloc.add(GameFlowNextTurnEvent(state.lastProcessedUser));
+            break;
+
+          case TrainingFlowState:
+            bloc.add(TrainingNextTurnEvent(state.lastProcessedUser));
+            break;
+
+          case PlayerSortingState:
+            bloc.add(ResetPlayersOrderEvent(state.lastProcessedUser));
+            break;
+        }
         break;
     }
 

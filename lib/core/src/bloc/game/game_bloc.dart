@@ -47,9 +47,31 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             LitGame.stopGame(game.id);
             yield NoGameState(event.triggeredBy);
           } else if (user != null) {
-            var success = game.removePlayer(user);
-            yield InvitingGameState(
-                game.id, event.triggeredBy, success, event.triggeredBy);
+            if (state is InvitingGameState || state is SelectGameMasterState) {
+              var success = game.removePlayer(user);
+              yield InvitingGameState(
+                  game.id, event.triggeredBy, success, user);
+            } else {
+              var canContinue = true;
+              try {
+                final linkedUser = game.playersSorted
+                    .firstWhere((element) => element.user == user);
+                game.playersSorted.remove(linkedUser);
+              } catch (_) {
+                if (state.runtimeType != PlayerSortingState) {
+                  addError(BlocError(
+                      messageForGroup:
+                          'Не удалось кикнуть игрока ${user.nickname}'));
+                  canContinue = false;
+                }
+              }
+
+              if (canContinue) {
+                var success = game.removePlayer(user);
+                yield PlayerKickedDuringGame(
+                    game.id, event.triggeredBy, success, user);
+              }
+            }
           }
           break;
 
