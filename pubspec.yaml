@@ -12,7 +12,7 @@ dependencies:
   archive: ^2.0.13
   file: ^6.0.0-nullsafety.4
   dartis: ^0.5.0
-  bloc: any
+  bloc: ^7.0.0
   teledart_app: any
     #path: ../teledart_app
 

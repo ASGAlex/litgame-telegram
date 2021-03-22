@@ -11,7 +11,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
   final TelegramEx telegram;
 
   @override
-  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
+  void onError(BlocBase cubit, Object error, StackTrace stackTrace) {
     if (error.runtimeType != BlocError) {
       print(error);
     } else {
