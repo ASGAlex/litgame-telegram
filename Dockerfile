@@ -1,4 +1,4 @@
-FROM google/dart:2.12-beta
+FROM google/dart:2.13-beta
 WORKDIR /app
 
 ADD pubspec.* /app/
