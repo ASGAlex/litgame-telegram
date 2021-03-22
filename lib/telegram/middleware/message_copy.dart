@@ -33,14 +33,18 @@ class MessageCopy with Middleware {
   }
 
   void _copyGameChatMessagesToPM(Message message, TelegramEx telegram) {
-    final game = LitGame.find(message.chat.id);
-    if (!game.players.containsKey(message.from.id)) return;
-    for (var player in game.players.entries) {
-      if (player.value.telegramUser.id == message.from.id) continue;
-      if (!player.value.isCopyChatSet) continue;
+    try {
+      final game = LitGame.find(message.chat.id);
+      if (!game.players.containsKey(message.from.id)) return;
+      for (var player in game.players.entries) {
+        if (player.value.telegramUser.id == message.from.id) continue;
+        if (!player.value.isCopyChatSet) continue;
 
-      telegram.forwardMessage(
-          player.value.chatId, message.chat.id, message.message_id);
+        telegram.forwardMessage(
+            player.value.chatId, message.chat.id, message.message_id);
+      }
+    } catch (_) {
+      // its okay that game not found
     }
   }
 }
