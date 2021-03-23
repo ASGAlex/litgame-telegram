@@ -57,19 +57,20 @@ class TrainingFlowState extends GameState {
   final TrainingFlow flow;
 }
 
-class GameFlowMasterInitStory extends GameState {
-  GameFlowMasterInitStory(int gameId, LitUser triggeredBy, this.selectedCards)
+class GameFlowMasterInitStoryState extends GameState {
+  GameFlowMasterInitStoryState(
+      int gameId, LitUser triggeredBy, this.selectedCards)
       : super(gameId, triggeredBy);
   final List<Card> selectedCards;
 }
 
-class GameFlowPlayerSelectCard extends GameState {
-  GameFlowPlayerSelectCard(int gameId, LitUser triggeredBy)
+class GameFlowPlayerSelectCardState extends GameState {
+  GameFlowPlayerSelectCardState(int gameId, LitUser triggeredBy)
       : super(gameId, triggeredBy);
 }
 
-class GameFlowStoryTell extends GameState {
-  GameFlowStoryTell(int gameId, LitUser triggeredBy, this.selectedCard)
+class GameFlowStoryTellState extends GameState {
+  GameFlowStoryTellState(int gameId, LitUser triggeredBy, this.selectedCard)
       : super(gameId, triggeredBy);
   final Card selectedCard;
 }

@@ -166,7 +166,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           final cPerson = gameFlow.getCard(CardType.person);
 
           final selectedCards = <Card>[cGeneric, cPlace, cPerson];
-          yield GameFlowMasterInitStory(
+          yield GameFlowMasterInitStoryState(
               game.id, event.triggeredBy, selectedCards);
           break;
 
@@ -175,7 +175,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         /// Перевод в состояние выбора карты
         case GameFlowNextTurnEvent:
           game.gameFlow.nextTurn();
-          yield GameFlowPlayerSelectCard(game.id, event.triggeredBy);
+          yield GameFlowPlayerSelectCardState(game.id, event.triggeredBy);
           break;
 
         /// Игрок выбрал карту
@@ -185,7 +185,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           event as GameFlowCardSelectedEvent;
           final type = CardType.generic.getTypeByName(event.cardType);
           final card = game.gameFlow.getCard(type);
-          yield GameFlowStoryTell(game.id, event.triggeredBy, card);
+          yield GameFlowStoryTellState(game.id, event.triggeredBy, card);
           break;
 
         case RestoreLastStateEvent:

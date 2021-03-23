@@ -27,3 +27,10 @@ class EndGameCmd extends GameCommand {
     deleteScheduledMessages(telegram);
   }
 }
+
+class StopGameCmd extends EndGameCmd {
+  StopGameCmd();
+
+  @override
+  String get name => 'stopgame';
+}

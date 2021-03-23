@@ -90,7 +90,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         cmd.showNextTurnMessage(bloc.game, telegram);
         break;
 
-      case GameFlowMasterInitStory:
+      case GameFlowMasterInitStoryState:
         final flow = await bloc.game.gameFlowFactory();
         final cmd = ComplexCommand.withAction(() => GameFlowCmd(), 'start', {
           'gci': bloc.game.id.toString(),
@@ -99,7 +99,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         cmd.onGameStart(Message(), telegram);
         break;
 
-      case GameFlowPlayerSelectCard:
+      case GameFlowPlayerSelectCardState:
         final cmd =
             ComplexCommand.withAction(() => GameFlowCmd(), 'onNextTurn', {
           'gci': bloc.game.id.toString(),
@@ -107,12 +107,12 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         cmd.printCardSelectionMessages();
         break;
 
-      case GameFlowStoryTell:
+      case GameFlowStoryTellState:
         final cmd =
             ComplexCommand.withAction(() => GameFlowCmd(), 'onNextTurn', {
           'gci': bloc.game.id.toString(),
         }) as GameFlowCmd;
-        final state = transition.nextState as GameFlowStoryTell;
+        final state = transition.nextState as GameFlowStoryTellState;
         cmd.printStoryTellMode(state.selectedCard);
         break;
 
@@ -122,9 +122,9 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         cmd.sendKickMessage(bloc.game, state.lastProcessedUser);
 
         switch (transition.currentState.runtimeType) {
-          case GameFlowStoryTell:
-          case GameFlowPlayerSelectCard:
-          case GameFlowMasterInitStory:
+          case GameFlowStoryTellState:
+          case GameFlowPlayerSelectCardState:
+          case GameFlowMasterInitStoryState:
             bloc.add(GameFlowNextTurnEvent(state.lastProcessedUser));
             break;
 

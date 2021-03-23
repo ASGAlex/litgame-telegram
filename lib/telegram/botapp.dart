@@ -22,6 +22,7 @@ class BotApp extends TeledartApp {
   List<CommandConstructor> commands = [
     () => StartGameCmd(),
     () => EndGameCmd(),
+    () => StopGameCmd(),
     () => JoinMeCmd(),
     () => KickMeCmd(),
     () => FinishJoinCmd(),
