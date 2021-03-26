@@ -1,13 +1,11 @@
 part of 'game_bloc.dart';
 
-@immutable
-abstract class GameState {
-  GameState(this.gameId, this.triggeredBy);
+abstract class GameState extends BPState<GameEvent> {
+  GameState(this._game);
 
-  final int gameId;
+  final LitGame _game;
 
-  LitGame get game => LitGame.find(gameId);
-  final LitUser triggeredBy;
+  LitGame get game => _game;
 }
 
 class BlocError {
@@ -15,18 +13,6 @@ class BlocError {
 
   Object? messageForUser;
   Object? messageForGroup;
-}
-
-class NoGameState extends GameState {
-  NoGameState(LitUser triggeredBy) : super(0, triggeredBy);
-}
-
-class InvitingGameState extends GameState {
-  InvitingGameState(int gameId, LitUser triggeredBy, this.lastOperationSuccess,
-      this.lastProcessedUser)
-      : super(gameId, triggeredBy);
-  final bool lastOperationSuccess;
-  final LitUser lastProcessedUser;
 }
 
 class PlayerKickedDuringGame extends InvitingGameState {

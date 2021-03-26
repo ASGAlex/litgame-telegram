@@ -58,6 +58,11 @@ class LitUser extends ParseObject implements ParseCloneable {
   bool operator ==(Object other) =>
       other is LitUser && other.telegramUser.id == telegramUser.id;
 
+  LitUser fromGame(LitGame game) {
+    final gamePlayer = game.players[telegramUser.id];
+    return gamePlayer ?? this;
+  }
+
   Future<ParseResponse> allowAddCollection(bool allow) {
     this['allowAddCollection'] = allow;
     return save();

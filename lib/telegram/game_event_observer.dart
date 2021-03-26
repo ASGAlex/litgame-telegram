@@ -50,7 +50,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
                   LitGame.findGameOfPlayer(event.triggeredBy.chatId);
               if (curGame != bloc.game) {
                 cmd.sendPrivateDetailedAlert(state.lastProcessedUser);
-                cmd.sendPublicAlert(state.gameId, state.lastProcessedUser);
+                cmd.sendPublicAlert(state.game.id, state.lastProcessedUser);
               }
             }
           } else if (event is RestoreLastStateEvent) {

@@ -18,6 +18,7 @@ class SetMasterCmd extends GameCommand {
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
     final game = findGameByArguments();
+    final me = LitUser(message.from).fromGame(game);
     final master = game.players[int.parse(arguments?['userId'])];
     if (master == null) {
       throw 'Ни один игрок не выбран в качестве мастера игры!';
@@ -25,9 +26,7 @@ class SetMasterCmd extends GameCommand {
     deleteScheduledMessages(telegram);
     telegram.sendMessage(game.id,
         master.nickname + '(' + master.fullName + ') будет игромастером!');
-    var me = game.players[message.from.id];
-    me ??= LitUser(message.from);
-    game.logic.add(SelectMasterEvent(me, master));
+    game.logic.add(SelectGameMasterEvent(me, master));
   }
 
   void showSelectionDialogToAdmin(LitGame game) {

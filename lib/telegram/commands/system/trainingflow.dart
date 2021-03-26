@@ -40,19 +40,19 @@ class TrainingFlowCmd extends ComplexGameCommand
   }
 
   void onTrainingStart(Message message, TelegramEx telegram) {
-    findGameByArguments()
-        .logic
-        .add(TrainingStartEvent(LitUser(message.from), arguments?['cid']));
+    final game = findGameByArguments();
+    game.logic.add(TrainingStartEvent(
+        LitUser(message.from).fromGame(game), arguments?['cid']));
   }
 
   void onNextTurn(Message message, TelegramEx telegram) {
-    findGameByArguments()
-        .logic
-        .add(TrainingNextTurnEvent(LitUser(message.from)));
+    final game = findGameByArguments();
+    game.logic.add(TrainingNextTurnEvent(LitUser(message.from).fromGame(game)));
   }
 
   void onTrainingEnd(Message message, TelegramEx telegram) {
-    findGameByArguments().logic.add(GameFlowStartEvent(LitUser(message.from)));
+    final game = findGameByArguments();
+    game.logic.add(TrainingFinishedEvent(LitUser(message.from).fromGame(game)));
   }
 
   Future showTrainingDescriptionMessage(LitGame game) {

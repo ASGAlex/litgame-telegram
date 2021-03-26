@@ -27,7 +27,7 @@ class SelectAdminCmd extends GameCommand {
         admin.nickname + '(' + admin.fullName + ') будет новым админом!');
     var me = game.players[message.from.id];
     me ??= LitUser(message.from);
-    game.logic.add(SelectAdminEvent(me, admin));
+//    game.logic.add(SelectAdminEvent(me, admin));
   }
 
   void showSelectionDialogToAdmin(LitGame game, LitUser lastAdmin) {

@@ -67,6 +67,9 @@ class SetCollectionCmd extends ComplexGameCommand {
   }
 
   void _startGameWithCollection(String id) {
+    final game = findGameByArguments();
+    game.logic.add(SetupFinishedEvent(
+        LitUser(message.from).fromGame(game), arguments?['cid']));
     final cmd = ComplexCommand.withAction(() => TrainingFlowCmd(), 'start',
         {'gci': arguments?['gci'], 'cid': id});
     cmd.run(message, telegram);

@@ -1,10 +1,11 @@
 import 'dart:collection';
 
 import 'package:litgame_telegram/core/core.dart';
+import 'package:litgame_telegram/core/src/bloc/game/main/process.dart';
 
 class LitGame {
   LitGame(this.id) : _playersSorted = LinkedList<LinkedUser>() {
-    logic = GameBloc(NoGameState(LitUser.byId(0)), this);
+    logic = MainProcess(NoGameState(), this);
   }
 
   static final Map<int, LitGame> _activeGames = {};
@@ -12,7 +13,7 @@ class LitGame {
   final Map<int, LitUser> _players = {};
   final LinkedList<LinkedUser> _playersSorted;
 
-  late final GameBloc logic;
+  late final MainProcess logic;
 
   TrainingFlow? _trainingFlow;
   GameFlow? _gameFlow;

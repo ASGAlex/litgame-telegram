@@ -88,7 +88,7 @@ class GameFlowCmd extends ComplexGameCommand
   }
 
   void onNextTurn(Message message, TelegramEx telegram) {
-    game.logic.add(GameFlowNextTurnEvent(LitUser(message.from)));
+    game.logic.add(GameFlowNextTurnEvent(LitUser(message.from).fromGame(game)));
   }
 
   void printCardSelectionMessages() {
@@ -133,7 +133,8 @@ class GameFlowCmd extends ComplexGameCommand
 
   void onSelectCard(Message message, TelegramEx telegram) {
     final sType = action.replaceAll('select-', '');
-    game.logic.add(GameFlowCardSelectedEvent(LitUser(message.from), sType));
+    game.logic.add(
+        GameFlowCardSelectedEvent(LitUser(message.from).fromGame(game), sType));
   }
 
   void printStoryTellMode(Card card) {

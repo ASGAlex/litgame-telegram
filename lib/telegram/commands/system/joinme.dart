@@ -14,7 +14,8 @@ class JoinMeCmd extends GameCommand with ReportMultipleGames {
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
     final game = LitGame.find(message.chat.id);
-    game.logic.add(JoinGameEvent(LitUser(message.from)));
+    final me = LitUser(message.from);
+    game.logic.add(JoinGameEvent(me, me));
   }
 
   void sendChatIdRequest(LitGame game, LitUser user, TelegramEx telegram) {

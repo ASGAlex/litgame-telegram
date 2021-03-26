@@ -20,7 +20,7 @@ class StartGameCmd extends GameCommand with ReportMultipleGames {
     final me = LitUser(message.from, isAdmin: true);
     try {
       final game = LitGame.startNew(message.chat.id);
-      game.logic.add(StartNewGameEvent(me));
+      game.logic.add(GameStartEvent(me));
     } catch (_) {
       sendPublicAlert(message.chat.id, me);
       sendPrivateDetailedAlert(me);
@@ -30,7 +30,7 @@ class StartGameCmd extends GameCommand with ReportMultipleGames {
   @override
   ArgParser? getParser() => null;
 
-  void afterGameStart(GameBloc bloc, Transition transition) {
+  void afterGameStart(MainProcess bloc, Transition transition) {
     telegram
         .sendMessage(
             bloc.game.id,
