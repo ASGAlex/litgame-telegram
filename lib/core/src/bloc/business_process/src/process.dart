@@ -116,4 +116,11 @@ class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
       yield nextState;
     }
   }
+
+  @override
+  // ignore: must_call_super
+  void onError(Object error, StackTrace stackTrace) {
+    // ignore: invalid_use_of_protected_member
+    Bloc.observer.onError(this, error, stackTrace);
+  }
 }
