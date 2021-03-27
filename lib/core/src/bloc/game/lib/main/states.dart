@@ -1,16 +1,13 @@
 part of 'process.dart';
 
-abstract class LitGameState
-    extends BPState<LitGameState, LitGameEvent, GameBaseProcess> {
-  LitGameState();
-}
+abstract class _MainProcessState extends LitGameState<MainProcess> {}
 
-class NoGameState extends LitGameState {
+class NoGameState extends _MainProcessState {
   @override
   List get acceptedEvents => [MainProcessEvent.gameStart];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? onEvent(LitGameEvent event, MainProcess bp) {
     event as GameStartEvent;
     event.triggeredBy.isAdmin = true;
     bp.game.addPlayer(event.triggeredBy);
@@ -32,17 +29,19 @@ class NoGameState extends LitGameState {
   }
 }
 
-class SetupGameState extends LitGameState {
+class SetupGameState extends _MainProcessState {
   @override
   List get acceptedEvents => [MainProcessEvent.setupFinished];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? onEvent(LitGameEvent event, MainProcess bp) {
     if (event.triggeredBy.isAdmin || event.triggeredBy.isGameMaster) {
       bp.stopSubProcess('setup');
       final training = bp.runSubProcess(() => TrainingFlowProcess(
           TrainingFlowState(), bp.game,
           tag: 'training', parent: bp));
+      bp.bpKick.switchToInGameMode();
+      bp.bpInvite.switchToInGameMode();
       return TrainingState();
     } else {
       addError(BlocError(event,
@@ -52,12 +51,12 @@ class SetupGameState extends LitGameState {
   }
 }
 
-class TrainingState extends LitGameState {
+class TrainingState extends _MainProcessState {
   @override
   List get acceptedEvents => [MainProcessEvent.trainingFinished];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? onEvent(LitGameEvent event, MainProcess bp) {
     if (event.triggeredBy.isAdmin || event.triggeredBy.isGameMaster) {
       bp.stopSubProcess('training');
       bp.runSubProcess(() => GameFlowProcess(
@@ -72,12 +71,12 @@ class TrainingState extends LitGameState {
   }
 }
 
-class GameFlowState extends LitGameState {
+class GameFlowState extends _MainProcessState {
   @override
   List get acceptedEvents => [];
 
   @override
-  LitGameState? onEvent(Event event, GameBaseProcess bp) {
+  LitGameState? onEvent(Event event, MainProcess bp) {
     throw UnimplementedError();
   }
 }

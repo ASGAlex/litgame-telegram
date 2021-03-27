@@ -1,11 +1,5 @@
 part of 'process.dart';
 
-abstract class LitGameEvent extends Event {
-  LitGameEvent(this.triggeredBy, [String? tag]) : super(tag);
-
-  final LitUser triggeredBy;
-}
-
 enum MainProcessEvent {
   gameStart,
   setupFinished,

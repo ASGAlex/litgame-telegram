@@ -12,7 +12,7 @@ class KickWhileInvitingState extends LitGameState {
   final bool noPlayersLeft;
 
   @override
-  List get acceptedEvents => [KickEvent.kick];
+  List get acceptedEvents => [KickEvent.kick, GenericEvents.inGameMode];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -24,5 +24,22 @@ class KickWhileInvitingState extends LitGameState {
       return KickWhileInvitingState(
           event.targetUser, success, bp.game.players.isEmpty);
     }
+    if (event.type == GenericEvents.inGameMode) {
+      return KickWhilePlayingState();
+    }
   }
+}
+
+class KickWhilePlayingState extends KickWhileInvitingState {
+  KickWhilePlayingState(
+      [LitUser? lastProcessedUser,
+      bool? lastOperationSuccess,
+      bool noPlayersLeft = false])
+      : super(lastProcessedUser, lastOperationSuccess, noPlayersLeft);
+
+  @override
+  List get acceptedEvents => [KickEvent.kick];
+
+  @override
+  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {}
 }

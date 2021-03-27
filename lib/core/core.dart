@@ -1,6 +1,7 @@
 library core;
 
 export 'src/bloc/business_process/business_process.dart';
+export 'src/bloc/game/game.dart';
 export 'src/models/cards/card.dart';
 export 'src/models/cards/card_collection.dart';
 export 'src/models/game/flow_interface.dart';

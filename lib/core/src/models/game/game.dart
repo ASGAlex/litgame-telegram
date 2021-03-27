@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:litgame_telegram/core/core.dart';
-import 'package:litgame_telegram/core/src/bloc/game/main/process.dart';
 
 class LitGame {
   LitGame(this.id) : _playersSorted = LinkedList<LinkedUser>() {

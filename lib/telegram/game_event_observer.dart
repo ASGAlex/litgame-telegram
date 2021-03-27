@@ -1,11 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/core/core.dart';
-import 'package:litgame_telegram/core/src/bloc/game/game_flow/process.dart';
-import 'package:litgame_telegram/core/src/bloc/game/invite/process.dart';
-import 'package:litgame_telegram/core/src/bloc/game/kick/process.dart';
-import 'package:litgame_telegram/core/src/bloc/game/main/process.dart';
-import 'package:litgame_telegram/core/src/bloc/game/setup_game/process.dart';
-import 'package:litgame_telegram/core/src/bloc/game/training/process.dart';
 import 'package:teledart_app/teledart_app.dart';
 
 import 'commands/commands.dart';
