@@ -7,8 +7,8 @@ class TrainingFlowState extends LitGameState {
 
   @override
   List get acceptedEvents => [
-        TrainingStartEvent.empty().runtimeType,
-        TrainingNextTurnEvent.empty().runtimeType,
+        TrainingEvent.start,
+        TrainingEvent.nextTurn,
       ];
 
   @override

@@ -34,58 +34,8 @@ class GameFlowCmd extends ComplexGameCommand
     super.run(message, telegram);
   }
 
-  void onGameStart(Message message, TelegramEx telegram) {
-    telegram.sendMessage(
-        game.id,
-        'Ходит ' +
-            game.gameFlow.currentUser.nickname +
-            '(' +
-            game.gameFlow.currentUser.fullName +
-            ')');
-
-    copyChat((chatId, _) {
-      if (game.gameFlow.currentUser.chatId == chatId) return;
-      telegram.sendMessage(
-          chatId,
-          'Ходит ' +
-              game.gameFlow.currentUser.nickname +
-              '(' +
-              game.gameFlow.currentUser.fullName +
-              ')');
-    }, game);
-
-    var cGeneric = game.gameFlow.getCard(CardType.generic);
-    var cPlace = game.gameFlow.getCard(CardType.place);
-    var cPerson = game.gameFlow.getCard(CardType.person);
-    sendImage(game.gameFlow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name,
-            false)
-        .then((value) {
-      sendImage(game.gameFlow.currentUser.chatId, cPlace.imgUrl, cPlace.name,
-              false)
-          .then((value) {
-        sendImage(game.gameFlow.currentUser.chatId, cPerson.imgUrl,
-                cPerson.name, false)
-            .then((value) {
-          sendEndTurn(game.gameFlow);
-        });
-      });
-    });
-
-    sendImage(game.id, cGeneric.imgUrl, cGeneric.name, false).then((value) {
-      sendImage(game.id, cPlace.imgUrl, cPlace.name, false).then((value) {
-        sendImage(game.id, cPerson.imgUrl, cPerson.name, false);
-      });
-    });
-
-    copyChat((chatId, _) {
-      if (game.gameFlow.currentUser.chatId == chatId) return;
-      sendImage(chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
-        sendImage(chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
-          sendImage(chatId, cPerson.imgUrl, cPerson.name, false);
-        });
-      });
-    }, game);
-  }
+  @deprecated
+  void onGameStart(Message message, TelegramEx telegram) {}
 
   void onNextTurn(Message message, TelegramEx telegram) {
     game.logic.add(GameFlowNextTurnEvent(LitUser(message.from).fromGame(game)));
@@ -146,6 +96,68 @@ class GameFlowCmd extends ComplexGameCommand
     copyChat((chatId, _) {
       if (game.gameFlow.currentUser.chatId == chatId) return;
       sendImage(chatId, card.imgUrl, card.name, false);
+    }, game);
+  }
+
+  void printGameStartMessage(LitGame game) {
+    telegram.sendMessage(game.id, 'Начинаем игру!');
+
+    copyChat((chatId, _) {
+      telegram.sendMessage(chatId, 'Начинаем игру!');
+    }, game);
+  }
+
+  void printCardsForMasterFirstTurn(List<Card> cards, TelegramEx telegram) {
+    telegram.sendMessage(
+        game.id,
+        'Ходит ' +
+            game.gameFlow.currentUser.nickname +
+            '(' +
+            game.gameFlow.currentUser.fullName +
+            ')');
+
+    copyChat((chatId, _) {
+      if (game.gameFlow.currentUser.chatId == chatId) return;
+      telegram.sendMessage(
+          chatId,
+          'Ходит ' +
+              game.gameFlow.currentUser.nickname +
+              '(' +
+              game.gameFlow.currentUser.fullName +
+              ')');
+    }, game);
+
+    if (cards.length < 3) throw 'Карт для старта игры должно быть три!';
+    var cGeneric = cards[0];
+    var cPlace = cards[1];
+    var cPerson = cards[2];
+    sendImage(game.gameFlow.currentUser.chatId, cGeneric.imgUrl, cGeneric.name,
+            false)
+        .then((value) {
+      sendImage(game.gameFlow.currentUser.chatId, cPlace.imgUrl, cPlace.name,
+              false)
+          .then((value) {
+        sendImage(game.gameFlow.currentUser.chatId, cPerson.imgUrl,
+                cPerson.name, false)
+            .then((value) {
+          sendEndTurn(game.gameFlow);
+        });
+      });
+    });
+
+    sendImage(game.id, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+      sendImage(game.id, cPlace.imgUrl, cPlace.name, false).then((value) {
+        sendImage(game.id, cPerson.imgUrl, cPerson.name, false);
+      });
+    });
+
+    copyChat((chatId, _) {
+      if (game.gameFlow.currentUser.chatId == chatId) return;
+      sendImage(chatId, cGeneric.imgUrl, cGeneric.name, false).then((value) {
+        sendImage(chatId, cPlace.imgUrl, cPlace.name, false).then((value) {
+          sendImage(chatId, cPerson.imgUrl, cPerson.name, false);
+        });
+      });
     }, game);
   }
 

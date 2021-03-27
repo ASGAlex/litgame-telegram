@@ -15,14 +15,14 @@ class EndGameCmd extends GameCommand {
     initTeledart(message, telegram);
     checkGameChat(message);
     final game = LitGame.find(message.chat.id);
-    game.logic.add(GameEndEvent(LitUser(message.from).fromGame(game)));
+    game.logic.add(GameFinishedEvent(LitUser(message.from).fromGame(game)));
   }
 
   @override
   ArgParser? getParser() => null;
 
-  void afterGameEnd(MainProcess bloc, Transition transition) {
-    telegram.sendMessage(bloc.game.id, 'Всё, наигрались!',
+  void afterGameEnd(LitGame game, Transition transition) {
+    telegram.sendMessage(game.id, 'Всё, наигрались!',
         reply_markup: ReplyKeyboardRemove(remove_keyboard: true));
     deleteScheduledMessages(telegram);
   }

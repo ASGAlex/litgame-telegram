@@ -1,11 +1,13 @@
 part of 'process.dart';
 
 abstract class LitGameState
-    extends BPState<LitGameState, LitGameEvent, GameBaseProcess> {}
+    extends BPState<LitGameState, LitGameEvent, GameBaseProcess> {
+  LitGameState();
+}
 
 class NoGameState extends LitGameState {
   @override
-  List get acceptedEvents => [GameStartEvent.empty().runtimeType];
+  List get acceptedEvents => [MainProcessEvent.gameStart];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -17,12 +19,13 @@ class NoGameState extends LitGameState {
           InvitingGameState(), bp.game,
           tag: 'setup', parent: bp));
       final invite = bp.runSubProcess(() => InviteProcess(
-          InvitingGameState(), bp.game,
+          InviteWhileInvitingGameState(), bp.game,
           tag: 'invite', parent: bp));
-      final kick = bp.runSubProcess(() =>
-          KickProcess(InvitingGameState(), bp.game, tag: 'kick', parent: bp));
+      final kick = bp.runSubProcess(() => KickProcess(
+          KickWhileInvitingState(), bp.game,
+          tag: 'kick', parent: bp));
     } catch (error) {
-      addError(BlocError(
+      addError(BlocError(event,
           messageForUser: 'Game configuration process already running'));
     }
     return SetupGameState();
@@ -31,17 +34,18 @@ class NoGameState extends LitGameState {
 
 class SetupGameState extends LitGameState {
   @override
-  List get acceptedEvents => [SetupFinishedEvent.empty().runtimeType];
+  List get acceptedEvents => [MainProcessEvent.setupFinished];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
     if (event.triggeredBy.isAdmin || event.triggeredBy.isGameMaster) {
       bp.stopSubProcess('setup');
-      bp.runSubProcess(() => TrainingFlowProcess(TrainingFlowState(), bp.game,
+      final training = bp.runSubProcess(() => TrainingFlowProcess(
+          TrainingFlowState(), bp.game,
           tag: 'training', parent: bp));
       return TrainingState();
     } else {
-      addError(BlocError(
+      addError(BlocError(event,
           messageForGroup:
               event.triggeredBy.nickname + ' у тебя нет власти надо мной!'));
     }
@@ -50,7 +54,7 @@ class SetupGameState extends LitGameState {
 
 class TrainingState extends LitGameState {
   @override
-  List get acceptedEvents => [TrainingFinishedEvent.empty().runtimeType];
+  List get acceptedEvents => [MainProcessEvent.trainingFinished];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -61,7 +65,7 @@ class TrainingState extends LitGameState {
           tag: 'game', parent: bp));
       return GameFlowState();
     } else {
-      addError(BlocError(
+      addError(BlocError(event,
           messageForGroup:
               event.triggeredBy.nickname + ' у тебя нет власти надо мной!'));
     }

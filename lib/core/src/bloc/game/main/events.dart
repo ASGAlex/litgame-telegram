@@ -6,23 +6,26 @@ abstract class LitGameEvent extends Event {
   final LitUser triggeredBy;
 }
 
+enum MainProcessEvent {
+  gameStart,
+  setupFinished,
+  trainingFinished,
+  gameFinished
+}
+
 class GameStartEvent extends LitGameEvent {
   GameStartEvent(LitUser triggeredBy, [String? tag]) : super(triggeredBy, tag);
 
-  GameStartEvent.empty() : super(LitUser.byId(0));
-
   @override
-  Type get type => GameStartEvent.empty().runtimeType;
+  dynamic get type => MainProcessEvent.gameStart;
 }
 
 class SetupFinishedEvent extends LitGameEvent {
   SetupFinishedEvent(LitUser triggeredBy, [String? tag])
       : super(triggeredBy, tag);
 
-  SetupFinishedEvent.empty() : super(LitUser.byId(0));
-
   @override
-  Type get type => SetupFinishedEvent.empty().runtimeType;
+  dynamic get type => MainProcessEvent.setupFinished;
 }
 
 class TrainingFinishedEvent extends LitGameEvent {
@@ -31,14 +34,12 @@ class TrainingFinishedEvent extends LitGameEvent {
   TrainingFinishedEvent.empty() : super(LitUser.byId(0));
 
   @override
-  Type get type => TrainingFinishedEvent.empty().runtimeType;
+  dynamic get type => MainProcessEvent.trainingFinished;
 }
 
-class GameEndEvent extends LitGameEvent {
-  GameEndEvent(LitUser triggeredBy) : super(triggeredBy);
-
-  GameEndEvent.empty() : super(LitUser.byId(0));
+class GameFinishedEvent extends LitGameEvent {
+  GameFinishedEvent(LitUser triggeredBy) : super(triggeredBy);
 
   @override
-  Type get type => GameEndEvent.empty().runtimeType;
+  dynamic get type => MainProcessEvent.gameFinished;
 }

@@ -8,21 +8,15 @@ class InvitingGameState extends LitGameState {
   final LitUser? lastProcessedUser;
 
   @override
-  List get acceptedEvents =>
-      [JoinGameEvent.empty().runtimeType, FinishJoinEvent.empty().runtimeType];
+  List get acceptedEvents => [SetupGameEvent.finishJoin];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
-    if (event is JoinGameEvent) {
-      final main = bp.parent as MainProcess;
-      main.bpInvite.add(event);
-    }
-
     if (event is FinishJoinEvent) {
       if (event.triggeredBy.isAdmin) {
         return SelectGameMasterState();
       } else {
-        addError(BlocError(
+        addError(BlocError(event,
             messageForGroup:
                 'Пресечена незаконная попытка остановить набор игроков!'));
       }
@@ -32,7 +26,7 @@ class InvitingGameState extends LitGameState {
 
 class SelectGameMasterState extends LitGameState {
   @override
-  List get acceptedEvents => [SelectGameMasterEvent.empty().runtimeType];
+  List get acceptedEvents => [SetupGameEvent.selectGameMaster];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -42,7 +36,7 @@ class SelectGameMasterState extends LitGameState {
         bp.game.playersSorted.add(LinkedUser(event.userToBeMaster));
         return PlayerSortingState();
       } else {
-        addError(BlocError(
+        addError(BlocError(event,
             messageForGroup:
                 'Пресечена незаконная попытка назначить игромастера!'));
       }
@@ -56,10 +50,8 @@ class PlayerSortingState extends LitGameState {
   final bool isAllSorted;
 
   @override
-  List get acceptedEvents => [
-        SortPlayerEvent.empty().runtimeType,
-        ResetPlayersOrderEvent.empty().runtimeType
-      ];
+  List get acceptedEvents =>
+      [SetupGameEvent.sortPlayer, SetupGameEvent.resetPlayerOrder];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -76,7 +68,7 @@ class PlayerSortingState extends LitGameState {
         return PlayerSortingState();
       }
     } else {
-      addError(BlocError(
+      addError(BlocError(event,
           messageForGroup:
               'Кто-то, кто не админ, пытался сортировать игроков о_О'));
     }

@@ -6,10 +6,7 @@ class GameFlowMasterInitStoryState extends LitGameState {
   final Future<List<Card>>? initFinished;
 
   @override
-  List get acceptedEvents => [
-        GameFlowStartEvent.empty().runtimeType,
-        GameFlowNextTurnEvent.empty().runtimeType
-      ];
+  List get acceptedEvents => [GameEvent.start, GameEvent.nextTurn];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -35,7 +32,7 @@ class GameFlowPlayerSelectCardState extends LitGameState {
   GameFlowPlayerSelectCardState();
 
   @override
-  List get acceptedEvents => [GameFlowCardSelectedEvent.empty().runtimeType];
+  List get acceptedEvents => [GameEvent.cardSelected];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
@@ -52,7 +49,7 @@ class GameFlowStoryTellState extends LitGameState {
   final Card card;
 
   @override
-  List get acceptedEvents => [GameFlowNextTurnEvent.empty().runtimeType];
+  List get acceptedEvents => [GameEvent.nextTurn];
 
   @override
   LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {

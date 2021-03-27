@@ -1,15 +1,13 @@
 part of 'process.dart';
 
+enum KickEvent { kick }
+
 class KickFromGameEvent extends LitGameEvent {
   KickFromGameEvent(LitUser triggeredBy, this.targetUser, [String? tag])
       : super(triggeredBy, tag);
 
-  KickFromGameEvent.empty()
-      : targetUser = LitUser.byId(0),
-        super(LitUser.byId(0));
-
   final LitUser targetUser;
 
   @override
-  Type get type => KickFromGameEvent.empty().runtimeType;
+  dynamic get type => KickEvent.kick;
 }

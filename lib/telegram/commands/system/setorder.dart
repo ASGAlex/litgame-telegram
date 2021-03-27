@@ -18,11 +18,11 @@ class SetOrderCmd extends GameCommand {
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    final me = LitUser(message.from);
+    final game = findGameByArguments();
+    final me = LitUser(message.from).fromGame(game);
 
     deleteScheduledMessages(telegram);
     final userId = arguments?['userId'];
-    final game = findGameByArguments();
     if (arguments?['reset'] != null) {
       game.logic.add(ResetPlayersOrderEvent(me));
     } else if (userId != null) {

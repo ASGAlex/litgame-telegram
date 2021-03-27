@@ -58,7 +58,7 @@ class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
   Future<void> close() {
     for (var processEntry in _subProcess.entries) {
       processEntry.value.close();
-      _subProcess.remove(processEntry.key);
+      // _subProcess.remove(processEntry.key);
     }
     return super.close();
   }

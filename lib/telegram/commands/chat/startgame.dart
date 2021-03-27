@@ -30,10 +30,10 @@ class StartGameCmd extends GameCommand with ReportMultipleGames {
   @override
   ArgParser? getParser() => null;
 
-  void afterGameStart(MainProcess bloc, Transition transition) {
+  void afterGameStart(LitGame game, Transition transition) {
     telegram
         .sendMessage(
-            bloc.game.id,
+            game.id,
             '=========================================\r\n'
             'Начинаем новую игру! \r\n'
             'ВНИМАНИЕ, с кем ещё не общались - напишите мне в личку, чтобы я тоже мог вам отправлять сообщения.\r\n'

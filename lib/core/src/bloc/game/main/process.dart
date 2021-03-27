@@ -26,15 +26,15 @@ class MainProcess extends GameBaseProcess {
 
   @override
   LitGameState? processEvent(LitGameEvent event) {
-    if (event is GameEndEvent) {
+    if (event is GameFinishedEvent) {
       final player = game.players[event.triggeredBy.chatId];
-      if (player != null && player.isAdmin) {
+      if ((player != null && player.isAdmin) || (game.players.isEmpty)) {
         LitGame.stopGame(game.id);
         GameFlow.stopGame(game.id);
         TrainingFlow.stopGame(game.id);
         return NoGameState();
       } else {
-        addError(BlocError(
+        addError(BlocError(event,
             messageForGroup:
                 'У тебя нет власти надо мной! Пусть админ игры её остановит.'));
       }
@@ -45,8 +45,9 @@ class MainProcess extends GameBaseProcess {
 }
 
 class BlocError {
-  BlocError({this.messageForUser, this.messageForGroup});
+  BlocError(this.event, {this.messageForUser, this.messageForGroup});
 
+  LitGameEvent event;
   Object? messageForUser;
   Object? messageForGroup;
 }
