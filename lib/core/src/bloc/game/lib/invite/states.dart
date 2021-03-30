@@ -12,7 +12,7 @@ class InviteWhileInvitingGameState extends LitGameState {
   List get acceptedEvents => [JoinEvent.join, GenericEvents.inGameMode];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is JoinGameEvent) {
       final success = bp.game.addPlayer(event.triggeredBy);
       return InviteWhileInvitingGameState(event.triggeredBy, success);
@@ -32,7 +32,7 @@ class InGameInviteState extends InviteWhileInvitingGameState {
   List get acceptedEvents => [JoinEvent.join];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is JoinGameEvent) {
       final success = bp.game.addPlayer(event.triggeredBy);
       return InviteWhileInvitingGameState(event.triggeredBy, success);

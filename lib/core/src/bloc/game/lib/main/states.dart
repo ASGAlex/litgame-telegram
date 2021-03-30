@@ -7,7 +7,7 @@ class NoGameState extends _MainProcessState {
   List get acceptedEvents => [MainProcessEvent.gameStart];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, MainProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     event as GameStartEvent;
     event.triggeredBy.isAdmin = true;
     bp.game.addPlayer(event.triggeredBy);
@@ -34,7 +34,7 @@ class SetupGameState extends _MainProcessState {
   List get acceptedEvents => [MainProcessEvent.setupFinished];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, MainProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event.triggeredBy.isAdmin || event.triggeredBy.isGameMaster) {
       bp.stopSubProcess('setup');
       final training = bp.runSubProcess(() => TrainingFlowProcess(
@@ -56,7 +56,7 @@ class TrainingState extends _MainProcessState {
   List get acceptedEvents => [MainProcessEvent.trainingFinished];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, MainProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event.triggeredBy.isAdmin || event.triggeredBy.isGameMaster) {
       bp.stopSubProcess('training');
       bp.runSubProcess(() => GameFlowProcess(
@@ -76,7 +76,7 @@ class GameFlowState extends _MainProcessState {
   List get acceptedEvents => [];
 
   @override
-  LitGameState? onEvent(Event event, MainProcess bp) {
+  LitGameState? processEvent(Event event) {
     throw UnimplementedError();
   }
 }

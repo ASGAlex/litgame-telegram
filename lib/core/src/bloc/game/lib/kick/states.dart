@@ -15,7 +15,7 @@ class KickWhileInvitingState extends LitGameState {
   List get acceptedEvents => [KickEvent.kick, GenericEvents.inGameMode];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is KickFromGameEvent) {
       var success = bp.game.removePlayer(event.targetUser);
       if (bp.game.players.isEmpty) {
@@ -41,5 +41,19 @@ class KickWhilePlayingState extends KickWhileInvitingState {
   List get acceptedEvents => [KickEvent.kick];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {}
+  LitGameState? processEvent(LitGameEvent event) {
+    if (event is KickFromGameEvent) {
+      final stateType = bp.parent?.state.runtimeType;
+      if (stateType == TrainingState || stateType == GameFlowState) {
+        // only game master or admin can kick other players!
+        if (event.targetUser != event.triggeredBy &&
+            !event.triggeredBy.isAdmin &&
+            !event.triggeredBy.isGameMaster) return null;
+
+        if (event.targetUser.isAdmin) {
+          // bp.parent.add(event);
+        }
+      }
+    }
+  }
 }

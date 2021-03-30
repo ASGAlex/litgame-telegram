@@ -12,6 +12,9 @@ class MainProcess extends GameBaseProcess {
   KickProcess get bpKick => findSubProcess('kick') as KickProcess;
 
   @override
+  List get acceptedEvents => [MainProcessEvent.gameFinished];
+
+  @override
   LitGameState? processEvent(LitGameEvent event) {
     if (event is GameFinishedEvent) {
       final player = game.players[event.triggeredBy.chatId];
@@ -25,8 +28,6 @@ class MainProcess extends GameBaseProcess {
             messageForGroup:
                 'У тебя нет власти надо мной! Пусть админ игры её остановит.'));
       }
-    } else {
-      return super.processEvent(event);
     }
   }
 }

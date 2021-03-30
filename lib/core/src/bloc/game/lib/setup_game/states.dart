@@ -11,7 +11,7 @@ class InvitingGameState extends LitGameState {
   List get acceptedEvents => [SetupGameEvent.finishJoin];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is FinishJoinEvent) {
       if (event.triggeredBy.isAdmin) {
         return SelectGameMasterState();
@@ -29,7 +29,7 @@ class SelectGameMasterState extends LitGameState {
   List get acceptedEvents => [SetupGameEvent.selectGameMaster];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is SelectGameMasterEvent) {
       if (event.triggeredBy.isAdmin) {
         event.userToBeMaster.isGameMaster = true;
@@ -54,7 +54,7 @@ class PlayerSortingState extends LitGameState {
       [SetupGameEvent.sortPlayer, SetupGameEvent.resetPlayerOrder];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event.triggeredBy.isAdmin) {
       if (event is SortPlayerEvent) {
         bp.game.playersSorted.add(LinkedUser(event.sortedPlayer));

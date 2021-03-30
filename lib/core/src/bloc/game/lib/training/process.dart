@@ -7,4 +7,10 @@ class TrainingFlowProcess extends GameBaseProcess {
   TrainingFlowProcess(LitGameState initialState, LitGame game,
       {String? tag, GameBaseProcess? parent})
       : super(initialState, game, tag: tag, parent: parent);
+
+  @override
+  LitGameState<GameBaseProcess>? processEvent(LitGameEvent event) {
+    // TODO: implement processEvent
+    throw UnimplementedError();
+  }
 }

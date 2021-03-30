@@ -2,10 +2,12 @@ part of business_process;
 
 typedef SubProcessBuilder = BusinessProcess Function();
 
-class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
+abstract class BusinessProcess<E extends Event, S extends BPState>
+    extends Bloc<E, S> implements EventCatcher<S, E> {
   BusinessProcess(S initialState, {String? tag, BusinessProcess? parent})
       : parent = parent,
         super(initialState) {
+    initialState.init(this);
     tag ??= hashCode.toString();
     this.tag = tag;
   }
@@ -72,7 +74,10 @@ class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
   ///
   /// Reimplement this, if you need a global event handler, not related to
   /// any state.
-  S? processEvent(E event) {
+  @override
+  S? processEvent(E event);
+
+  bool runSubProcessByTag(E event) {
     final tag = event.tag;
     if (tag != null) {
       try {
@@ -80,19 +85,24 @@ class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
         subProcess.add(event);
       } catch (error) {
         print(error);
+        return false;
       }
-    } else {
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  Stream<S> mapEventToState(E event) async* {
+    if (!runSubProcessByTag(event)) {
+      S? nextState;
+      Object? err;
+      if (isEventAcceptable(event.type)) {
+        nextState = processEvent(event);
+      }
       if (state.isEventAcceptable(event.type)) {
-        final nextState = state.onEvent(event, this);
-        if (nextState == null) {
-          final error = state.error;
-          if (error != null) {
-            addError(error);
-          }
-        } else {
-          _lastState = state;
-          return nextState as S;
-        }
+        nextState = state.processEvent(event) as S?;
+        err = state.error;
       } else {
         for (var spEntry in _subProcess.entries) {
           if (spEntry.value.state.isEventAcceptable(event.type)) {
@@ -100,20 +110,16 @@ class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
           }
         }
       }
-    }
-    return null;
-  }
 
-  /// Called after next state successful calculation, but before the state is
-  /// yielded. Does not fire, when next state is null.
-  void onNextState(E event, S nextState) {}
-
-  @override
-  Stream<S> mapEventToState(E event) async* {
-    final nextState = processEvent(event);
-    if (nextState != null) {
-      onNextState(event, nextState);
-      yield nextState;
+      if (nextState != null) {
+        nextState.init(this);
+        _lastState = state;
+        yield nextState;
+      } else {
+        if (err != null) {
+          addError(err);
+        }
+      }
     }
   }
 
@@ -123,4 +129,15 @@ class BusinessProcess<E extends Event, S extends BPState> extends Bloc<E, S> {
     // ignore: invalid_use_of_protected_member
     Bloc.observer.onError(this, error, stackTrace);
   }
+
+  @override
+  List get acceptedEvents => [];
+
+  Object? _error;
+
+  @override
+  Object? get error => _error;
+
+  @override
+  bool isEventAcceptable(eventType) => acceptedEvents.contains(eventType);
 }

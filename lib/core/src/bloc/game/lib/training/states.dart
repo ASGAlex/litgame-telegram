@@ -12,7 +12,7 @@ class TrainingFlowState extends LitGameState {
       ];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is TrainingStartEvent) {
       Future finished;
       if (event.collectionId != null) {

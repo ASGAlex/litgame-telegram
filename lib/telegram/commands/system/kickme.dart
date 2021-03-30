@@ -24,7 +24,7 @@ class KickMeCmd extends JoinMeCmd {
     } else {
       game = LitGame.find(message.chat.id);
     }
-    final me = LitUser(message.from);
+    final me = LitUser(message.from).fromGame(game);
     game.logic.add(KickFromGameEvent(me, me));
   }
 

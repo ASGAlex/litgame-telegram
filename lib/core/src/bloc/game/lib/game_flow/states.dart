@@ -9,7 +9,7 @@ class GameFlowMasterInitStoryState extends LitGameState {
   List get acceptedEvents => [GameEvent.start, GameEvent.nextTurn];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     if (event is GameFlowStartEvent) {
       var finished = bp.game.gameFlowFactory().then((gameFlow) {
         final cGeneric = gameFlow.getCard(CardType.generic);
@@ -35,7 +35,7 @@ class GameFlowPlayerSelectCardState extends LitGameState {
   List get acceptedEvents => [GameEvent.cardSelected];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     event as GameFlowCardSelectedEvent;
     final type = CardType.generic.getTypeByName(event.cardType);
     final card = bp.game.gameFlow.getCard(type);
@@ -52,7 +52,7 @@ class GameFlowStoryTellState extends LitGameState {
   List get acceptedEvents => [GameEvent.nextTurn];
 
   @override
-  LitGameState? onEvent(LitGameEvent event, GameBaseProcess bp) {
+  LitGameState? processEvent(LitGameEvent event) {
     event as GameFlowNextTurnEvent;
     bp.game.gameFlow.nextTurn();
     return GameFlowPlayerSelectCardState();
