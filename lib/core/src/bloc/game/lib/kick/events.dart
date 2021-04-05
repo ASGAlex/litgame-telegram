@@ -1,6 +1,6 @@
 part of 'process.dart';
 
-enum KickEvent { kick }
+enum KickEvent { kick, kickStageFinished }
 
 class KickFromGameEvent extends LitGameEvent {
   KickFromGameEvent(LitUser triggeredBy, this.targetUser, [String? tag])
@@ -10,4 +10,14 @@ class KickFromGameEvent extends LitGameEvent {
 
   @override
   dynamic get type => KickEvent.kick;
+}
+
+class KickStageFinished extends LitGameEvent {
+  KickStageFinished(LitUser triggeredBy, this.stageProcessTag)
+      : super(triggeredBy);
+
+  String stageProcessTag;
+
+  @override
+  KickEvent get type => KickEvent.kickStageFinished;
 }

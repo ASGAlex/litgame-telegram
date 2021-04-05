@@ -33,7 +33,7 @@ abstract class BusinessProcess<E extends Event, S extends BPState>
   BusinessProcess runSubProcess(SubProcessBuilder builder) {
     final subProcess = builder();
     if (_subProcess.containsKey(subProcess.tag)) {
-      throw Exception('Process with tag "$tag" already exists');
+      throw Exception('Process with tag "${subProcess.tag}" already exists');
     }
     _subProcess[subProcess.tag] = subProcess;
     return subProcess;
@@ -77,7 +77,7 @@ abstract class BusinessProcess<E extends Event, S extends BPState>
   @override
   S? processEvent(E event);
 
-  bool runSubProcessByTag(E event) {
+  bool _runSubProcessByTag(E event) {
     final tag = event.tag;
     if (tag != null) {
       try {
@@ -94,7 +94,7 @@ abstract class BusinessProcess<E extends Event, S extends BPState>
 
   @override
   Stream<S> mapEventToState(E event) async* {
-    if (!runSubProcessByTag(event)) {
+    if (!_runSubProcessByTag(event)) {
       S? nextState;
       Object? err;
       if (isEventAcceptable(event.type)) {

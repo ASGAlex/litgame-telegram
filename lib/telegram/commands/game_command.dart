@@ -68,13 +68,15 @@ mixin ReportMultipleGames on GameCmdMix {
 
   void sendPrivateDetailedAlert(LitUser user) {
     final existingGame = LitGame.findGameOfPlayer(user.chatId);
-    telegram.getChat(existingGame?.id).then((chat) {
-      var chatName = chat.title ?? chat.id.toString();
-      telegram.sendMessage(
-          user.chatId,
-          'Чтобы включиться в игру, нужно завершить текущую в чате "' +
-              chatName +
-              '"');
-    });
+    if (existingGame != null) {
+      telegram.getChat(existingGame.id).then((chat) {
+        var chatName = chat.title ?? chat.id.toString();
+        telegram.sendMessage(
+            user.chatId,
+            'Чтобы включиться в игру, нужно завершить текущую в чате "' +
+                chatName +
+                '"');
+      });
+    }
   }
 }

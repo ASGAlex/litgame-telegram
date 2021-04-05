@@ -29,31 +29,3 @@ class KickWhileInvitingState extends LitGameState {
     }
   }
 }
-
-class KickWhilePlayingState extends KickWhileInvitingState {
-  KickWhilePlayingState(
-      [LitUser? lastProcessedUser,
-      bool? lastOperationSuccess,
-      bool noPlayersLeft = false])
-      : super(lastProcessedUser, lastOperationSuccess, noPlayersLeft);
-
-  @override
-  List get acceptedEvents => [KickEvent.kick];
-
-  @override
-  LitGameState? processEvent(LitGameEvent event) {
-    if (event is KickFromGameEvent) {
-      final stateType = bp.parent?.state.runtimeType;
-      if (stateType == TrainingState || stateType == GameFlowState) {
-        // only game master or admin can kick other players!
-        if (event.targetUser != event.triggeredBy &&
-            !event.triggeredBy.isAdmin &&
-            !event.triggeredBy.isGameMaster) return null;
-
-        if (event.targetUser.isAdmin) {
-          // bp.parent.add(event);
-        }
-      }
-    }
-  }
-}

@@ -1,18 +1,12 @@
 import 'package:litgame_telegram/core/core.dart';
-import 'package:litgame_telegram/core/src/bloc/game/src/events.dart';
-import 'package:litgame_telegram/core/src/bloc/game/src/mixin/sub_process_mode_switch.dart';
+import 'package:litgame_telegram/core/src/bloc/game/src/flow_pause_resume.dart';
 
 part 'events.dart';
-part 'states.dart';
+part 'while_game.dart';
+part 'while_setup.dart';
 
 class KickProcess extends GameBaseProcess with SubProcessModeSwitch {
   KickProcess(LitGameState initialState, LitGame game,
       {String? tag, GameBaseProcess? parent})
       : super(initialState, game, tag: tag, parent: parent);
-
-  @override
-  LitGameState<GameBaseProcess>? processEvent(LitGameEvent event) {
-    // TODO: implement processEvent
-    throw UnimplementedError();
-  }
 }

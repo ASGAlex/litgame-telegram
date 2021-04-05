@@ -23,6 +23,15 @@ class SelectGameMasterEvent extends LitGameEvent {
   dynamic get type => SetupGameEvent.selectGameMaster;
 }
 
+class SelectGameAdminEvent extends LitGameEvent {
+  SelectGameAdminEvent(LitUser triggeredBy, this.userToBeAdmin)
+      : super(triggeredBy);
+  final LitUser userToBeAdmin;
+
+  @override
+  dynamic get type => SetupGameEvent.selectGameMaster;
+}
+
 class SortPlayerEvent extends LitGameEvent {
   SortPlayerEvent(LitUser triggeredBy, this.sortedPlayer) : super(triggeredBy);
 

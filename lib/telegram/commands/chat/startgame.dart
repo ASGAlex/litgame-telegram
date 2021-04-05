@@ -21,7 +21,8 @@ class StartGameCmd extends GameCommand with ReportMultipleGames {
     try {
       final game = LitGame.startNew(message.chat.id);
       game.logic.add(GameStartEvent(me));
-    } catch (_) {
+    } catch (error) {
+      print(error);
       sendPublicAlert(message.chat.id, me);
       sendPrivateDetailedAlert(me);
     }

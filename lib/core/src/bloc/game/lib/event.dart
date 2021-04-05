@@ -5,3 +5,11 @@ abstract class LitGameEvent extends Event {
 
   final LitUser triggeredBy;
 }
+
+class ProcessInitEvent extends LitGameEvent {
+  ProcessInitEvent([String? tag]) : super(LitUser.clone(), tag);
+
+  @override
+  int get type => TYPE;
+  static const TYPE = 0;
+}
