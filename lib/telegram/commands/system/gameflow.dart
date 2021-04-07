@@ -31,7 +31,15 @@ class GameFlowCmd extends ComplexGameCommand
   // ignore: must_call_super
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    super.run(message, telegram);
+
+    final game = findGameByArguments();
+    try {
+      if (game.logic.bpGame.state.runtimeType != FlowPausedState) {
+        super.run(message, telegram);
+      }
+    } catch (error) {
+      print(error);
+    }
   }
 
   @deprecated

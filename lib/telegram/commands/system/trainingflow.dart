@@ -34,11 +34,11 @@ class TrainingFlowCmd extends ComplexGameCommand
     try {
       if (game.logic.bpTraining.state.runtimeType != FlowPausedState) {
         deleteScheduledMessages(telegram);
+        super.run(message, telegram);
       }
     } catch (error) {
       print(error);
     }
-    super.run(message, telegram);
   }
 
   @override

@@ -13,6 +13,8 @@ class MainProcess extends GameBaseProcess {
   TrainingFlowProcess get bpTraining =>
       findSubProcess('training') as TrainingFlowProcess;
 
+  GameFlowProcess get bpGame => findSubProcess('game') as GameFlowProcess;
+
   @override
   List get acceptedEvents => [MainProcessEvent.gameFinished];
 
