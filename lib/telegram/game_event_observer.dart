@@ -32,33 +32,33 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
   void onTransition(Bloc bp, Transition transition) {
     bp as GameBaseProcess;
     if (bp is MainProcess) {
-      _mainProcessEvents(bp, transition);
+      _mainProcessTransitions(bp, transition);
     }
 
     if (bp is SetupGameProcess) {
-      _setupGameProcessEvents(bp, transition);
+      _setupGameProcessTransitions(bp, transition);
     }
 
     if (bp is InviteProcess) {
-      _inviteProcessEvents(bp, transition);
+      _inviteProcessTransitions(bp, transition);
     }
 
     if (bp is KickProcess) {
-      _kickProcessEvents(bp, transition);
+      _kickProcessTransitions(bp, transition);
     }
 
     if (bp is TrainingFlowProcess) {
-      _trainingProcessEvents(bp, transition);
+      _trainingProcessTransitions(bp, transition);
     }
 
     if (bp is GameFlowProcess) {
-      _gameProcessEvents(bp, transition);
+      _gameProcessTransitions(bp, transition);
     }
 
     super.onTransition(bp, transition);
   }
 
-  void _mainProcessEvents(MainProcess bp, Transition transition) {
+  void _mainProcessTransitions(MainProcess bp, Transition transition) {
     final tEvent = transition.event as LitGameEvent;
     if (transition.nextState is SetupGameState) {
       StartGameCmd().afterGameStart(bp.game, transition);
@@ -81,7 +81,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     }
   }
 
-  void _inviteProcessEvents(InviteProcess bp, Transition transition) {
+  void _inviteProcessTransitions(InviteProcess bp, Transition transition) {
     final tState = transition.nextState;
     final tEvent = transition.event;
     if (tState is InviteWhileInvitingGameState && tEvent is JoinGameEvent) {
@@ -100,7 +100,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     }
   }
 
-  void _kickProcessEvents(KickProcess bp, Transition transition) {
+  void _kickProcessTransitions(KickProcess bp, Transition transition) {
     final tState = transition.nextState;
     final tEvent = transition.event;
 
@@ -114,11 +114,14 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
         cmd.sendKickMessage(bp.game, user);
       }
     }
+
+    if (tState is KickWhilePlayingState) {}
   }
 
-  void _setupGameProcessEvents(SetupGameProcess bp, Transition transition) {
+  void _setupGameProcessTransitions(
+      SetupGameProcess bp, Transition transition) {
     final tState = transition.nextState;
-    final tEvent = transition.event;
+    final tEvent = transition.event as LitGameEvent;
     if (tState is SelectGameMasterState) {
       SetMasterCmd().showSelectionDialogToAdmin(bp.game);
     }
@@ -133,7 +136,8 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     }
   }
 
-  void _trainingProcessEvents(TrainingFlowProcess bp, Transition transition) {
+  void _trainingProcessTransitions(
+      TrainingFlowProcess bp, Transition transition) {
     final tState = transition.nextState;
     final tEvent = transition.event;
 
@@ -145,7 +149,7 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     }
   }
 
-  void _gameProcessEvents(GameFlowProcess bp, Transition transition) {
+  void _gameProcessTransitions(GameFlowProcess bp, Transition transition) {
     final tState = transition.nextState;
     final tEvent = transition.event;
 
@@ -216,5 +220,16 @@ class GameEventObserver extends BlocObserver with MessageDeleter {
     }
 
     super.onTransition(bloc, transition);
+  }
+
+  @override
+  void onEvent(Bloc bloc, Object? event) {
+    if (event != null) {
+      if (event is AskAdminEvent && bloc is SetupGameProcess) {
+        SelectAdminCmd()
+            .showSelectionDialogToAdmin(bloc.game, event.triggeredBy, false);
+      }
+    }
+    super.onEvent(bloc, event);
   }
 }

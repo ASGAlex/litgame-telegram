@@ -30,26 +30,28 @@ class SelectAdminCmd extends GameCommand {
 //    game.logic.add(SelectAdminEvent(me, admin));
   }
 
-  void showSelectionDialogToAdmin(LitGame game, LitUser lastAdmin) {
-    deleteScheduledMessages(telegram);
+  void showSelectionDialogToAdmin(LitGame game, LitUser lastAdmin,
+      [bool clear = true]) {
+    if (clear) {
+      deleteScheduledMessages(telegram);
+    }
     final keyboard = <List<InlineKeyboardButton>>[];
     game.players.values.forEach((player) {
-      var text = player.nickname + ' (' + player.fullName + ')';
-      if (player.isAdmin) {
-        text += '(admin)';
-      }
-      if (player.isGameMaster) {
-        text += '(master)';
-      }
+      if (!player.isAdmin) {
+        var text = player.nickname + ' (' + player.fullName + ')';
+        if (player.isGameMaster) {
+          text += '(master)';
+        }
 
-      keyboard.add([
-        InlineKeyboardButton(
-            text: text,
-            callback_data: buildCommandCall({
-              'gci': game.id.toString(),
-              'userId': player.telegramUser.id.toString()
-            }))
-      ]);
+        keyboard.add([
+          InlineKeyboardButton(
+              text: text,
+              callback_data: buildCommandCall({
+                'gci': game.id.toString(),
+                'userId': player.telegramUser.id.toString()
+              }))
+        ]);
+      }
     });
 
     telegram

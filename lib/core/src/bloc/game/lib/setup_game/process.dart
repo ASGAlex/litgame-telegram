@@ -8,4 +8,12 @@ class SetupGameProcess extends GameBaseProcess {
   SetupGameProcess(LitGameState initialState, LitGame game,
       {String? tag, GameBaseProcess? parent})
       : super(initialState, game, tag: tag, parent: parent);
+
+  void runAdminKick(LitUser triggeredBy, LitUser toBeKicked) {
+    add(AskAdminEvent(triggeredBy, toBeKicked));
+  }
+
+  void runMasterKick(LitUser triggeredBy, LitUser toBeKicked) {
+    add(AskAdminEvent(triggeredBy, toBeKicked));
+  }
 }

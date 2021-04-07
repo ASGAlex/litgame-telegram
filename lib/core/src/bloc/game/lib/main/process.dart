@@ -10,6 +10,9 @@ class MainProcess extends GameBaseProcess {
 
   KickProcess get bpKick => findSubProcess('kick') as KickProcess;
 
+  TrainingFlowProcess get bpTraining =>
+      findSubProcess('training') as TrainingFlowProcess;
+
   @override
   List get acceptedEvents => [MainProcessEvent.gameFinished];
 

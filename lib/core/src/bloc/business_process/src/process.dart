@@ -105,7 +105,8 @@ abstract class BusinessProcess<E extends Event, S extends BPState>
         err = state.error;
       } else {
         for (var spEntry in _subProcess.entries) {
-          if (spEntry.value.state.isEventAcceptable(event.type)) {
+          if (spEntry.value.isEventAcceptable(event.type) ||
+              spEntry.value.state.isEventAcceptable(event.type)) {
             spEntry.value.add(event);
           }
         }

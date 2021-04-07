@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:args/args.dart';
 import 'package:bloc/bloc.dart';
 import 'package:litgame_telegram/core/core.dart';
+import 'package:litgame_telegram/core/src/bloc/game/src/flow_pause_resume.dart';
 import 'package:meta/meta.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:pedantic/pedantic.dart';

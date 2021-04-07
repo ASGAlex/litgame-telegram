@@ -30,7 +30,14 @@ class TrainingFlowCmd extends ComplexGameCommand
   @override
   void run(Message message, TelegramEx telegram) {
     initTeledart(message, telegram);
-    deleteScheduledMessages(telegram);
+    final game = findGameByArguments();
+    try {
+      if (game.logic.bpTraining.state.runtimeType != FlowPausedState) {
+        deleteScheduledMessages(telegram);
+      }
+    } catch (error) {
+      print(error);
+    }
     super.run(message, telegram);
   }
 

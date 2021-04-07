@@ -4,7 +4,8 @@ enum SetupGameEvent {
   finishJoin,
   selectGameMaster,
   sortPlayer,
-  resetPlayerOrder
+  resetPlayerOrder,
+  askAdmin
 }
 
 class FinishJoinEvent extends LitGameEvent {
@@ -21,6 +22,14 @@ class SelectGameMasterEvent extends LitGameEvent {
 
   @override
   dynamic get type => SetupGameEvent.selectGameMaster;
+}
+
+class AskAdminEvent extends LitGameEvent {
+  AskAdminEvent(LitUser triggeredBy, this.userToBeAdmin) : super(triggeredBy);
+  final LitUser userToBeAdmin;
+
+  @override
+  dynamic get type => SetupGameEvent.askAdmin;
 }
 
 class SelectGameAdminEvent extends LitGameEvent {

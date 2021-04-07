@@ -34,9 +34,10 @@ class KickWhilePlayingState extends KickWhileInvitingState {
           if (bp.parent?.state.runtimeType != FlowPausedState) {
             bp.parent?.add(FlowPauseEvent(event.triggeredBy));
           }
-          bp.runSubProcess(() => SetupGameProcess(
+          final process = bp.runSubProcess(() => SetupGameProcess(
               SelectAdminWhilePlayingState(), bp.game,
-              parent: bp, tag: 'setup-admin-kick'));
+              parent: bp, tag: 'setup-admin-kick')) as SetupGameProcess;
+          process.runAdminKick(event.triggeredBy, event.targetUser);
         }
       }
       return null;
@@ -46,11 +47,13 @@ class KickWhilePlayingState extends KickWhileInvitingState {
       bp.stopSubProcess(event.stageProcessTag);
       if (event.stageProcessTag == 'setup-admin-kick') {
         if (targetUser?.isGameMaster == true) {
-          bp.runSubProcess(() => SetupGameProcess(
+          final process = bp.runSubProcess(() => SetupGameProcess(
               SelectMasterWhilePlayingState(), bp.game,
-              parent: bp, tag: 'setup-master-kick'));
+              parent: bp, tag: 'setup-master-kick')) as SetupGameProcess;
+          process.runMasterKick(event.triggeredBy, targetUser as LitUser);
         } else {
           kick();
+          targetUser = null;
           return null;
         }
       } else if (event.stageProcessTag == 'setup-master-kick') {

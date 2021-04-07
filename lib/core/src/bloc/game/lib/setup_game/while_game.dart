@@ -2,7 +2,8 @@ part of 'process.dart';
 
 class SelectAdminWhilePlayingState extends LitGameState {
   @override
-  List get acceptedEvents => [SetupGameEvent.selectGameMaster];
+  List get acceptedEvents =>
+      [SetupGameEvent.askAdmin, SetupGameEvent.selectGameMaster];
 
   @override
   LitGameState? processEvent(LitGameEvent event) {
